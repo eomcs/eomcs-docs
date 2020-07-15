@@ -1,0 +1,27 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<students 
+  xmlns="http://bitcamp.co.kr/java300/students"
+  xmlns:x="http://bitcamp.co.kr/java300/school">
+  <student>
+    <type>일반</type>
+    <name>홍길동</name>
+    <age>20</age>
+    <tel>1111-1111</tel>
+    <tel>1111-1111</tel>
+    <tel>1111-1111</tel>
+    <x:school>
+      <x:name>한국대학교</x:name>
+      <x:grade>대학교</x:grade>
+    </x:school>
+    <x:school>
+      <x:name>한국고등학교</x:name>
+      <x:grade>고등학교</x:grade>
+    </x:school>
+  </student>
+</students>
+
+
+
+
+

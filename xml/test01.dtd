@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT students (student*,student2*)>
+<!ELEMENT student (type?,name,age,tel*,school+)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT age (#PCDATA)>
+<!ELEMENT tel (#PCDATA)>
+<!ELEMENT school (name,grade)>
+<!ELEMENT grade (#PCDATA)>
+
+<!ELEMENT student2 EMPTY>
+<!ATTLIST student2
+  type (일반|직장인|재학생) "일반"
+  name CDATA #REQUIRED
+  age CDATA #REQUIRED
+  tel CDATA #IMPLIED
+>

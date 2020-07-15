@@ -1,0 +1,46 @@
+﻿1. OpenJDK 설치
+  - JAVA_HOME 환경 변수 설정
+  - PATH 환경 변수에 jdk/bin 폴더 추가 
+2. VisualStudio Code 설치
+3. git client 설치 
+4. Eclipse 설치
+  - 워크스페이스 디렉토리 선택
+  - java11 버전을 지원하는 플러그인을 설치 
+  - general / workspace : text file encoding을 UTF-8로 지정.
+  - general/editor/Text Editors
+    - tab width : 2
+    - tab 대신 space 넣기 선택
+    - print margin: 100
+    - show linenumber : 선택
+    - show whitespace : 선택
+  - java
+    - Installed JREs : jdk11 추가 및 선택
+    - code style / formatter : googlestyle 다운로드 및 적용
+    - Compiler : java11 선택
+  - web
+    - CSS Files : 인코딩을 UTF-8로 변경
+    - HTML Files : 인코딩을 UTF-8로 변경
+    - JSP Files : 인코딩을 UTF-8로 변경
+5. Tomcat 설치 
+  - Eclipse/preferences/Server/Runtime Environments: 톰캣 서버 등록
+6. Scoop 패키지 관리자 설치
+  - 포기!
+7. Gradle 설치
+  - 환경 변수 PATH에 gradle/bin 폴더 추가.
+8. MariaDB 설치
+  - 환경 변수 PATH에 mariadb/bin 폴더 추가.
+9. github.com에 저장소 준비
+  - 회원가입
+  - 저장소 생성
+  - 로컬에 저장소 복제
+  
+
+
+
+
+
+
+
+
+
+
