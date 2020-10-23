@@ -1,6 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/java,linux,macos,windows,gradle,eclipse,java-web,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=java,linux,macos,windows,gradle,eclipse,java-web,visualstudiocode
+# Created by https://www.gitignore.io/api/java,linux,macos,gradle,windows,eclipse,java-web,visualstudiocode
+# Edit at https://www.gitignore.io/?templates=java,linux,macos,gradle,windows,eclipse,java-web,visualstudiocode
 
 ### Eclipse ###
 .metadata
@@ -53,19 +53,22 @@ local.properties
 
 # Annotation Processing
 .apt_generated/
-.apt_generated_test/
 
 # Scala IDE specific (Scala & Java development for Eclipse)
 .cache-main
 .scala_dependencies
 .worksheet
 
-# Uncomment this line if you wish to ignore the project description file.
-# Typically, this file would be tracked if it contains build/dependency configurations:
-#.project
-
 ### Eclipse Patch ###
-# Spring Boot Tooling
+# Eclipse Core
+.project
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+# Annotation Processing
+.apt_generated
+
 .sts4-cache/
 
 ### Java ###
@@ -146,7 +149,6 @@ Temporary Items
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-*.code-workspace
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
@@ -174,7 +176,6 @@ $RECYCLE.BIN/
 *.msix
 *.msm
 *.msp
-*.exe
 
 # Windows shortcuts
 *.lnk
@@ -198,4 +199,4 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
-# End of https://www.toptal.com/developers/gitignore/api/java,linux,macos,windows,gradle,eclipse,java-web,visualstudiocode
+# End of https://www.gitignore.io/api/java,linux,macos,gradle,windows,eclipse,java-web,visualstudiocode
