@@ -59,13 +59,20 @@ insert into test1(name,tel) values
 ```
 create table test2 (
   no int not null primary key auto_increment,
-  name varchar(20) not null,
-  tel varchar(20) not null,
+  fullname varchar(20) not null,
+  phone varchar(20) not null,
   kor int,
   eng int,
   math int
 );
-insert into test2(name,tel)
+
+/*
+  select 결과를 테이블에 바로 입력하기 
+  => select 결과의 컬럼명과 insert 테이블의 컬럼명이 같을 필요는 없다. 
+  => 그러나 결과의 컬럼 개수와 insert 하려는 컬럼 개수가 같아야 한다.
+  => 결과의 컬럼 타입과 insert 하려면 컬럼의 타입이 같거나 입력 할 수 있는 타입이어야 한다.
+*/
+insert into test2(fullname,phone)
   select name, tel from test1 where addr='seoul'; 
 ```
 
