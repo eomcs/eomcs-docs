@@ -20,7 +20,7 @@ insert into test1(name,class,working) values('kkk','java101','N');
 insert into test1(name,class,working) values('lll','java101','Y');
 insert into test1(name,class,working) values('mmm','java101','N');
 insert into test1(name,class,working) values('nnn','java101','Y');
-insert into test1(name,class,working) values('ooo','java101','N'); 
+insert into test1(name,class,working) values('ooo','java101','N');
 ```
 
 ## select
@@ -38,7 +38,7 @@ select no, name, tel from test1;
 select no, concat(name,'(',class,')') from test1;
 ```
 
-### 조회하는 컬럼에 별명 붙이기 
+### 조회하는 컬럼에 별명 붙이기
 - 별명을 붙이지 않으면 원래의 컬럼명이 조회 결과의 컬럼이름으로 사용된다.
 - 위의 예제처럼 복잡한 식으로 표현한 컬럼인 경우 컬럼명도 그 식이 된다.
 - 이런 경우 별명을 붙이면 조회 결과를 보기 쉽다.
@@ -46,17 +46,17 @@ select no, concat(name,'(',class,')') from test1;
 ```
 /* 컬럼에 별명 붙이기*/
 select 컬럼명 [as] 별명 ...
-select 
-    no as num, 
-    concat(name,'(',class,')') as title 
-from test1; 
+select
+    no as num,
+    concat(name,'(',class,')') as title
+from test1;
 
 /* as를 생략해도 된다.*/
-select 
-    no num, 
-    concat(name,'(',class,')') title 
-from test1; 
-``` 
+select
+    no num,
+    concat(name,'(',class,')') title
+from test1;
+```
 
 ### 조회할 때 조건 지정하기
 - where 절과 연산자를 이용하여 조회 조건을 지정할 수 있다.
@@ -64,7 +64,7 @@ from test1;
 
 ```
 select ... from ... where 조건...
-select * 
+select *
 from test1
 where no > 5;
 ```
@@ -89,10 +89,10 @@ from test1
 where working='Y' and class='java100';
 
 /* 주의!
- * where 절을 통해 결과 데이터를 먼저 선택(selection)한 다음 
+ * where 절을 통해 결과 데이터를 먼저 선택(selection)한 다음
  * 결과 데이터에서 가져올 컬럼을 선택(projection)한다.
  * 따라서 실행 순서는:
- * from ==> where ==> select 
+ * from ==> where ==> select
  */
 select no, name
 from test1
@@ -112,7 +112,7 @@ from test1
 where working <> 'Y';
 
 /* 학생 번호가 짝수인 경우 전화 번호를 '1111'로 변경하라*/
-update test1 set 
+update test1 set
     tel = '1111'
 where (no % 2) = 0;
 
@@ -125,7 +125,7 @@ where (no % 3) = 0;
 /* => 다음과 같이 null에 != 연산자를 사용하면 조건이 맞지 않는다.*/
 select *
 from test1
-where tel != null; 
+where tel != null;
 
 /* => null인지 여부를 가릴 때는 is 또는 is not 연산자를 사용하라!*/
 select *
@@ -155,12 +155,12 @@ select (4 + 5), (4 - 5), (4 * 5), (4 / 5), (4 % 5);
 ```
 
 ### 비교연산
-- =, !=, >, >=, <, <=, <> 
+- =, !=, >, >=, <, <=, <>
 ```
 select (4=5), (4!=5), (4>5), (4>=5), (4<5), (4<=5), (4<>5);
 ```
 
-### between 값1 and 값2 
+### between 값1 and 값2
 - 두 값 사이(두 값도 포함)에 있는지 검사한다.
 ```
 select 5 between 3 and 5;
@@ -184,13 +184,13 @@ insert into test1(name,class,working) values('s012', 'iotjava5', '1');
 insert into test1(name,class,working) values('s013', 'iotjava5', '1');
 
 /* class 이름이 java로 시작하는 모든 학생 조회하기
- * => % : 0개 이상의 문자 
+ * => % : 0개 이상의 문자
  */
 select *
 from test1
 where class like 'java%';
 
-/* class 이름에 java를 포함한 모든 학생 조회하기 
+/* class 이름에 java를 포함한 모든 학생 조회하기
    이 경우 조회 속도가 느리다.*/
 select *
 from test1
@@ -240,23 +240,23 @@ insert into test1(title, regdt) values('hhhh', '2017-6-27');
 insert into test1(title, regdt) values('iiii', '2017-9-5');
 insert into test1(title, regdt) values('jjjj', '2017-10-12');
 insert into test1(title, regdt) values('kkkk', '2017-11-22');
-insert into test1(title, regdt) values('llll', '2017-11-24');
+  insert into test1(title, regdt) values('llll', '2017-11-24');
 insert into test1(title, regdt) values('mmmm', '2017-12-31');
 ```
 
 - 날짜 값 비교하기
 ```
 /* 특정 날짜의 게시글 찾기 */
-select * 
+select *
 from test1
 where regdt = '2017-6-17';
 
 /* 특정 기간의 게시글 조회 */
-select * 
+select *
 from test1
 where regdt between '2017-11-1' and '2017-12-31';
 
-select * 
+select *
 from test1
 where regdt >= '2017-11-1' and regdt <= '2017-12-31';
 ```
@@ -288,12 +288,12 @@ select datediff(curdate(), '2018-3-19');
 
 /* 날짜에서 특정 형식으로 값을 추출하기 */
 date_format(날짜, 형식)
-select date_format(now(), '%m/%e/%Y'); /* 09/7/2017 */
-select date_format(now(), '%M/%d/%y'); /* September/07/17 */
-select date_format(now(), '%W %w %a'); /* Thursday 4 Thu */
-select date_format(now(), '%M %b'); /* September Sep */
-select date_format(now(), '%p %h %H %l'); /* PM 01 13 1 */
-select date_format(now(), '%i %s'); /* 05 45 */
+select regdt, date_format(regdt, '%m/%e/%Y') from test1; /* 09/7/2017 */
+select regdt, date_format(regdt, '%M/%d/%y') from test1; /* September/07/17 */
+select regdt, date_format(regdt, '%W %w %a') from test1; /* Thursday 4 Thu */
+select regdt, date_format(regdt, '%M %b') from test1; /* September Sep */
+select regdt, date_format(now(), '%p %h %H %l') from test1; /* PM 01 13 1 */
+select regdt, date_format(now(), '%i %s') from test1; /* 05 45 */
 
 /* 문자열을 날짜 값으로 바꾸기 */
 select str_to_date('11/22/2017', '%m/%d/%Y');
@@ -307,25 +307,6 @@ insert into test1 (title, regdt) values('aaaa', '2017-11-22');
 insert into test1 (title, regdt) values('bbbb', '11/22/2017');
 
 /* 위 형식의 문자열을 날짜 값으로 저장하려면 str_to_date() 함수를 사용해야 한다.*/
-insert into test1 (title, regdt) 
+insert into test1 (title, regdt)
   values('bbbb', str_to_date('11/22/2017', '%m/%d/%Y'));
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

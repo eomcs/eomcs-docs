@@ -94,7 +94,7 @@ insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
 values(3, '윈도우프로그래밍', '2018-5-1', '2018-10-30', 30, 300, 'Y', '노동부', 'ok');
 
 
-/* 강의에 매니저 배정 */
+/* 강의에 매니저 배정 */ 
 update lect set mno=303 where lno=1;
 update lect set mno=304 where lno=3;
 
@@ -111,18 +111,3 @@ insert into lect_appl(lano, lno, mno, rdt) values(5, 2, 100, '2017-12-7');
 insert into lect_appl(lano, lno, mno, rdt) values(6, 3, 101, '2017-10-8');
 insert into lect_appl(lano, lno, mno, rdt) values(7, 3, 102, '2017-11-9');
 insert into lect_appl(lano, lno, mno, rdt) values(8, 3, 104, '2017-11-11');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
