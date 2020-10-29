@@ -95,6 +95,7 @@ select rno, loc, name from room;
 select
     l.lno,
     l.titl,
+    l.rno,
     r.rno,
     r.loc,
     r.name
@@ -238,11 +239,11 @@ from lect_appl la
 select
   la.lano,
   l.titl,
-  m.name,
+  m.name snm,
   s.work,
   la.rdt,
-  r.name,
-  m2.name,
+  r.name rnm,
+  m2.name mnm,
   mr.posi
 from lect_appl la
         join memb m on la.mno=m.mno
