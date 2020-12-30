@@ -112,13 +112,8 @@ $ service mariadb start
 
 ## MySQL 데이터베이스 생성
 mariadb에서는 default 키워드를 사용하지 않는다.
-> CREATE DATABASE 데이터베이스명
-  CHARACTER SET utf8
-  COLLATE utf8_general_ci;
-
-> CREATE DATABASE studydb
-  CHARACTER SET utf8
-  COLLATE utf8_general_ci;
+> CREATE DATABASE 데이터베이스명 CHARACTER SET utf8 COLLATE utf8_general_ci;
+> CREATE DATABASE studydb CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 ## MySQL 데이터베이스 삭제
 
