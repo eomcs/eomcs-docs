@@ -119,15 +119,17 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
   c1 int,
   c2 float,
   c3 numeric(6,2), /* 소수점 자릿수를 지정하면 부동소수점으로 사용 */
-  c4 numeric /* decimal 과 같다 */
+  c4 numeric -- decimal 과 같다
   );
 
 > insert into test1(c1) values(100);
 > insert into test1(c1) values(3.14); /* 소수점 이하 반올림하고 짜름 */
 > insert into test1(c1) values(100.98); /* 소수점 이하 반올림하고 짜름 */
+
 > insert into test1(c2) values(100);
 > insert into test1(c2) values(3.14);
 > insert into test1(c2) values(3.14159);
+
 > insert into test1(c3) values(100);
 > insert into test1(c3) values(123456789); /* 입력 오류. 5자리 초과 */
 > insert into test1(c3) values(12345); /* 입력 오류. 1자리 초과 */
@@ -135,6 +137,7 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 > insert into test1(c3) values(3.14);
 > insert into test1(c3) values(3.14159); /* 2자리를 초과한 값은 반올림. */
 > insert into test1(c3) values(3.14551); /* 2자리를 초과한 값은 반올림. */
+
 > insert into test1(c4) values(1234567890);
 > insert into test1(c4) values(12.34567890); /* 소수점은 반올림 처리됨 */
 > insert into test1(c4) values(12345678.90); /* 소수점은 반올림 처리됨 */
@@ -169,6 +172,7 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 > insert into test1(c1) values('가나다라마'); /* 한글 영어 상관없이 5자 */
 > insert into test1(c1) values('abcdefghi'); /* 입력 크기 초과 오류! */
 > insert into test1(c1) values('가나다라마바'); /* 입력 크기 초과 오류! */
+
 > insert into test1(c2) values('');
 > insert into test1(c2) values('abcde');
 > insert into test1(c2) values('abcdefghi'); /* 입력 크기 초과 오류! */
@@ -176,6 +180,7 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 고정 크기와 가변 크기 비교:
 > insert into test1(c1) values('abc');
 > insert into test1(c2) values('abc');
+
 > select * from test1 where c1='abc';
 DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 검사하는 경우도 있다.
 즉 c1='abc'에서는 데이터를 찾지 못하고, c1='abc  '여야만 데이터를 찾는 경우가 있다.
@@ -228,6 +233,7 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
 > insert into test1(c1) values('F'); /* false */
 > insert into test1(c1) values('1'); /* true */
 > insert into test1(c1) values('0'); /* false */
+
 > insert into test1(c2) values(1); /* true */
 > insert into test1(c2) values(0); /* false */
 
@@ -428,6 +434,19 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
    때문에 중복저장될 수 없다.*/
 > insert into test1(no,name,age,kor,eng,math) values(5,'c',20,81,81,81);
 
+/* 또는 다음과 같이 테이블 정의 다음에 제약 조건을 둘 수 있다. */
+> create table test1(
+  no int,
+  name varchar(20),
+  age int,
+  kor int,
+  eng int,
+  math int
+  );
+
+> alter table test1
+    add constraint test1_pk primary key(no),
+    add constraint test1_uk unique (name, age);
 
 
 ##### index
