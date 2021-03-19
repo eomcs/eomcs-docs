@@ -13,7 +13,6 @@ create table test1(
   no int primary key auto_increment,
   title varchar(255) not null,
   content text,
-  view_count int default 0,
   rdt datetime default now(),
   filepath1 varchar(255),
   filepath2 varchar(255),
@@ -38,29 +37,6 @@ create table test1(
 
 
 ## 게시글과 첨부파일의 정보를 여러 개의 테이블에 분산 저장하기
-
-```
-/* 게시글을 저장할 테이블 */
-create table test1(
-  no int primary key auto_increment,
-  title varchar(255) not null,
-  content text,
-  view_count int default 0,
-  rdt datetime default now(),
-  filepath1 varchar(255),
-  filepath2 varchar(255),
-  filepath3 varchar(255),
-  filepath4 varchar(255),
-  filepath5 varchar(255)
-);
-
-/* 첨부 파일을 저장할 테이블 */
-create table test1(
-  filepath1 varchar(255) not null,
-  bno int not null /* 게시글 테이블의 이 첨부 파일이 속한 게시글 번호 */
-);
-```
-
 
 ```
 /* 게시판 테이블 */
