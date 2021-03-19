@@ -88,8 +88,9 @@ update test1 set fax='333';
 ```
 
 ## autocommit
-mysql은 autocommit의 기본 값이 true이다. 따라서 명령창에서 SQL을 실행하면 바로 실제 테이블에 
-적용된다. 수동으로 처리하고 싶다면 autocommit을 false로 설정하라!
+mysql은 autocommit의 기본 값이 true이다. 
+따라서 명령창에서 SQL을 실행하면 바로 실제 테이블에 적용된다. 
+수동으로 처리하고 싶다면 autocommit을 false로 설정하라!
 ```
 > set autocommit=false;
 ```

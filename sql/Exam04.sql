@@ -1,6 +1,67 @@
 # FK(Foreign Key)
 - 다른 테이블의 PK를 참조하는 컬럼이다.
 
+첨부파일 정보가 포함된 게시글을 저장하는 테이블을 정의해 보자.
+
+## 한 개의 테이블로 게시글과 첨부파일을 저장하기
+
+최대 5개의 첨부파일 경로를 저장할 컬럼을 만든다.
+
+```
+/* 게시글을 저장할 테이블 */
+create table test1(
+  no int primary key auto_increment,
+  title varchar(255) not null,
+  content text,
+  view_count int default 0,
+  rdt datetime default now(),
+  filepath1 varchar(255),
+  filepath2 varchar(255),
+  filepath3 varchar(255),
+  filepath4 varchar(255),
+  filepath5 varchar(255)
+);
+```
+
+고민해볼 사항!
+- 첨부 파일의 개수를 5 개로 정해 놓았다.
+- 따라서 최대 5개의 첨부 파일만 테이블에 저장할 수 있다.
+- 첨부파일이 없더라도 5개의 컬럼은 메모리를 차지한다.
+
+실무에서 원하는 것!
+- 첨부 파일의 개수에 제한을 받고 싶지 않다.
+- 첨부 파일 개수만큼만 값을 저장하고 싶다.
+
+이렇게 같은 데이터를 저장할 컬럼이 중복된 경우에는,
+- 중복 컬럼을 별도의 테이블로 분리한다.
+- 중복 컬럼의 값이 어느 테이블의 어느 데이터의 값인지 지정한다.
+
+
+## 게시글과 첨부파일의 정보를 여러 개의 테이블에 분산 저장하기
+
+```
+/* 게시글을 저장할 테이블 */
+create table test1(
+  no int primary key auto_increment,
+  title varchar(255) not null,
+  content text,
+  view_count int default 0,
+  rdt datetime default now(),
+  filepath1 varchar(255),
+  filepath2 varchar(255),
+  filepath3 varchar(255),
+  filepath4 varchar(255),
+  filepath5 varchar(255)
+);
+
+/* 첨부 파일을 저장할 테이블 */
+create table test1(
+  filepath1 varchar(255) not null,
+  bno int not null /* 게시글 테이블의 이 첨부 파일이 속한 게시글 번호 */
+);
+```
+
+
 ```
 /* 게시판 테이블 */
 create table test1(

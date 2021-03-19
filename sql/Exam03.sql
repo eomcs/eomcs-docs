@@ -292,8 +292,8 @@ select regdt, date_format(regdt, '%m/%e/%Y') from test1; /* 09/7/2017 */
 select regdt, date_format(regdt, '%M/%d/%y') from test1; /* September/07/17 */
 select regdt, date_format(regdt, '%W %w %a') from test1; /* Thursday 4 Thu */
 select regdt, date_format(regdt, '%M %b') from test1; /* September Sep */
-select regdt, date_format(now(), '%p %h %H %l') from test1; /* PM 01 13 1 */
-select regdt, date_format(now(), '%i %s') from test1; /* 05 45 */
+select now(), date_format(now(), '%p %h %H %l'); /* PM 01 13 1 */
+select now(), date_format(now(), '%i %s'); /* 05 45 */
 
 /* 문자열을 날짜 값으로 바꾸기 */
 select str_to_date('11/22/2017', '%m/%d/%Y');
@@ -305,6 +305,9 @@ insert into test1 (title, regdt) values('aaaa', '2017-11-22');
 
 /* 다음 형식의 문자열을 날짜 값으로 지정할 수 없다.*/
 insert into test1 (title, regdt) values('bbbb', '11/22/2017');
+
+/* 특정 형식으로 입력된 날짜를 date 타입의 컬럼 값으로 변환하면 입력할 수 있다.*/ 
+insert into test1 (title, regdt) values('bbbb', str_to_date('11/22/2017', '%m/%d/%Y'));
 
 /* 위 형식의 문자열을 날짜 값으로 저장하려면 str_to_date() 함수를 사용해야 한다.*/
 insert into test1 (title, regdt)
