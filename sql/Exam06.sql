@@ -1,4 +1,4 @@
-# select 테스트 용 데이터 준비
+-- # select 테스트 용 데이터 준비
 
 /* 강의실 데이터 준비 */
 insert into room(rno, loc, name, qnty) values(1, '강남', '501', 30);
@@ -37,15 +37,15 @@ values(104, 'N', '1004', '국민은행');
 
 /* 강사 데이터 입력 */
 insert into memb(mno, name, tel, email, pwd)
-values(200, 's200', '111-1111', 's200@', sha2('1111', 224));
+values(200, 't200', '111-1111', 't200@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
-values(201, 's201', '111-1111', 's201@', sha2('1111', 224));
+values(201, 't201', '111-1111', 't201@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
-values(202, 's202', '111-1111', 's202@', sha2('1111', 224));
+values(202, 't202', '111-1111', 't202@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
-values(203, 's203', '111-1111', 's203@', sha2('1111', 224));
+values(203, 't203', '111-1111', 't203@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
-values(204, 's204', '111-1111', 's204@', sha2('1111', 224));
+values(204, 't204', '111-1111', 't204@', sha2('1111', 224));
 
 insert into tcher(mno, hr_pay, acc_no, bank)
 values(200, 10000, '2000', '신한은행');
