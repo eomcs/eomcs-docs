@@ -1,4 +1,4 @@
-# select 테스트 용 테이블 준비
+-- # select 테스트 용 테이블 준비
 
 -- 수강생
 DROP TABLE IF EXISTS stnt RESTRICT;
