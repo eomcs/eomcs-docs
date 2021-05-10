@@ -160,7 +160,7 @@ $ git config --help
 ```
 예1) 주석을 표시하는 방법
 #이것은 주석입니다. 또는 빈 줄.
-
+ 
 예2) bin/ 디렉토리를 통째로 무시하기
 bin/
 
@@ -216,12 +216,12 @@ $ git clone https://github.com/eomjinyoung/myProject myProject2
 - Staging Area에 기록된 파일은 *Staged* 상태가 된다.
 
 ```
-예1) 현재 폴더에서 확장자가 c인 파일을 Staging Area에 기록하기
+예1) 현재 폴더 및 하위 폴더에서 확장자가 c인 파일을 Staging Area에 기록하기
 $ git add *.c
 ```
 
 ```
-예2) 현재 폴더에서 LICENSE 이름을 가진 파일을 Staging Area에 기록하기
+예2) 현재 폴더 및 하위 폴더에서 LICENSE 이름을 가진 파일을 Staging Area에 기록하기
 $ git add LICENSE
 ```
 
@@ -654,14 +654,18 @@ $ git pull
 ```
 예1) 로컬 저장소의 master 브랜치를 원격 저장소에 업로드 하기
 $ git push --set-upstream origin master:master
+$ git push -u origin master:master
 
 예2) 로컬 저장소의 내용을 한 번 원격 저장소에 업로드 했다면 
      --set-upstream 옵션을 생략할 수 있다.
 $ git push origin master:master
 
-예2) 원격 브랜치 이름을 생략할 수 있다.
+예3) 원격 브랜치 이름을 생략할 수 있다.
      원력 브랜치 이름을 생략하면 로컬 브랜치 이름으로 업로드 된다.
 $ git push origin master
+
+예) 원격 서버를 지정하지 않으면 최근에 push 한 서버로 업로드 한다.
+$ git push
 ```
 
 
