@@ -91,6 +91,8 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 
 값을 입력하지 않는 컬럼은 이름과 값 지정을 생략한다.
 > insert into test1(name, age) values('aaa', 30); /* 오류! no는 not null*/
+
+컬럼에 default 값이 설정된 경우, 컬럼 값의 입력을 생략하면 기본값이 사용된다.
 > insert into test1(no, age) values(3, 30);
 > insert into test1(no, name) values(4, 'ddd');
 > insert into test1(no) values(5);
@@ -104,7 +106,7 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 
 #### int
 - 4바이트 크기의 정수 값 저장
-- 기타 tinyint(1), smallint(2), mediumint(3), bigint(8)
+- 기타 tinyint(1바이트), smallint(2바이트), mediumint(3바이트), bigint(8바이트)
 
 #### float
 - 부동소수점 저장
@@ -112,6 +114,7 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 #### numeric = decimal
 - 전체 자릿수와 소수점 이하의 자릿수를 정밀하게 지정할 수 있다.
 - numeric(n,e) : 전체 n 자릿수 중에서 소수점은 e 자릿수다.
+  - 예) numeric(10,2) : 12345678.12
 - numeric : numeric(10, 0) 과 같다.
 
 입력 테스트:
@@ -350,6 +353,8 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
   각 컬럼에 대해서 개별적으로 PK를 지정해서는 안된다.
 - 여러 개의 컬럼을 묶어서 PK로 지정하려면 별도의 문법을 사용해야 한다.
   - constraint 제약조건이름 primary key (컬럼명, 컬럼명, ...)
+  - 제약조건이름은 생략 가능.
+  - 제약조건이름을 지정하지 않으면 나중에 제약조건을 찾기 힘들다.
 
 > create table test1(
   name varchar(20),
@@ -460,7 +465,6 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
   입력/변경/삭제 속도가 느려지는 문제가 있다.
 - 대신 조회 속도는 빠르다.
 
-```
 create table test1(
   no int primary key,
   name varchar(20),
@@ -477,24 +481,23 @@ insert into test1(no,name,age,kor,eng,math) values(2,'bbb',21,90,80,80);
 insert into test1(no,name,age,kor,eng,math) values(3,'ccc',20,80,80,80);
 insert into test1(no,name,age,kor,eng,math) values(4,'ddd',22,90,80,80);
 insert into test1(no,name,age,kor,eng,math) values(5,'eee',20,80,80,80);
-```
+
 - name 컬럼은 인덱스 컬럼으로 지정되었기 때문에
-  DBMS는 데이터가 추가되거나 삭제되거나 name 컬럼 값이 변경될 때마다
-  색인표를 갱신한다.
+  DBMS는 데이터를 추가하거나 삭제할 때 name 컬럼의 색인표를 갱신한다.
 - 단점, 이런 이유로 이름으로 검색할 때 찾기 속도는 빠르지만,
   입력,변경,삭제 속도는 느리게 된다.
 
 #### 인덱스 컬럼의 활용
 검색할 때 사용한다.
-```
+
 select * from test1 where name = 'bbb';
-```
+
 
 ### 테이블 변경
 기존에 있는 테이블을 변경할 수 있다.
 
 - 테이블 생성
-```
+
 create table test1 (
   name varchar(3),
   kor int,
@@ -504,31 +507,30 @@ create table test1 (
   aver int
 );
 
-```
 
 - 테이블에 컬럼 추가
-```
+
 alter table test1
   add column no int;
 
-alter table test1
+alter table test1 
   add column age int;
 
 alter table test1
   add column no2 int,
   add column age2 int;
-```
+
 
 - PK 컬럼 지정, UNIQUE 컬럼 지정, INDEX 컬럼 지정
-```
+
 alter table test1
   add constraint test1_pk primary key (no),
   add constraint test1_uk unique (name, age),
   add fulltext index test1_name_idx (name);
-```
+
 
 - 컬럼에 옵션 추가
-```
+
 alter table test1
   modify column name varchar(20) not null,
   modify column age int not null,
@@ -537,10 +539,10 @@ alter table test1
   modify column math int not null,
   modify column sum int not null,
   modify column aver float not null;
-```
+
 
 - 입력 테스트
-```
+
 insert into test1(no,name,age,kor,eng,math,sum,aver)
   values(1,'aaa',20,100,100,100,300,100);
 
@@ -550,7 +552,7 @@ insert into test1(no,name,age,kor,eng,math,sum,aver)
 /* 다음은 name과 age의 값이 중복되기 때문에 입력 거절된다.*/
 insert into test1(no,name,age,kor,eng,math,sum,aver)
   values(3,'bbb',21,100,100,100,300,100);
-```
+
 
 ### 컬럼 값 자동 증가
 - 숫자 타입의 PK 컬럼인 경우 값을 1씩 자동 증가시킬 수 있다.
@@ -559,16 +561,16 @@ insert into test1(no,name,age,kor,eng,math,sum,aver)
   즉 증가된 번호는 계속 앞으로 증가할 뿐이다.
 
 - 테이블 생성
-```
+
 create table test1(
   no int not null,
   name varchar(20) not null
 );
-```
+
 
 - 특정 컬럼의 값을 자동으로 증가하게 선언한다.
 - 단 반드시 key(primary key 나 unique)여야 한다.
-```
+
 alter table test1
   modify column no int not null auto_increment; /* 아직 no가 pk가 아니기 때문에 오류*/
 
@@ -580,10 +582,10 @@ alter table test1
 
 alter table test1
   modify column no int not null auto_increment; /* 그런 후 auto_increment를 지정한다.*/
-```
+
 
 - 입력 테스트
-```
+
 /* auto-increment 컬럼의 값을 직접 지정할 수 있다.*/
 insert into test1(no, name) values(1, 'xxx');
 
@@ -611,13 +613,12 @@ insert into test1(name) values('123456789012345678901234');
  */
 insert into test1(name) values('fff'); /* no=? */
 
-```
 
 ## 뷰(view)
 - 조회 결과를 테이블처럼 사용하는 문법
 - select 문장이 복잡할 때 뷰로 정의해 놓고 사용하면 편리하다.
 
-```
+
 create table test1 (
   no int primary key auto_increment,
   name varchar(20) not null,
@@ -636,18 +637,18 @@ insert into test1(name,class,working) values('lll','java101','Y');
 insert into test1(name,class,working) values('mmm','java101','N');
 insert into test1(name,class,working) values('nnn','java101','Y');
 insert into test1(name,class,working) values('ooo','java101','N');
-```
+
 
 - 직장인만 조회
-```
+
 select no, name, class from test1 where working = 'Y';
-```
+
 
 - 직장인만 조회한 결과를 가상 테이블로 만들기
-```
+
 create view worker
   as select no, name, class from test1 where working = 'Y';
-```
+
 
 - view가 참조하는 테이블에 데이터를 입력한 후 view를 조회하면?
   => 새로 추가된 컬럼이 함께 조회된다.
@@ -655,39 +656,38 @@ create view worker
   => 미리 결과를 만들어 놓는 것이 아니다.
 - 일종의 조회 함수 역할을 한다.
 - 목적은 복잡한 조회를 가상의 테이블로 표현할 수 있어 SQL문이 간결해진다.
-```
+
 insert into test1(name,class,working) values('ppp','java101','Y');
 select * from worker;
-```
+
 
 ### 뷰 삭제
-```
+
 drop view worker;
-```
+
 
 
 ## 제약 조건 조회
 
 1) 테이블의 제약 조건 조회
-```
+
 select table_name, constraint_name, constraint_type 
 from table_constraints;
-```
+
 
 2) 테이블의 키 컬럼 정보 조회
-```
+
 select table_name, column_name, constraint_name 
 from key_column_usage;
-```
+
 
 3) 테이블과 컬럼의 키 제약 조건 조회
-```
+
 select
   t2.table_name,
   t2.column_name,
   t2.constraint_name,
   t1.constraint_type
 from table_constraints t1 
-  inner join key_column_usage t2 on t2.constraint_name=t1.constraint_name
+  inner join key_column_usage t2 on t2.constraint_name=t1.constraint_name;
 
-```

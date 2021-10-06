@@ -147,15 +147,15 @@ mariadb에서는 default 키워드를 사용하지 않는다.
 user1이 사용할 데이터베이스 생성: user1db
 
 사용자 생성 : user2
-user1이 사용할 데이터베이스 생성: user2db
+user2가 사용할 데이터베이스 생성: user2db
 
 사용자 생성 : user3
-user1이 사용할 데이터베이스 생성: user3db
+user3이 사용할 데이터베이스 생성: user3db
 
 사용자 생성 : user4
-user1이 사용할 데이터베이스 생성: user4db
+user4가 사용할 데이터베이스 생성: user4db
 
 사용자 생성 : user5
-user1이 사용할 데이터베이스 생성: user5db
+user5가 사용할 데이터베이스 생성: user5db
 ``` 
 
