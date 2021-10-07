@@ -4,7 +4,7 @@
 select rno, loc, name
 from room;
 
-/* 이름의 오름 차순으로 정렬하기 */
+/* 이름의 오름 차순(ascending)으로 정렬하기 */
 select rno, loc, name 
 from room
 order by name asc;
@@ -14,7 +14,7 @@ select rno, loc, name
 from room
 order by name;
 
-/* 이름의 내림 차순으로 정렬하기 */
+/* 이름의 내림 차순(desceding)으로 정렬하기 */
 select rno, loc, name
 from room
 order by name desc;
