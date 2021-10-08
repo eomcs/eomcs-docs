@@ -1,7 +1,7 @@
 /* 조인
 => 서로 관련된 테이블의 데이터를 연결하여 추출하는 방법
 => 기법
-1) CROSS 조인
+1) CROSS 조인(=Cartesian product)
 2) NATURAL 조인
 3) JOIN ~ ON
 4) OUTER JOIN
@@ -17,11 +17,11 @@ from memb cross join stnt;
 
 /* => select  컬럼이 두 테이블 모두 있을 경우,
          컬럼명 앞에 테이블명을 명시하여 구분하라!*/
-select memb.mno, name, stnt.mno, work, bank
+select memb.mno member_no, name, stnt.mno student_no, work, bank
 from memb cross join stnt;
 
 /* 예전 문법 */
-select memb.mno, name, stnt.mno, work, bank
+select memb.mno member_no, name, stnt.mno student_no, work, bank
 from memb, stnt;
 
 
@@ -29,11 +29,11 @@ from memb, stnt;
          테이블에 별명을 부여하고
          그 별명을 사용하여 컬럼을 지정하라. */
 select m.mno, name, s.mno, work, bank
-from memb m cross join stnt s;
+from memb as m cross join stnt s;
 
 /* 예전 문법 */
 select m.mno, name, s.mno, work, bank
-from memb m, stnt s;
+from memb m, stnt as s;
 
 
 /* natural join: 같은 이름을 가진 컬럼 값을 기준으로 레코드를 연결한다. */
