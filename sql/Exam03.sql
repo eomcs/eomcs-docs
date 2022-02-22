@@ -229,19 +229,19 @@ alter table test1
   add constraint primary key (no),
   modify column no int not null auto_increment;
 
-insert into test1(title, regdt) values('aaaa', '2017-01-27');
-insert into test1(title, regdt) values('bbbb', '2017-2-2');
-insert into test1(title, regdt) values('cccc', '2017-2-13');
-insert into test1(title, regdt) values('dddd', '2017-3-2');
-insert into test1(title, regdt) values('eeee', '2017-4-15');
-insert into test1(title, regdt) values('ffff', '2017-6-7');
-insert into test1(title, regdt) values('gggg', '2017-6-17');
-insert into test1(title, regdt) values('hhhh', '2017-6-27');
-insert into test1(title, regdt) values('iiii', '2017-9-5');
-insert into test1(title, regdt) values('jjjj', '2017-10-12');
-insert into test1(title, regdt) values('kkkk', '2017-11-22');
-  insert into test1(title, regdt) values('llll', '2017-11-24');
-insert into test1(title, regdt) values('mmmm', '2017-12-31');
+insert into test1(title, regdt) values('aaaa', '2022-01-27');
+insert into test1(title, regdt) values('bbbb', '2022-2-2');
+insert into test1(title, regdt) values('cccc', '2022-2-13');
+insert into test1(title, regdt) values('dddd', '2022-3-2');
+insert into test1(title, regdt) values('eeee', '2022-4-15');
+insert into test1(title, regdt) values('ffff', '2022-6-7');
+insert into test1(title, regdt) values('gggg', '2022-6-17');
+insert into test1(title, regdt) values('hhhh', '2022-6-27');
+insert into test1(title, regdt) values('iiii', '2022-9-5');
+insert into test1(title, regdt) values('jjjj', '2022-10-12');
+insert into test1(title, regdt) values('kkkk', '2022-11-22');
+insert into test1(title, regdt) values('llll', '2022-11-24');
+insert into test1(title, regdt) values('mmmm', '2022-12-31');
 
 
 - 날짜 값 비교하기
@@ -249,16 +249,16 @@ insert into test1(title, regdt) values('mmmm', '2017-12-31');
 /* 특정 날짜의 게시글 찾기 */
 select *
 from test1
-where regdt = '2017-6-17';
+where regdt = '2022-6-17';
 
 /* 특정 기간의 게시글 조회 */
 select *
 from test1
-where regdt between '2017-11-1' and '2017-12-31';
+where regdt between '2022-11-1' and '2022-12-31';
 
 select *
 from test1
-where regdt >= '2017-11-1' and regdt <= '2017-12-31';
+where regdt >= '2022-11-1' and regdt <= '2022-12-31';
 
 
 - 날짜를 다루는 연산자와 함수
@@ -284,11 +284,11 @@ select date_sub(now(), interval 11 day);
 
 /* 두 날짜 사이의 간격을 알아내기 */
 datediff(날짜1, 날짜2);
-select datediff(curdate(), '2018-3-19');
+select datediff(curdate(), '2022-5-2');
 
 /* 날짜에서 특정 형식으로 값을 추출하기 */
 date_format(날짜, 형식)
-select regdt, date_format(regdt, '%m/%e/%Y') from test1; /* 09/7/2017 */
+select regdt, date_format(regdt, '%m/%e/%Y') from test1; /* 09/7/2022 */
 select regdt, date_format(regdt, '%M/%d/%y') from test1; /* September/07/17 */
 select regdt, date_format(regdt, '%W %w %a') from test1; /* Thursday 4 Thu */
 select regdt, date_format(regdt, '%M %b') from test1; /* September Sep */
@@ -296,20 +296,15 @@ select now(), date_format(now(), '%p %h %H %l'); /* PM 01 13 1 */
 select now(), date_format(now(), '%i %s'); /* 05 45 */
 
 /* 문자열을 날짜 값으로 바꾸기 */
-select str_to_date('11/22/2017', '%m/%d/%Y');
-select str_to_date('2017.2.12', '%Y.%m.%d');
+select str_to_date('11/22/2022', '%m/%d/%Y');
+select str_to_date('2022.2.12', '%Y.%m.%d');
 
 
 /* 날짜 값을 저장할 때 기본 형식은 yyyy-MM-dd이다. */
-insert into test1 (title, regdt) values('aaaa', '2017-11-22');
+insert into test1 (title, regdt) values('aaaa', '2022-11-22');
 
 /* 다음 형식의 문자열을 날짜 값으로 지정할 수 없다.*/
-insert into test1 (title, regdt) values('bbbb', '11/22/2017');
+insert into test1 (title, regdt) values('bbbb', '11/22/2022');
 
-/* 특정 형식으로 입력된 날짜를 date 타입의 컬럼 값으로 변환하면 입력할 수 있다.*/ 
-insert into test1 (title, regdt) values('bbbb', str_to_date('11/22/2017', '%m/%d/%Y'));
-
-/* 위 형식의 문자열을 날짜 값으로 저장하려면 str_to_date() 함수를 사용해야 한다.*/
-insert into test1 (title, regdt)
-  values('bbbb', str_to_date('11/22/2017', '%m/%d/%Y'));
-
+/* 특정 형식으로 입력된 날짜를 date 타입의 컬럼 값으로 변환하면 입력할 수 있다.*/
+insert into test1 (title, regdt) values('bbbb', str_to_date('11/22/2022', '%m/%d/%Y'));
