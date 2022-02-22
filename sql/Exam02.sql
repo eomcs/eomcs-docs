@@ -22,26 +22,26 @@ alter table test1
 /* 자동 증가 컬럼 지정 */
 alter table test1
   modify column no int not null auto_increment;
-  
+
 
 
 - 전체 컬럼 값 입력하기
 
-/* 컬럼을 지정하지 않으면 
- * 테이블을 생성할 때 선언한 컬럼 순서대로 
+/* 컬럼을 지정하지 않으면
+ * 테이블을 생성할 때 선언한 컬럼 순서대로
  * 값을 지정해야 한다.*/
 insert into 테이블명 values(값,....);
 insert into test1 values(null,'aaa','111','222','10101','seoul');
 
 /* 컬럼을 명시할 수 있다. 이때 값을 입력하는 컬럼의 순서를 바꿀 수 있다. */
 insert into 테이블명(컬럼,컬럼,...) values(값,값,...);
-insert into test1(name,fax,tel,no,pstno,addr) 
+insert into test1(name,fax,tel,no,pstno,addr)
     values('bbb','222','111',null,'10101','seoul');
 
 
 - 값을 입력할 컬럼을 선택하기. 단 필수 입력 컬럼은 반드시 선택해야 한다.
 
-/* no 컬럼은 필수 입력 컬럼이지만, 
+/* no 컬럼은 필수 입력 컬럼이지만,
   자동 증가 컬럼이기 때문에 값을 입력하지 않아도 된다.*/
 insert into test1(name,tel) values('ccc','333');
 
@@ -58,7 +58,7 @@ insert into test1(name,tel) values
 ### select 결과를 테이블에 insert하기
 
 create table test2 (
-  no int not null primary key auto_increment,
+  no int primary key auto_increment,
   fullname varchar(20) not null,
   phone varchar(20) not null,
   kor int,
@@ -67,16 +67,16 @@ create table test2 (
 );
 
 /*
-  select 결과를 테이블에 바로 입력하기 
-  => select 결과의 컬럼명과 insert 테이블의 컬럼명이 같을 필요는 없다. 
+  select 결과를 테이블에 바로 입력하기
+  => select 결과의 컬럼명과 insert 테이블의 컬럼명이 같을 필요는 없다.
   => 그러나 결과의 컬럼 개수와 insert 하려는 컬럼 개수가 같아야 한다.
-  => 결과의 컬럼 타입과 insert 하려면 컬럼의 타입이 같거나 입력 할 수 있는 타입이어야 한다.
+  => 결과의 컬럼 타입과 insert 하려는 컬럼의 타입이 같거나 입력 할 수 있는 타입이어야 한다.
 */
 insert into test2(fullname,phone)
-  select name, tel from test1 where addr='seoul'; 
+  select name, tel from test1 where addr='seoul';
 
 
-## update 
+## update
 - 등록된 데이터를 변경할 때 사용하는 명령이다.
 
 update 테이블명 set 컬럼명=값, 컬럼명=값, ... where 조건...;
@@ -97,8 +97,8 @@ delete from test1;
 
 
 ## autocommit
-mysql은 autocommit의 기본 값이 true이다. 
-따라서 명령창에서 SQL을 실행하면 바로 실제 테이블에 적용된다. 
+mysql은 autocommit의 기본 값이 true이다.
+따라서 명령창에서 SQL을 실행하면 바로 실제 테이블에 적용된다.
 수동으로 처리하고 싶다면 autocommit을 false로 설정하라!
 
 > set autocommit=false;
@@ -141,24 +141,3 @@ update test1 set fax='1212' where name='xxx';
 delete from test1 where no=1;
 
 rollback; /* 막지막 commit 이후에 수행한 insert, update, delete은 최소된다.*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
