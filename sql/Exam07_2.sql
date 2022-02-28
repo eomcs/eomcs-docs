@@ -1,11 +1,11 @@
 /* order by */
- 
+
 /* 기본 인덱스 컬럼을 기준으로 정렬한다.*/
 select rno, loc, name
 from room;
 
 /* 이름의 오름 차순(ascending)으로 정렬하기 */
-select rno, loc, name 
+select rno, loc, name
 from room
 order by name asc;
 
