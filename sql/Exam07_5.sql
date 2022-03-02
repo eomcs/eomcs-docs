@@ -252,3 +252,14 @@ from lect_appl la
         left outer join room r on l.rno=r.rno
         left outer join memb m2 on l.mno=m2.mno
         left outer join mgr mr on l.mno=mr.mno;
+
+
+
+
+
+
+
+
+
+
+/* */
