@@ -3,7 +3,7 @@
 ## 커밋 정보
 
 Git에서 commit을 수행하면 다음의 절차에 따라 커밋 정보를 저장한다.
-
+ 
 - `git add` 실행
   - **Blob** 생성
     - Git 저장소에 저장되는 파일이다.
@@ -12,7 +12,7 @@ Git에서 commit을 수행하면 다음의 절차에 따라 커밋 정보를 저
 - `git commit` 실행
   - 트리 객체 생성
     - 디렉토리와 파일의 구조 정보가 들어 있다.
-    - 파일 정보는 Blob의 체크섬이다. 
+    - 파일 정보는 Blob의 체크섬이다.
     - 각 트리를 구분하기 위한 SHA-1 해시로 생성한 체크섬을 가진다.
   - 커밋 객체 생성
     - 작성자, 커미터, 커밋 메시지 등 메타 정보가 들어 있다.
@@ -26,9 +26,9 @@ Git에서 commit을 수행하면 다음의 절차에 따라 커밋 정보를 저
 
 - Git의 브랜치는 커밋 사이를 이동할 때 사용하는 포인터 같은 것이다.
 - 커밋의 체크섬을 이용하여 여러 커밋들 중에서 한 커밋을 가리킨다.
-- 즉 새 브랜치를 만드는 것은 단순히 41바이트(40바이트 체크섬 + 1바이트 줄 바꿈 문자)의 파일을 하나 만드는 것에 불과하다. 따라서 브랜치를 여러 개 만들어도 전혀 상관없다. 
+- 즉 새 브랜치를 만드는 것은 단순히 41바이트(40바이트 체크섬 + 1바이트 줄 바꿈 문자)의 파일을 하나 만드는 것에 불과하다. 따라서 브랜치를 여러 개 만들어도 전혀 상관없다.
 - Git은 브랜치를 만들어 작업하고 나중에 merge 하는 것을 권장한다.
-- 하루에 수십 번씩 해도 괜찮다고 제안하고 있다. 
+- 하루에 수십 번씩 해도 괜찮다고 제안하고 있다.
 
 ### master 브랜치
 
@@ -39,14 +39,14 @@ Git에서 commit을 수행하면 다음의 절차에 따라 커밋 정보를 저
 
 - 현재 작업 중인 로컬 브랜치를 가리키는 특수한 포인터이다.
 
-### 토픽 브랜치 
+### 토픽 브랜치
 
-- 어떤 한가지 주제나 작업을 위해 만든 짧은 호흡의 브랜치이다. 
+- 어떤 한가지 주제나 작업을 위해 만든 짧은 호흡의 브랜치이다.
 
 ### 트래킹 브랜치 = upstream 브랜치
 
 - 원격 브랜치를 체크아웃 하여 만든 로컬 브랜치이다.
-- 트래킹 브랜치에서 `git pull` 을 실행하면 이 로컬 브랜치와 연결된 원격 브랜치에서 데이터를 받아 로컬 브랜치로 자동 merge 한다. 
+- 트래킹 브랜치에서 `git pull` 을 실행하면 이 로컬 브랜치와 연결된 원격 브랜치에서 데이터를 받아 로컬 브랜치로 자동 merge 한다.
 
 ## 브랜치 명령
 
@@ -64,11 +64,11 @@ $ git log --oneline                   <=== 커밋 정보를 한 줄 씩 출력�
 f559e21 (HEAD -> master, b1) v0.3
 5896279 v0.2
 8dd76bf v0.1
-5d8d97b (origin/master, origin/HEAD) Initial commit 
+5d8d97b (origin/master, origin/HEAD) Initial commit
 ```
 
 ```
-예2) 브랜치 목록을 조회하기 
+예2) 브랜치 목록을 조회하기
         git branch
     - 아무런 옵션 없이 실행하면 브랜치의 목록을 출력한다.
 $ git branch
@@ -104,7 +104,7 @@ Deleted branch b1 (was 519ee27).
   - 작업 디렉토리에 로딩한 브랜치를 가리킨다.
 - 작업 디렉토리에 커밋 파일을 교체하기
   - HEAD 포인터가 다른 브랜치를 가리키게 한다.
-  - HEAD 포인터가 가리키는 브랜치가 바뀌면, 
+  - HEAD 포인터가 가리키는 브랜치가 바뀌면,
     작업 디렉토리도 그 브랜치의 커밋 정보에 따라 바뀐다.
 - 명령?
   - git checkout 브랜치명
@@ -112,7 +112,7 @@ Deleted branch b1 (was 519ee27).
 예1) HEAD 포인터를 b1 브랜치로 옮긴다.
 $ git checkout b1
 $ git log --oneline                   <=== 로그 정보를 확인해 보라.
-f559e21 (HEAD -> b1, master) v0.3     <=== HEAD는 b1을 가리키고 있다. 
+f559e21 (HEAD -> b1, master) v0.3     <=== HEAD는 b1을 가리키고 있다.
 5896279 v0.2
 8dd76bf v0.1
 5d8d97b (origin/master, origin/HEAD) Initial commit
@@ -125,7 +125,7 @@ $ git add test04.txt
 $ git commit -m 'v0.4'
 $ git log --oneline
 9cf510e (HEAD -> b1) v0.4    <=== b1은 새로 커밋한 스냅샷을 가리킨다. HEAD는 현재 작업 브랜치인 b1을 가리킨다.
-f559e21 (master) v0.3        <=== master가 가리키는 스냅샷은 변경되지 않는다. 
+f559e21 (master) v0.3        <=== master가 가리키는 스냅샷은 변경되지 않는다.
 5896279 v0.2
 8dd76bf v0.1
 5d8d97b (origin/master, origin/HEAD) Initial commit
@@ -139,7 +139,7 @@ $ git commit -m 'v0.5'
 $ git log --oneline
 34fda9c (HEAD -> b1) v0.5    <=== b1은 새로 커밋한 스냅샷을 가리킨다. HEAD는 현재 작업 브랜치인 b1을 가리킨다.
 9cf510e v0.4    
-f559e21 (master) v0.3        <=== master가 가리키는 스냅샷은 변경되지 않는다. 
+f559e21 (master) v0.3        <=== master가 가리키는 스냅샷은 변경되지 않는다.
 5896279 v0.2
 8dd76bf v0.1
 5d8d97b (origin/master, origin/HEAD) Initial commit
@@ -184,7 +184,7 @@ $ git log --oneline --graph --all
 
 ```
 예7) 체크아웃 할 때 자동으로 새 브랜치를 만들기
-    'git branch' + 'git checkout' = git checkout -b [새 브랜치 이름] 
+    'git branch' + 'git checkout' = git checkout -b [새 브랜치 이름]
 $ git checkout -b b2
 $ git log --oneline --all --graph
 * 6f4725e (HEAD -> b2, master) v0.6
@@ -248,7 +248,7 @@ $ git log --oneline --all --graph
 * 5896279 v0.2
 * 8dd76bf v0.1
 * 5d8d97b (origin/master, origin/HEAD) Initial commit
-[~/git/git-test]$ 
+[~/git/git-test]$
 ```
 
 ```
@@ -286,7 +286,7 @@ $ git branch -d b1
 
 ### git rebase [브랜치명]
 
-- 지정한 브랜치에 현재 브랜치의 변경 내력을 순서대로 합친다. 
+- 지정한 브랜치에 현재 브랜치의 변경 내력을 순서대로 합친다.
 - 작업 원리
     - 두 브랜치가 갈라지기 전인 공통 커밋으로 이동한다.
     - 공통 커밋 부터 현재 브랜치까지의 diff(변경 사항)를 차례로 만들어 임시 보관해 둔다.
@@ -298,14 +298,14 @@ $ git branch -d b1
     - 모든 작업이 순서대로 진행된 것 처럼 보인다.
     - 보통 원격 브랜치에 커밋을 깔금하게 적용하고 싶을 때 사용한다.
     - rebase 브랜치의 변경 사항을 다른 브랜치에 순서대로 적용하면서 합친다.
-    - merge는 두 브랜치의 최종 결과만을 가지고 합친다. 
+    - merge는 두 브랜치의 최종 결과만을 가지고 합친다.
 - merge vs rebase
     - 로컬 저장소에서 브랜치를 정리할 때 rebase를 사용한다.
     - push로 공개한 커밋에 대해서는 rebase를 하지 말라!
     - 되도록 merge를 사용하여 역사를 기록하고 후세에 남겨 교훈이 되게 하라.
 
 ```
-예1) b1 브랜치를 master 브랜치에 합치기 
+예1) b1 브랜치를 master 브랜치에 합치기
 
 현재 브랜치 내력을 조회한다.
 $ git log --oneline --graph --all
@@ -398,12 +398,12 @@ $ git merge b1
 $ git branch -d b1    <=== 필요없는 b1 브랜치 삭제
 $ git branch -d b2    <=== 필요없는 b2 브랜치 삭제
 
-C1 --- C2 --- C3 --- C7' --- C8' --- C9' --- C4' --- C5' --- C6' 
+C1 --- C2 --- C3 --- C7' --- C8' --- C9' --- C4' --- C5' --- C6'
                                                               |
                                                             master
 ```
 
-## 원격 브랜치 
+## 원격 브랜치
 
 - 원격 브랜치는 원격 저장소에 있는 브랜치를 가리키는 레퍼런스(포인터) 이다.
 - 원격 브랜치를 가리키는 형식
@@ -491,14 +491,14 @@ $ git log --oneline --graph --all
 * 046ea07 C1
 
 즉 다음 그래프와 같이 커밋이 구성된다.
-C1 --- C2 --- C3 --- C4 --- C5 --- C6 --- X1 --- X2 
+C1 --- C2 --- C3 --- C4 --- C5 --- C6 --- X1 --- X2
                                      \            |
                                       \     HEAD -> master
                                        Y1 --- Y2
                                                |
                                          origin/master
 
-예2) 원격에서 가져온 정보를 로컬 저장소에 merge하기 
+예2) 원격에서 가져온 정보를 로컬 저장소에 merge하기
 $ git merge 9babde9
 $ git log --oneline --graph --all
 *   f5d2046 (HEAD -> master) X3
@@ -556,7 +556,7 @@ $ git log --oneline --graph --all
 ```
 
 ```
-예2) 로컬 저장소에 있는 'b1' 브랜치를 원격 저장소에 올리기 
+예2) 로컬 저장소에 있는 'b1' 브랜치를 원격 저장소에 올리기
         git push [원격 저장소 이름] [로컬 브랜치 이름]
     - 로컬 브랜치 이름과 같은 원격 브랜치가 없으면 새로 만든다.
     - 로컬 브랜치 정보를 원격 브랜치에 올린다.
@@ -579,7 +579,7 @@ $ git push origin --delete b1
 ### git checkout -b [로컬 브랜치] [원격 저장소]/[원격 브랜치]
 
 - 원격 저장소의 브랜치를 받아서 로컬 브랜치를 만든다.
-  
+
 ```
 예1) 원격 저장소의 origin/other 브랜치를 체그아웃 하여 other2 로컬 브랜치 만들기
 $ git checkout -b other2 origin/other

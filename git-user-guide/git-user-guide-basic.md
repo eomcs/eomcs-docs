@@ -33,7 +33,7 @@
   - 빠른 속도
   - 단순한 구조
   - 수천 개의 동시다발적인 브랜치가 가능한 비선형적인 구조
-  - 완변한 분산
+  - 완벽한 분산
   - 대형 프로젝트에서도 유용할 것
 
 ### Git의 파일 상태
@@ -160,15 +160,15 @@ $ git config --help
 ```
 예1) 주석을 표시하는 방법
 #이것은 주석입니다. 또는 빈 줄.
- 
+
 예2) bin/ 디렉토리를 통째로 무시하기
 bin/
 
-예3) 현재 디렉토리의 *.log 파일만 무시하기. 
+예3) 현재 디렉토리의 *.log 파일만 무시하기.
 - src/*.log처럼 기타 하위 디렉토리에 있는 *.log 파일은 포함하기
 /*.log
 
-예4) src/*.class 파일은 무시하고, 
+예4) src/*.class 파일은 무시하고,
 - src/main/*.class 파일은 포함하기
 src/*.class
 
@@ -370,8 +370,8 @@ index 0000000..3081b8d
 - 작업 디렉토리의 파일을 변경한 후 변경 전으로 되돌릴 때 사용한다.
 - Staging Area에 등록된 것이 없다면, 최종 커밋한 버전으로 되돌린다.
 - Staging Area에 등록된 것이 있다면, 현재 Staging Area에 기록된 버전으로 되돌린다.
-- `git add`를 수행한 적이 없다면 
-   Staging Area에는 마지막으로 커밋한 파일을 가리킨다. 
+- `git add`를 수행한 적이 없다면
+   Staging Area에는 마지막으로 커밋한 파일을 가리킨다.
    따라서 마지막으로 커밋된 파일로 되돌릴 것이다.
 
 ```
@@ -508,7 +508,7 @@ $ git log --oneline
 f559e21 (HEAD -> master, b1) v0.3
 5896279 v0.2
 8dd76bf v0.1
-5d8d97b (origin/master, origin/HEAD) Initial commit 
+5d8d97b (origin/master, origin/HEAD) Initial commit
 ```
 
 ```
@@ -656,7 +656,7 @@ $ git pull
 $ git push --set-upstream origin master:master
 $ git push -u origin master:master
 
-예2) 로컬 저장소의 내용을 한 번 원격 저장소에 업로드 했다면 
+예2) 로컬 저장소의 내용을 한 번 원격 저장소에 업로드 했다면
      --set-upstream 옵션을 생략할 수 있다.
 $ git push origin master:master
 
