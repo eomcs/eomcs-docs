@@ -14,25 +14,25 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 
 ## 데이터베이스
 데이터베이스 생성
-> create database 데이터베이스명 옵션들...;
+  create database 데이터베이스명 옵션들...;
 
 데이터베이스 삭제
-> drop database 데이터베이스명;
+  drop database 데이터베이스명;
 
 데이터베이스 변경
-> alter database 데이터베이스명 옵션들...;
+  alter database 데이터베이스명 옵션들...;
 
 ## 테이블
 테이블 생성
-> create table 테이블명 (
-  컬럼명 타입 NULL여부 옵션,
-  컬럼명 타입 NULL여부 옵션,
-  ...
-  컬럼명 타입 NULL여부 옵션
+  create table 테이블명 (
+    컬럼명 타입 NULL여부 옵션,
+    컬럼명 타입 NULL여부 옵션,
+    ...
+    컬럼명 타입 NULL여부 옵션
   );
 
 예)
-> create table test01 (
+  create table test01 (
     name varchar(50) not null,
     kor int not null,
     eng int not null,
@@ -42,65 +42,65 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
   );
 
 테이블 정보 보기
-> describe 테이블명;
-> desc 테이블명;
-예) describe test01;
-예) desc test01;
+  describe 테이블명;
+  desc 테이블명;
+  예) describe test01;
+  예) desc test01;
 
 테이블 삭제하기
-> drop table 테이블명;
-예) drop table test01;
+  drop table 테이블명;
+  예) drop table test01;
 
 ### 테이블 컬럼 옵션
 
 #### null 허용
 데이터를 입력하지 않아도 된다.
-> create table test1 (
+  create table test1 (
     no int,
     name varchar(20)
   );
 
 데이터 입력 테스트:
-> insert into test1(no, name) values(1, 'aaa');
-> insert into test1(no, name) values(null, 'bbb');
-> insert into test1(no, name) values(3, null);
-> insert into test1(no, name) values(null, null);
-> select * from test1;
+  insert into test1(no, name) values(1, 'aaa');
+  insert into test1(no, name) values(null, 'bbb');
+  insert into test1(no, name) values(3, null);
+  insert into test1(no, name) values(null, null);
+  select * from test1;
 
 #### not null
 데이터를 입력하지 않으면 입력/변경 거절!
-> create table test1(
+  create table test1(
     no int not null,
     name varchar(20)
   );
 
 데이터 입력 테스트:
-> insert into test1(no, name) values(1, 'aaa');
-> insert into test1(no, name) values(null, 'bbb'); /* 실행 오류 */
-> insert into test1(no, name) values(3, null);
+  insert into test1(no, name) values(1, 'aaa');
+  insert into test1(no, name) values(null, 'bbb'); /* 실행 오류 */
+  insert into test1(no, name) values(3, null);
 
 #### 기본값 지정하기
 입력 값을 생략하면 해당 컬럼에 지정된 기본값이 대신 입력된다.
-> create table test1(
+  create table test1(
     no int not null,
     name varchar(20) default 'noname',
     age int default 20
   );
 
-> insert into test1(no, name, age) values(1, 'aaa', 30);
+  insert into test1(no, name, age) values(1, 'aaa', 30);
 
 값을 입력하지 않는 컬럼은 이름과 값 지정을 생략한다.
 > insert into test1(name, age) values('aaa', 30); /* 오류! no는 not null*/
 
 컬럼에 default 값이 설정된 경우, 컬럼 값의 입력을 생략하면 기본값이 사용된다.
-> insert into test1(no, age) values(3, 30);
-> insert into test1(no, name) values(4, 'ddd');
-> insert into test1(no) values(5);
+  insert into test1(no, age) values(3, 30);
+  insert into test1(no, name) values(4, 'ddd');
+  insert into test1(no) values(5);
 
 컬럼에 default 옵션이 있는 경우,
 - 컬럼 값을 생략하면 default 옵션으로 지정한 값이 사용된다.
 - 컬럼 값을 null로 지정하면 기본 값이 사용되지 않는다.
-> insert into test1(no, age, name) values(6, null, null);
+  insert into test1(no, age, name) values(6, null, null);
 
 ### 컬럼 타입
 
@@ -118,32 +118,32 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 - numeric : numeric(10, 0) 과 같다.
 
 입력 테스트:
-> create table test1(
-  c1 int,
-  c2 float,
-  c3 numeric(6,2), /* 소수점 자릿수를 지정하면 부동소수점으로 사용 */
-  c4 numeric -- decimal 과 같다
+  create table test1(
+    c1 int,
+    c2 float,
+    c3 numeric(6,2), /* 소수점 자릿수를 지정하면 부동소수점으로 사용 */
+    c4 numeric -- decimal 과 같다
   );
 
-> insert into test1(c1) values(100);
-> insert into test1(c1) values(3.14); /* 소수점 이하 반올림하고 짜름 */
-> insert into test1(c1) values(100.98); /* 소수점 이하 반올림하고 짜름 */
+  insert into test1(c1) values(100);
+  insert into test1(c1) values(3.14); /* 소수점 이하 반올림하고 짜름 */
+  insert into test1(c1) values(100.98); /* 소수점 이하 반올림하고 짜름 */
 
-> insert into test1(c2) values(100);
-> insert into test1(c2) values(3.14);
-> insert into test1(c2) values(3.14159);
+  insert into test1(c2) values(100);
+  insert into test1(c2) values(3.14);
+  insert into test1(c2) values(3.14159);
 
-> insert into test1(c3) values(100);
-> insert into test1(c3) values(123456789); /* 입력 오류. 5자리 초과 */
-> insert into test1(c3) values(12345); /* 입력 오류. 1자리 초과 */
-> insert into test1(c3) values(1234);
-> insert into test1(c3) values(3.14);
-> insert into test1(c3) values(3.14159); /* 2자리를 초과한 값은 반올림. */
-> insert into test1(c3) values(3.14551); /* 2자리를 초과한 값은 반올림. */
+  insert into test1(c3) values(100);
+  insert into test1(c3) values(123456789); /* 입력 오류. 5자리 초과 */
+  insert into test1(c3) values(12345); /* 입력 오류. 1자리 초과 */
+  insert into test1(c3) values(1234);
+  insert into test1(c3) values(3.14);
+  insert into test1(c3) values(3.14159); /* 2자리를 초과한 값은 반올림. */
+  insert into test1(c3) values(3.14551); /* 2자리를 초과한 값은 반올림. */
 
-> insert into test1(c4) values(1234567890);
-> insert into test1(c4) values(12.34567890); /* 소수점은 반올림 처리됨 */
-> insert into test1(c4) values(12345678.90); /* 소수점은 반올림 처리됨 */
+  insert into test1(c4) values(1234567890);
+  insert into test1(c4) values(12.34567890); /* 소수점은 반올림 처리됨 */
+  insert into test1(c4) values(12345678.90); /* 소수점은 반올림 처리됨 */
 
 #### char(n)
 - 최대 n개의 문자를 저장.
@@ -163,33 +163,33 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
 - 메모리 크기가 가변적이라서 데이터 위치를 찾을 때 시간이 오래 걸린다.
   그래서 검색할 때 위치를 계산해야 하기 때문에 검색 시 느리다.
 
-> create table test1(
-  c1 char(5),
-  c2 varchar(5),
-  c3 varchar(21000)
+  create table test1(
+    c1 char(5),
+    c2 varchar(5),
+    c3 varchar(21000)
   );
 
 입력 테스트:
-> insert into test1(c1) values('');
-> insert into test1(c1) values('abcde');
-> insert into test1(c1) values('가나다라마'); /* 한글 영어 상관없이 5자 */
-> insert into test1(c1) values('abcdefghi'); /* 입력 크기 초과 오류! */
-> insert into test1(c1) values('가나다라마바'); /* 입력 크기 초과 오류! */
+  insert into test1(c1) values('');
+  insert into test1(c1) values('abcde');
+  insert into test1(c1) values('가나다라마'); /* 한글 영어 상관없이 5자 */
+  insert into test1(c1) values('abcdefghi'); /* 입력 크기 초과 오류! */
+  insert into test1(c1) values('가나다라마바'); /* 입력 크기 초과 오류! */
 
-> insert into test1(c2) values('');
-> insert into test1(c2) values('abcde');
-> insert into test1(c2) values('abcdefghi'); /* 입력 크기 초과 오류! */
+  insert into test1(c2) values('');
+  insert into test1(c2) values('abcde');
+  insert into test1(c2) values('abcdefghi'); /* 입력 크기 초과 오류! */
 
 고정 크기와 가변 크기 비교:
-> insert into test1(c1) values('abc');
-> insert into test1(c2) values('abc');
+  insert into test1(c1) values('abc');
+  insert into test1(c2) values('abc');
 
-> select * from test1 where c1='abc';
+  select * from test1 where c1='abc';
 DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 검사하는 경우도 있다.
 즉 c1='abc'에서는 데이터를 찾지 못하고, c1='abc  '여야만 데이터를 찾는 경우가 있다.
 그러나 mysql은 고정크기 컬럼이더라도 빈자리를 무시하고 데이터를 찾는다.
 
-#### text(65535), mediumtext(약 1.6MB), longtext(약 2GB)
+#### text(65535), mediumtext(약 1.6MB), longtext(약 4GB)
 - 긴 텍스트를 저장할 때 사용하는 컬럼 타입이다.
 - 오라클의 경우 long 타입과 CLOB(character large object) 타입이 있다.
 
@@ -205,54 +205,54 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
 #### datetime
 - 날짜와 시간 정보를 함께 저장할 때 사용한다.
 
-> create table test1(
-  c1 date,
-  c2 time,
-  c3 datetime
+  create table test1(
+    c1 date,
+    c2 time,
+    c3 datetime
   );
 
 입력 테스터:
-> insert into test1(c1) values('2022-02-21');
-> insert into test1(c2) values('16:12:35');
-> insert into test1(c3) values('2022-2-21 16:5:3');
-> insert into test1(c1) values('2022-02-21 16:13:33'); /* 날짜 정보만 저장*/
-> insert into test1(c2) values('2022-02-21 16:13:33'); /* 시간 정보만 저장*/
-> insert into test1(c3) values('2022-02-21'); /* 시간 정보는 0을 설정된다.*/
-> insert into test1(c3) values('16:13:33'); /* 실행 오류!*/
+  insert into test1(c1) values('2022-02-21');
+  insert into test1(c2) values('16:12:35');
+  insert into test1(c3) values('2022-2-21 16:5:3');
+  insert into test1(c1) values('2022-02-21 16:13:33'); /* 날짜 정보만 저장*/
+  insert into test1(c2) values('2022-02-21 16:13:33'); /* 시간 정보만 저장*/
+  insert into test1(c3) values('2022-02-21'); /* 시간 정보는 0을 설정된다.*/
+  insert into test1(c3) values('16:13:33'); /* 실행 오류!*/
 
 #### boolean
 - 보통 true, false를 의미하는 값을 저장할 때는 정수 1 또는 0으로 표현한다.
 - 또는 문자로 Y 또는 N으로 표현하기도 한다.
 - 실제 컬럼을 생성할 때 tinyint(1) 로 설정한다.
 
-> create table test1(
-  c1 char(1),
-  c2 int,
-  c3 boolean
+  create table test1(
+    c1 char(1),
+    c2 int,
+    c3 boolean
   );
 
 
-> insert into test1(c1) values('Y'); /* yes */
-> insert into test1(c1) values('N'); /* no */
-> insert into test1(c1) values('T'); /* true */
-> insert into test1(c1) values('F'); /* false */
-> insert into test1(c1) values('1'); /* true */
-> insert into test1(c1) values('0'); /* false */
+  insert into test1(c1) values('Y'); /* yes */
+  insert into test1(c1) values('N'); /* no */
+  insert into test1(c1) values('T'); /* true */
+  insert into test1(c1) values('F'); /* false */
+  insert into test1(c1) values('1'); /* true */
+  insert into test1(c1) values('0'); /* false */
 
-> insert into test1(c2) values(1); /* true */
-> insert into test1(c2) values(0); /* false */
+  insert into test1(c2) values(1); /* true */
+  insert into test1(c2) values(0); /* false */
 
-> insert into test1(c3) values('Y'); /* error */
-> insert into test1(c3) values('N'); /* error */
-> insert into test1(c3) values('T'); /* error */
-> insert into test1(c3) values('F'); /* error */
+  insert into test1(c3) values('Y'); /* error */
+  insert into test1(c3) values('N'); /* error */
+  insert into test1(c3) values('T'); /* error */
+  insert into test1(c3) values('F'); /* error */
 
-> insert into test1(c3) values(true); /* 저장할 때 1 */
-> insert into test1(c3) values(false); /* 저장할 때 0 */
-> insert into test1(c3) values('1'); /* true -> 1 */
-> insert into test1(c3) values('0'); /* false -> 0 */
-> insert into test1(c3) values(1); /* true -> 1 */
-> insert into test1(c3) values(0); /* false -> 0 */
+  insert into test1(c3) values(true); /* 저장할 때 1 */
+  insert into test1(c3) values(false); /* 저장할 때 0 */
+  insert into test1(c3) values('1'); /* true -> 1 */
+  insert into test1(c3) values('0'); /* false -> 0 */
+  insert into test1(c3) values(1); /* true -> 1 */
+  insert into test1(c3) values(0); /* false -> 0 */
 
 - 숫자 컬럼인 경우 값을 설정할 때 문자로 표현할 수 있다.
 - 즉 문자열을 숫자로 바꿀 수 있으면 된다.
@@ -316,40 +316,40 @@ key column : 데이터를 구분할 때 사용하는 값
 - PK 컬럼을 지정하지 않으면 데이터가 중복될 수 있다.
 
 - PK를 지정하기 전:
-> create table test1(
-  name varchar(20),
-  kor int,
-  eng int,
-  math int
+  create table test1(
+    name varchar(20),
+    kor int,
+    eng int,
+    math int
   );
 
 - 입력 테스트:
-> insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100);
-> insert into test1(name,kor,eng,math) values('bbb', 90, 90, 90);
-> insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100); /* 중복 허용*/
+  insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100);
+  insert into test1(name,kor,eng,math) values('bbb', 90, 90, 90);
+  insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100); /* 중복 허용*/
 
 - PK를 지정한 후:
 > 컬럼명 타입 primary key
-> create table test1(
-  name varchar(20) primary key,
-  kor int,
-  eng int,
-  math int
+  create table test1(
+    name varchar(20) primary key,
+    kor int,
+    eng int,
+    math int
   );
 
 - 입력 테스트:
-> insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100);
-> insert into test1(name,kor,eng,math) values('bbb', 90, 90, 90);
-> insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100); /* 중복 오류!*/
-> insert into test1(kor,eng,math) values(100, 100, 100); /* PK는 기본이 not null 이다. */
+  insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100);
+  insert into test1(name,kor,eng,math) values('bbb', 90, 90, 90);
+  insert into test1(name,kor,eng,math) values('aaa', 100, 100, 100); /* 중복 오류!*/
+  insert into test1(kor,eng,math) values(100, 100, 100); /* PK는 기본이 not null 이다. */
 
 - 한 개 이상의 컬럼을 PK로 지정하기
-> create table test1(
-  name varchar(20) primary key,
-  age int primary key,
-  kor int,
-  eng int,
-  math int
+  create table test1(
+    name varchar(20) primary key,
+    age int primary key,
+    kor int,
+    eng int,
+    math int
   ); /* 실행 오류 */
 
 - 두 개 이상의 컬럼을 묶어서 PK로 선언하고 싶다면
@@ -357,49 +357,50 @@ key column : 데이터를 구분할 때 사용하는 값
 - 여러 개의 컬럼을 묶어서 PK로 지정하려면 별도의 문법을 사용해야 한다.
   - constraint 제약조건이름 primary key (컬럼명, 컬럼명, ...)
   - 제약조건이름은 생략 가능.
-  - 제약조건이름을 지정하지 않으면 나중에 제약조건을 찾기 힘들다.
+  - 제약조건이름을 지정하지 않으면 이름이 자동으로 부여된다.
+    그래서 나중에 제약조건을 찾기 힘들다.
 
-> create table test1(
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int,
-  constraint test1_pk primary key(name, age)
-);
+  create table test1(
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int,
+    constraint test1_pk primary key(name, age)
+  );
 
 
 - 입력 테스트:
-> insert into test1(name, age, kor, eng, math) values('aa', 10, 100, 100, 100);
-> insert into test1(name, age, kor, eng, math) values('bb', 20, 90, 90, 90);
-> insert into test1(name, age, kor, eng, math) values('aa', 11, 88, 88, 88);
-> insert into test1(name, age, kor, eng, math) values('ab', 10, 88, 88, 88);
+  insert into test1(name, age, kor, eng, math) values('aa', 10, 100, 100, 100);
+  insert into test1(name, age, kor, eng, math) values('bb', 20, 90, 90, 90);
+  insert into test1(name, age, kor, eng, math) values('aa', 11, 88, 88, 88);
+  insert into test1(name, age, kor, eng, math) values('ab', 10, 88, 88, 88);
 
 /* 이름과 나이가 같으면 중복되기 때문에 입력 거절이다. */
-> insert into test1(name, age, kor, eng, math) values('aa', 10, 88, 88, 88);
+  insert into test1(name, age, kor, eng, math) values('aa', 10, 88, 88, 88);
 
 - 여러 개의 컬럼을 묶어서 PK로 사용하면 데이터를 다루기가 불편하다.
   즉 데이터를 찾을 때 마다 name과 age 값을 지정해야 한다.
 - 그래서 실무에서는 이런 경우 '학번'처럼 임의의 값을 저장하는 컬럼을 만들어 PK로 사용한다. (인공 키의 예!)
-> create table test1(
-  no int primary key, /* 학번 */
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int
+  create table test1(
+    no int primary key, /* 학번 */
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int
   );
 
-> insert into test1(no,name,age,kor,eng,math) values(1,'a',10,90,90,90);
-> insert into test1(no,name,age,kor,eng,math) values(2,'a',11,91,91,91);
-> insert into test1(no,name,age,kor,eng,math) values(3,'b',11,81,81,81);
-> insert into test1(no,name,age,kor,eng,math) values(4,'c',20,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(1,'a',10,90,90,90);
+  insert into test1(no,name,age,kor,eng,math) values(2,'a',11,91,91,91);
+  insert into test1(no,name,age,kor,eng,math) values(3,'b',11,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(4,'c',20,81,81,81);
 
 /* 번호가 중복되었기 때문에 입력 거절 */
-> insert into test1(no,name,age,kor,eng,math) values(4,'d',21,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(4,'d',21,81,81,81);
 
 /* 번호는 중복되지 않았지만, name과 age값이 중복되는 경우를 막을 수 없다*/
-> insert into test1(no,name,age,kor,eng,math) values(5,'c',20,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(5,'c',20,81,81,81);
 
 - 위와 같은 경우를 대비해 준비된 문법이 unique이다.
 - PK는 아니지만 PK처럼 중복되어서는 안되는 컬럼을 지정할 때 사용한다.
@@ -407,52 +408,52 @@ key column : 데이터를 구분할 때 사용하는 값
 - 즉 대안키는 DBMS에서 unique 컬럼으로 지정한다.
 
 #### unique = alternate key(대안키)
-> create table test1(
-  no int primary key,
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int,
-  constraint test1_uk unique (name, age)
+  create table test1(
+    no int primary key,
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int,
+    constraint test1_uk unique (name, age)
   );
 
 /* 다음과 같이 제약 조건을 모든 컬럼 선언 뒤에 놓을 수 있다. */
-> create table test1(
-  no int,
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int,
-  constraint primary key(no),
-  constraint test1_uk unique (name, age)
+  create table test1(
+    no int,
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int,
+    constraint primary key(no),
+    constraint test1_uk unique (name, age)
   );
 
 - 입력 테스트:
-> insert into test1(no,name,age,kor,eng,math) values(1,'a',10,90,90,90);
-> insert into test1(no,name,age,kor,eng,math) values(2,'a',11,91,91,91);
-> insert into test1(no,name,age,kor,eng,math) values(3,'b',11,81,81,81);
-> insert into test1(no,name,age,kor,eng,math) values(4,'c',20,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(1,'a',10,90,90,90);
+  insert into test1(no,name,age,kor,eng,math) values(2,'a',11,91,91,91);
+  insert into test1(no,name,age,kor,eng,math) values(3,'b',11,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(4,'c',20,81,81,81);
 
 /* 번호가 중복되었기 때문에 입력 거절 */
-> insert into test1(no,name,age,kor,eng,math) values(4,'d',21,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(4,'d',21,81,81,81);
 
 /* 비록 번호가 중복되지 않더라도 name, age가 unique 컬럼으로 지정되었기
    때문에 중복저장될 수 없다.*/
-> insert into test1(no,name,age,kor,eng,math) values(5,'c',20,81,81,81);
+  insert into test1(no,name,age,kor,eng,math) values(5,'c',20,81,81,81);
 
 /* 또는 다음과 같이 테이블 정의 다음에 제약 조건을 둘 수 있다. */
-> create table test1(
-  no int,
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int
+  create table test1(
+    no int,
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int
   );
 
-> alter table test1
+  alter table test1
     add constraint test1_pk primary key(no),
     add constraint test1_uk unique (name, age);
 
@@ -468,22 +469,22 @@ key column : 데이터를 구분할 때 사용하는 값
   입력/변경/삭제 속도가 느려지는 문제가 있다.
 - 대신 조회 속도는 빠르다.
 
-create table test1(
-  no int primary key,
-  name varchar(20),
-  age int,
-  kor int,
-  eng int,
-  math int,
-  constraint test1_uk unique (name, age),
-  fulltext index test1_name_idx (name)
-);
+  create table test1(
+    no int primary key,
+    name varchar(20),
+    age int,
+    kor int,
+    eng int,
+    math int,
+    constraint test1_uk unique (name, age),
+    fulltext index test1_name_idx (name)
+  );
 
-insert into test1(no,name,age,kor,eng,math) values(1,'aaa',20,80,80,80);
-insert into test1(no,name,age,kor,eng,math) values(2,'bbb',21,90,80,80);
-insert into test1(no,name,age,kor,eng,math) values(3,'ccc',20,80,80,80);
-insert into test1(no,name,age,kor,eng,math) values(4,'ddd',22,90,80,80);
-insert into test1(no,name,age,kor,eng,math) values(5,'eee',20,80,80,80);
+  insert into test1(no,name,age,kor,eng,math) values(1,'aaa',20,80,80,80);
+  insert into test1(no,name,age,kor,eng,math) values(2,'bbb',21,90,80,80);
+  insert into test1(no,name,age,kor,eng,math) values(3,'ccc',20,80,80,80);
+  insert into test1(no,name,age,kor,eng,math) values(4,'ddd',22,90,80,80);
+  insert into test1(no,name,age,kor,eng,math) values(5,'eee',20,80,80,80);
 
 - name 컬럼은 인덱스 컬럼으로 지정되었기 때문에
   DBMS는 데이터를 추가하거나 삭제할 때 name 컬럼의 색인표를 갱신한다.
@@ -501,14 +502,14 @@ select * from test1 where name = 'bbb';
 
 - 테이블 생성
 
-create table test1 (
-  name varchar(3),
-  kor int,
-  eng int,
-  math int,
-  sum int,
-  aver int
-);
+  create table test1 (
+    name varchar(3),
+    kor int,
+    eng int,
+    math int,
+    sum int,
+    aver int
+  );
 
 
 - 테이블에 컬럼 추가
