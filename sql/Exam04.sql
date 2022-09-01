@@ -79,7 +79,7 @@ insert into test2(filepath, bno) values('c:/download/e.gif', 5);
 insert into test2(filepath, bno) values('c:/download/f.gif', 10);
 
 
-## FK 제약 조건이 없을 때
+## FK(Foreign Key) 제약 조건이 없을 때
 
 ### 문제점 1
 - 첨부파일 데이터를 입력할 때 존재하지 않는 게시물 번호가 들어 갈 수 있다.
@@ -100,7 +100,7 @@ delete from test1 where no=1;
 
 해결책?
 - 다른 데이터를 참조하는 경우 해당 데이터의 존재 유무를 검사하도록 강제한다.
-- 다른 테이터에 의해 참조되는지 여부를 검사하도록 강제한다.
+- 데이터를 삭제하는 경우 다른 테이터에 의해 참조되는지 여부를 검사하도록 강제한다.
 - 이것을 가능하게 하는 문법이 "외부키(Foreign Key)" 이다.
 
 
@@ -119,6 +119,7 @@ alter table 테이블명
 /* 기존에 테이블에 무효한 데이터가 있을 수 있기 때문에 먼저 테이블의 데이터를 지운다.*/
 delete from test2;
 
+/* fk 컬럼을 설정하기 전에 무효한 데이터를 삭제해야 한다. */
 alter table test2
     add constraint test2_bno_fk foreign key (bno) references test1(no);
 
