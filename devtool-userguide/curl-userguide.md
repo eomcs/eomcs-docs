@@ -1,9 +1,12 @@
-# VSCode 사용법
+# curl 사용법
 
-## 단축키
+[홈페이지](https://curl.se/)
 
-### auto indent
+## 명령 작성법
 
-- Windows :  Shift + Alt + F
-- macOS :  Shift + Option + F
-- Ubuntu :  Ctrl + Shift + I
+- curl -짧은이름옵션 URL
+  - 예) curl -v http://www.eomcs.com
+- curl --긴이름옵션 URL
+  - 예) curl --verbose http://www.eomcs.com
+- curl -옵션 -옵션 URL
+  - 예) 
