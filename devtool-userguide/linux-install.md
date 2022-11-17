@@ -25,7 +25,7 @@
 $ vagrant -v
 ```
 
-## VirtualBox 가상 머신 생성
+## VirtualBox 가상 머신 관리
 
 ### 가상 머신 프로젝트 폴더 생성
 
@@ -65,7 +65,19 @@ end
 ~/vm/centos$ vagrant ssh
 ```
 
-## Vagrantfile 
+### VM 정지
+
+```bash
+~/vm/centos$ vagrant halt
+```
+
+### VM 삭제
+
+```bash
+~/vm/centos$ vagrant destroy
+```
+
+## Vagrantfile
 
 ### 클라우드에서 가져올 box 이름 지정하기
 
@@ -101,6 +113,24 @@ config.vm.network "private_network", type: "dhcp"
 config.vm.network "private_network", ip: "192.168.56.2"
 ```
 
+### VM을 여러 개 설정하기
+
+```
+Vagrant.configure("2") do |config|
+  
+  config.vm.provision "shell", inline: "echo Hello"
+
+  config.vm.define "web" do |web|
+    web.vm.box = "centos/7"
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = "centos/7"
+  end
+
+end
+```
+
 ## Box 다루기
 
 ### Vagrant에 설치된 박스 목록 보기
@@ -130,6 +160,13 @@ $ vagrant box remove "박스이름"
 예) 
 $ vagrant box remove "mycentos/7"
 ```
+
+### VM을 Box로 만들기(Box 로 내보내기)
+
+```bash
+$ vagrant package
+```
+
 
 ## 실행 중인 Vagrant 머신에 접속하기
 
@@ -174,6 +211,11 @@ a3aafac  default virtualbox running /Users/eomjinyoung/virtualbox/centos2
 $ vagrant ssh a3aafac
 ```
 
+### ssh 로 직접 접속하기
+
+```bash
+$ ssh -i .vagrant/machines/default/virtualbox/private_key vagrant@IP주소
+```
 
 
 
