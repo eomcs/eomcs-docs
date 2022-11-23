@@ -127,6 +127,24 @@
     - 예) `cd ~/test` 명령어는 사용자 홈 디렉토리에 있는 test 디렉토리로 이동시킨다.
 
 
+### /usr/share/doc 디렉토리
+
+- 프로그램의 문서가 들어 있는 디렉토리
+- 이 디렉토리는 각 프로그램의 문서를 담고 있는 하위 디렉토리를 포함한다.
+- 하위 디렉토리의 이름은 프로그램명과 버전으로 명명되어 있다.
+
+```
+예1) /usr/share/doc 디렉토리 조회
+$ ls /usr/share/doc
+합계 1320
+drwxr-xr-x 2 root root  4096  6월 22 21:44 acl-2.2.49
+drwxr-xr-x 2 root root  4096  6월 22 21:44 acpid-2.0.19
+drwxr-xr-x 2 root root  4096  6월 22 21:44 alsa-lib-1.0.22
+drwxr-xr-x 2 root root  4096  7월  9 05:38 apr-1.5.2
+drwxr-xr-x 2 root root  4096  7월  9 05:38 apr-util-1.5.4
+...
+```
+
 ## 실습 준비 
 
 - 다음 내용은 O'REILLY 출판사의 '리눅스 핵심 레퍼런스'를 요약한 내용이다.
@@ -138,16 +156,6 @@ $ wget http://linuxpocketguide.com/LPG-stuff.tar.gz   <=== 파일 다운로드
 $ tar -xf LPG-stuff.tar.gz   <=== 압축 해제
 ```
 
-### 쉘 내장 명령과 프로그램 
-
-구분법
-```
-$ type who
-who is /usr/bin/who
-
-$ type cd
-cd is a shell function from /usr/local/opt/autoenv/activate.sh
-```
 
 ## 파일 시스템 탐색
 
@@ -204,6 +212,30 @@ LPG-stuff.tar.gz  git  linuxpocketguide
 [vagrant@host1 git]$ 
 ```
 
+### --help
+
+- 해당 명령에서 준비한 간단한 도움말을 출력한다.
+- 대부분의 명령어는 간단한 도움을 출력하는 이 옵션을 제공한다.
+
+```
+예1) ls 명령어의 간단한 도움말 보기
+        명령어 --help
+$ ls --help
+```
+
+
+
+### {값1, 값2, ...} 중괄호 확장
+
+- 와일드카드처럼 주어진 값으로 확장된다. 
+
+```
+예1) echo file{01,02,03}.txt
+$ echo file{-01,-02,-03}.txt
+file-01.txt file-02.txt file-03.txt
+```
+
+
 ## 시스템 살펴보기
 
 ### `ls` - 디렉토리 내용 나열하기
@@ -255,135 +287,6 @@ bin  etc  games  include  lib  lib64  libexec  local  sbin  share  src  tmp
 |-s| |파일 크기순으로 출력|
 |-t| |파일 수정 시간 순으로 출력|
 
-
-### `file` - 파일 타입 확인하기
-
-```
-[vagrant@host1 ~]$ file LPG-stuff.tar.gz 
-LPG-stuff.tar.gz: gzip compressed data, from Unix, last modified: Wed May  4 13:30:49 2016
-[vagrant@host1 ~]$ file git
-git: directory
-```
-
-### `less` - 파일 내용 표시하기
-
-```
-[vagrant@host1 ~]$ less /etc/passwd
-
-root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/bin:/sbin/nologin
-daemon:x:2:2:daemon:/sbin:/sbin/nologin
-...
-```
-
-## 파일과 디렉토리 조작
-
-### `cp` - 파일 및 디렉토리 복사
-
-### `mv` - 파일 및 디렉토리 이동, 이름 변경
-
-### `mkdir` - 디렉토리 만들기
-
-### `rm` - 파일 및 디렉토리 삭제 
-
-### `ln` - 하드 링크 또는 심볼릭 링크 만들기
-
-## 명령어를 다루는 방법
-
-### `type` - 명령어의 이름이 어떻게 표시되는지 확인
-
-### `which` - 실행 프로그램의 위치 표시
-
-### `man` - 명령어의 man 페이지 표시 
-
-### `apropos` - 적합한 명령어 리스트 표시 
-
-### `info` - 명령어 정보 표시 
-
-### `whatis` - 명령어에 대한 짧은 설명 표시
-
-### `alias` - 명령어에 별치 붙이기
-
-
-
-
-
-
-### man 명령
-
-- 온라인 매뉴얼 페이지나 해당 프로그램의 manpage를 출력한다.
-
-```
-예1) 명령어 사용법 보기
-        man 명령어
-$ man wc
-```
-
-```
-예2) 매뉴얼 페이지에서 특정 검색어로 검색하기
-        man -k 검색어
-$ man -k database | less
-```
-
-### info
-
-- 하이퍼텍스트 기반 도움말을 출력한다.
-- 즉 텍스트 모드 웹 브라우저로 도움말을 보고 링크를 따라 페이지를 이동할 수 있다.
-- 사용법
-    - h 키 : 도움말
-    - q 키 : 종료
-    - 스페이스 키 : 다음 페이지
-    - 백스페이스 키 : 이전 페이지
-    - 탭(tab) : 다음 하이퍼링크로 이동
-    - 엔터(enter) : 하이퍼링크가 가리키는 페이지로 이동
-  
-```
-예1) ls 명령어의 도움말을 하이퍼텍스트로 보기
-        info 명령어
-$ info ls
-```
-
-### --help
-
-- 해당 명령에서 준비한 간단한 도움말을 출력한다.
-- 대부분의 명령어는 간단한 도움을 출력하는 이 옵션을 제공한다.
-
-```
-예1) ls 명령어의 간단한 도움말 보기
-        명령어 --help
-$ ls --help
-```
-
-### /usr/share/doc 디렉토리
-
-- 프로그램의 문서가 들어 있는 디렉토리
-- 이 디렉토리는 각 프로그램의 문서를 담고 있는 하위 디렉토리를 포함한다.
-- 하위 디렉토리의 이름은 프로그램명과 버전으로 명명되어 있다.
-
-```
-예1) /usr/share/doc 디렉토리 조회
-$ ls /usr/share/doc
-합계 1320
-drwxr-xr-x 2 root root  4096  6월 22 21:44 acl-2.2.49
-drwxr-xr-x 2 root root  4096  6월 22 21:44 acpid-2.0.19
-drwxr-xr-x 2 root root  4096  6월 22 21:44 alsa-lib-1.0.22
-drwxr-xr-x 2 root root  4096  7월  9 05:38 apr-1.5.2
-drwxr-xr-x 2 root root  4096  7월  9 05:38 apr-util-1.5.4
-...
-```
-
-### type 명령
-
-- 명령어가 리눅스 프로그램인지 셸 내장 명령어 인지 알려준다.
-
-```
-예1) ls와 who 명령어의 타입을 알아본다.
-$ type who
-who is /usr/bin/who
-$ type cd
-cd is a shell builtin
-```
-
 ### * (와일드카드)
 
 - 와일드카드는 명령어를 실행하기 전에 셸에 의해 실제 파일명과 일치하는 형태로 확장된다.
@@ -407,16 +310,6 @@ $ ls aardvark adamantium apple
 예2) 파일 이름이 'file'로 시작하고, 뒤의 한 자는 A 또는 B인 파일
 $ ls file[AB]
 fileA  fileB
-```
-
-### {값1, 값2, ...} 중괄호 확장
-
-- 와일드카드처럼 주어진 값으로 확장된다. 
-
-```
-예1) echo file{01,02,03}.txt
-$ echo file{-01,-02,-03}.txt
-file-01.txt file-02.txt file-03.txt
 ```
 
 ### dot file (마침표 파일)
@@ -443,6 +336,103 @@ aardvark      fileB               myfile3       sample.pdf     somefile
 adamantium    findfile1           newnames      sample.ps      spacefile
 ...
 ```
+
+### `file` - 파일 타입 확인하기
+
+```
+[vagrant@host1 ~]$ file LPG-stuff.tar.gz 
+LPG-stuff.tar.gz: gzip compressed data, from Unix, last modified: Wed May  4 13:30:49 2016
+[vagrant@host1 ~]$ file git
+git: directory
+```
+
+### `less` - 파일 내용 표시하기
+
+```
+[vagrant@host1 ~]$ less /etc/passwd
+
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+...
+```
+
+
+## 파일과 디렉토리 조작
+
+### `cp` - 파일 및 디렉토리 복사
+
+### `mv` - 파일 및 디렉토리 이동, 이름 변경
+
+### `mkdir` - 디렉토리 만들기
+
+### `rm` - 파일 및 디렉토리 삭제 
+
+### `ln` - 하드 링크 또는 심볼릭 링크 만들기
+
+## 명령어를 다루는 방법
+
+### `type` - 명령어의 이름이 어떻게 표시되는지 확인
+
+- 명령어가 리눅스 프로그램인지 셸 내장 명령어 인지 알려준다.
+
+```
+예1) ls와 who 명령어의 타입을 알아본다.
+$ type who
+who is /usr/bin/who
+$ type cd
+cd is a shell builtin
+```
+
+### `which` - 실행 프로그램의 위치 표시
+
+### `man` - 명령어의 man 페이지 표시 
+
+- 온라인 매뉴얼 페이지나 해당 프로그램의 manpage를 출력한다.
+
+```
+예1) 명령어 사용법 보기
+        man 명령어
+$ man wc
+```
+
+```
+예2) 매뉴얼 페이지에서 특정 검색어로 검색하기
+        man -k 검색어
+$ man -k database | less
+```
+
+### `apropos` - 적합한 명령어 리스트 표시 
+
+### `info` - 명령어 정보 표시 
+
+- 하이퍼텍스트 기반 도움말을 출력한다.
+- 즉 텍스트 모드 웹 브라우저로 도움말을 보고 링크를 따라 페이지를 이동할 수 있다.
+- 사용법
+    - h 키 : 도움말
+    - q 키 : 종료
+    - 스페이스 키 : 다음 페이지
+    - 백스페이스 키 : 이전 페이지
+    - 탭(tab) : 다음 하이퍼링크로 이동
+    - 엔터(enter) : 하이퍼링크가 가리키는 페이지로 이동
+  
+```
+예1) ls 명령어의 도움말을 하이퍼텍스트로 보기
+        info 명령어
+$ info ls
+```
+
+### `whatis` - 명령어에 대한 짧은 설명 표시
+
+### `alias` - 명령어에 별치 붙이기
+
+
+
+
+
+
+
+
 
 ### 셸 변수
 
