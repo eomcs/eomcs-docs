@@ -1,6 +1,5 @@
 # DDL(Data Definition Language)
-DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는 SQL 명령이다.
-
+- DB 객체(테이블, 뷰, 프로시저, 함수, 트리거) 등을 생성, 변경, 삭제하는 SQL 명령이다.
 - 데이터베이스(database) = 스키마(schema)
 - 테이블(table)
 - 뷰(view)
@@ -121,7 +120,9 @@ DB 객체(테이블, 뷰, 함수, 트리거 등)를 생성, 변경, 삭제하는
   create table test1(
     c1 int,
     c2 float,
-    c3 numeric(6,2), /* 소수점 자릿수를 지정하면 부동소수점으로 사용 */
+    c3 numeric(6,2), /* 소수점 자릿수를 
+    지정하면 
+    부동소수점으로 사용 */
     c4 numeric -- decimal 과 같다
   );
 
@@ -454,7 +455,9 @@ key column : 데이터를 구분할 때 사용하는 값
   );
 
   alter table test1
-    add constraint test1_pk primary key(no),
+    add constraint test1_pk primary key (no);
+
+  alter table test1
     add constraint test1_uk unique (name, age);
 
 
