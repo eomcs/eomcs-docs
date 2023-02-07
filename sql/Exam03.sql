@@ -218,6 +218,8 @@ where name like 's0_';
 ### 날짜 다루기
 - 날짜 함수와 문자열 함수를 사용하여 날짜 값을 다루는 방법.
 
+drop table test1;
+
 create table test1 (
   no int not null,
   title varchar(200) not null,
@@ -284,7 +286,7 @@ select date_sub(now(), interval 11 day);
 
 /* 두 날짜 사이의 간격을 알아내기 */
 datediff(날짜1, 날짜2);
-select datediff(curdate(), '2022-5-2');
+select datediff(curdate(), '2023-2-10');
 
 /* 날짜에서 특정 형식으로 값을 추출하기 */
 date_format(날짜, 형식)

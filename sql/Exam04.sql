@@ -21,6 +21,18 @@ create table test1(
   filepath5 varchar(255)
 );
 
+insert into test1(title,content,filepath1,filepath2,filepath3,filepath4,filepath5)
+values ('제목1', '내용', 'a.gif', null, null, null, null);
+
+insert into test1(title,content,filepath1,filepath2,filepath3,filepath4,filepath5)
+values ('제목2', '내용', 'b1.gif', 'b2.gif', 'b3.gif', null, null);
+
+insert into test1(title,content,filepath1,filepath2,filepath3,filepath4,filepath5)
+values ('제목3', '내용', null, null, null, null, null);
+
+-- 파일 경로를 저장할 수 있는 컬럼이 5개 밖에 없기 때문에 6번째와 7번째 첨부파일을 입력할 수 없다.
+insert into test1(title,content,filepath1,filepath2,filepath3,filepath4,filepath5)
+values ('제목4', '내용', 'd1.gif', 'd2.gif', 'd3.gif', 'd4.gif', 'd5.gif'/*, 'd6.gif', 'd7.gif'*/);
 
 고민해볼 사항!
 - 첨부 파일의 개수를 5 개로 정해 놓았다.
@@ -57,26 +69,26 @@ create table test2(
 
 게시판 데이터 입력:
 
-insert into test1(title) values('aaa');
-insert into test1(title) values('bbb');
-insert into test1(title) values('ccc');
-insert into test1(title) values('ddd');
-insert into test1(title) values('eee');
-insert into test1(title) values('fff');
-insert into test1(title) values('ggg');
-insert into test1(title) values('hhh');
-insert into test1(title) values('iii');
-insert into test1(title) values('jjj');
+insert into test1(no, title) values(1, 'aaa');
+insert into test1(no, title) values(2, 'bbb');
+insert into test1(no, title) values(3, 'ccc');
+insert into test1(no, title) values(4, 'ddd');
+insert into test1(no, title) values(5, 'eee');
+insert into test1(no, title) values(6, 'fff');
+insert into test1(no, title) values(7, 'ggg');
+insert into test1(no, title) values(8, 'hhh');
+insert into test1(no, title) values(9, 'iii');
+insert into test1(no, title) values(10, 'jjj');
 
 
 첨부파일 데이터 입력:
 
-insert into test2(filepath, bno) values('c:/download/a.gif', 1);
-insert into test2(filepath, bno) values('c:/download/b.gif', 1);
-insert into test2(filepath, bno) values('c:/download/c.gif', 1);
-insert into test2(filepath, bno) values('c:/download/d.gif', 5);
-insert into test2(filepath, bno) values('c:/download/e.gif', 5);
-insert into test2(filepath, bno) values('c:/download/f.gif', 10);
+insert into test2(filepath, bno) values('c:/download/a1.gif', 1);
+insert into test2(filepath, bno) values('c:/download/a2.gif', 1);
+insert into test2(filepath, bno) values('c:/download/a3.gif', 1);
+insert into test2(filepath, bno) values('c:/download/e1.gif', 5);
+insert into test2(filepath, bno) values('c:/download/e2.gif', 5);
+insert into test2(filepath, bno) values('c:/download/j1.gif', 10);
 
 
 ## FK(Foreign Key) 제약 조건이 없을 때
