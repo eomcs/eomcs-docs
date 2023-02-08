@@ -44,6 +44,7 @@ group by
 
 -- 예1) having 절에서 집합 함수 사용
 select
+    r.loc,
     count(*) as cnt
 from
     room r
