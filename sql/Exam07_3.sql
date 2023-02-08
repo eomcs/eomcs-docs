@@ -33,5 +33,5 @@ where loc='서초';
 
 /* count()를 호출할 때 컬럼 이름을 지정하면 
    해당 컬럼의 값이 null 이 아닌 데이터만 카운트한다. */
-select count(loc) cnt
-from room;
+select count(mno) cnt
+from lect;

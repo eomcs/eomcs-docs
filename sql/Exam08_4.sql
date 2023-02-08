@@ -3,81 +3,30 @@
 => 기법
 1) CROSS 조인(=Cartesian product)
 2) NATURAL 조인
-3) JOIN ~ ON
-4) OUTER JOIN
+3) JOIN ~ USING(컬럼명)
+4) JOIN ~ ON
+5) OUTER JOIN
 */
 
-/* cross join : 두 테이블의 데이터를 1:1로 모두 연결한다.*/
-select mno, name from memb;
-select mno, work, bank from stnt;
-
-/* => mno가 어떤 테이블의 컬럼인지 지정하지 않으면 실행 오류!*/
-select mno, name, mno, work, bank
-from memb cross join stnt;
-
-/* => select  컬럼이 두 테이블 모두 있을 경우,
-         컬럼명 앞에 테이블명을 명시하여 구분하라!*/
-select memb.mno member_no, name, stnt.mno student_no, work, bank
-from memb cross join stnt;
-
-/* 예전 문법 */
-select memb.mno member_no, name, stnt.mno student_no, work, bank
-from memb, stnt;
+-- 4) JOIN ~ ON
+--    조인 조건을 on에 명시할 수 있다.
+select no, title, content, fno, filepath, bno
+from board5 b join attach_file5 a on b.no=a.bno;
 
 
-/* => 컬럼명 앞에 테이블명을 붙이면 너무 길다.
-         테이블에 별명을 부여하고
-         그 별명을 사용하여 컬럼을 지정하라. */
-select m.mno, name, s.mno, work, bank
-from memb as m cross join stnt s;
-
-/* 예전 문법 */
-select m.mno, name, s.mno, work, bank
-from memb m, stnt as s;
+-- 조건에 일치하는 경우에만 두 테이블의 데이터를 연결한다.
+-- 이런 조인을 'inner join' 이라 부른다.
+-- SQL 문에서도 inner join 이라 기술할 수 있다.
+-- 물론 inner를 생략할 수도 있다.
+select no, title, content, fno, filepath, bno
+from board5 b inner join attach_file5 a on b.no=a.bno;
 
 
-/* natural join: 같은 이름을 가진 컬럼 값을 기준으로 레코드를 연결한다. */
-select m.mno, name, s.mno, work, bank
-from memb m natural join stnt s;
 
-/* 예전 문법 */
-select m.mno, name, s.mno, work, bank
-from memb m, stnt s
-where m.mno=s.mno;
 
-/* natural join 의 문제점
- * 1) 두 테이블의 조인 기준이 되는 컬럼 이름이 다를 때 연결되지 못한다.
-   2) 상관 없는 컬럼과 이름이 같을 때 잘못 연결된다.
-   3) 같은 이름의 컬럼이 여러 개 있을 경우 잘못 연결된다.
-        모든 컬럼의 값이 일치할 경우에만 연결되기 때문이다. */
 
-/* 만약에 두 테이블에 같은 이름을 가진 컬럼이 여러 개 있다면,
-   join ~ using (기준컬럼) 을 사용하여
-   두 테이블의 데이터를 연결할 때 기준이 될 컬럼을 지정한다.*/
-select m.mno, name, s.mno, work, bank
-from memb m join stnt s using (mno);
 
-/* natural join 의 문제점 2
-   => 두 테이블에 같은 이름의 컬럼이 없을 경우
-        연결하지 못한다.*/
 
-/* 만약 두 테이블에 같은 이름을 가진 컬럼이 없으면,
-   natural join을 수행하지 못한다.
-   또한 join using 으로도 해결할 수 없다.
-   이럴 경우 join ~ on 컬럼a=컬럼b 문법을 사용하여
-   각 테이블의 어떤 컬럼과 값을 비교할 것인지 지정하라!*/
-select m.mno, name, s.mno, work, bank
-from memb m inner join stnt s on m.mno=s.mno;
-
-/* inner는 생략 가능하다 */
-select m.mno, name, s.mno, work, bank
-from memb m join stnt s on m.mno=s.mno;
-/* 즉 inner join 은 기준 컬럼의 값이 일치할 때만 데이터를 연결한다. */
-
-/* 예전의 조인 문법 = inner join */
-select m.mno, name, s.mno, work, bank
-from memb m, stnt s
-where m.mno=s.mno;
 
 
 /* [inner] join ~ on 의 문제점
