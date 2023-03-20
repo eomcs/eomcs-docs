@@ -15,7 +15,7 @@
 `$ sudo apt-get update`
 `$ sudo apt-get install curl`
 `$ curl https://get.docker.com > docker-install.sh`
-`$ chomd 755 docker-install.sh`
+`$ chmod 755 docker-install.sh`
 
 ### 도커 설치
 
@@ -136,3 +136,208 @@
 
 - `http://vagrant리눅스IP/`
   - vagrant ssh 밖에서 실행할 것
+
+호스트와 바인딩된 포트번호 확인하기
+
+- `$ sudo docker port 컨테이너이름`
+- `$ sudo docker port mywebserver`
+
+### Detached 모드 컨테이너의 내부 셸을 사용하기
+
+상호 입출력 가능한 상태로 접속하기
+
+- `$ sudo docker exec -i -t 컨테이너이름 /bin/bash`
+
+컨테이너 내부의 실행 결과만 확인하기
+
+- `$ sudo docker exec 컨테이너이름 ls`
+
+## 도커 컨테이너 활용
+
+### 데이터베이스 컨테이너와 웹서버 컨테이너 만들기
+
+데이터베이스 컨테이너 만들기
+
+- `$ sudo docker run -d --name wordpressdb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=wordpress mysql:5.7`
+
+워드프레스 기반 블로그 서비스 만들기
+
+- `$ sudo docker run -d --name wordpress -e WORDPRESS_DB_HOST=mysql -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=password --link wordpressdb:mysql -p 80 wordpress`
+
+접속 확인
+
+- `http://vagrant리눅스IP:자동설정된포트번호/`
+  - vagrant ssh 밖에서 실행할 것
+
+도커 컨테이너 run 옵션
+
+- `$ sudo docker run -d ... -e ... --link ...`
+  - `-d` : Detached 모드로 컨테이너 실행. 컨테이너에서 백그라운드에서 동작하는 애플리케이션을 실행할 때 사용.
+    - 이 모드에서는 실행되는 컨테이너가 실행하는 프로그램이 없으면 자동 종료된다.
+      - 테스트: `$ sudo docker run -d --name detach_test ubuntu:14.04`
+      - `$ sudo docker ps -a` 로 확인해보면 컨테이너가 실행 즉시 종료되었음을 확인할 수 있다.
+  - `-e 환경변수명=값` : 컨테이너 내부의 환경변수 설정. 컨테이너에서 실행되는 애플리케이션이 이 환경 변수를 사용한다.
+    - Detached 모드 컨테이너의 내부 환경 변수 확인하기
+      - 셸 접속: `$ sudo docker exec -i -t wordpressdb /bin/bash`
+      - 환경 변수 확인: `# echo $MYSQL_ROOT_PASSWORD`
+  - `--link 컨테이너명:별명` : 내부 IP를 알 필요 없이 컨테이너 별명으로 접근하도록 설정
+    - 도커 엔진은 컨테이너에게 내부 IP를 172.17.0.2, 3, 4, ... 와 같이 순차적으로 할당.
+    - 테스트: `$ sudo docker exec wordpress curl mysql:3306 --silent`
+
+### 도커 볼륨 다루기
+
+#### 호스트 볼륨 공유하기
+
+- `$ sudo docker run -d --name wordpressdb_hostvolume -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=wordpress -v /home/wordpress_db:/var/lib/mysql mysql:5.7 `
+  - `-v 호스트의공유디렉토리:컨테이너의공유디렉토리`
+  - 호스트의 공유 디렉토리가 없으면 도커가 자동 생성한다.
+- `$ sudo docker run -d --name wordpress_hostvolume -e WORDPRESS_DB_HOST=mysql -e WORDPRESS_DB_USER=root -e WORDPRESS_DB_PASSWORD=password --link wordpressdb_hostvolume:mysql -p 80 wordpress`
+
+컨테이너 삭제 후에도 데이터가 보존되는 것을 확인하기
+
+- `$ sudo docker stop wordpress_hostvolume wordpressdb_hostvolume`
+- `$ sudo docker rm wordpress_hostvolume wordpressdb_hostvolume`
+
+호스트 디렉토리를 컨테이너의 존재하는 디렉토리와 연결할 때
+
+- `$ sudo docker run -i -t --name volume_dummy alicek106/volume_test`
+  - 컨테이너에 존재하는 디렉토리 확인: `# ls /home/testdir_2/`
+- `$ sudo docker run -i -t --name volume_override -v /home/wordpress_db:/home/testdir_2 alicek106/volume_test`
+  - 컨테이너에 존재하는 디렉토리 확인: `# ls /home/testdir_2/`
+    - 기존의 디렉토리를 호스트 디렉토리로 대체한다.
+
+#### 볼륨 컨테이너 공유하기
+
+volume_override 컨테이너의 볼륨을 공유하기
+
+- `$ sudo docker run -i -t --name volumes_from_container --volumes-from volume_override ubuntu:14.04`
+  - 컨테이너에 추가된 디렉토리 확인: `# ls /home/testdir_2/`
+
+#### 도커 볼륨 사용하기
+
+도커 볼륨 생성하기
+
+- `$ sudo docker volume create --name myvolume`
+
+도커 볼륨 조회하기
+
+- `$ sudo docker volume ls`
+
+도커 볼륨 사용하기
+
+- `$ sudo docker run -i -t --name myvolume_1 -v myvolume:/root/ ubuntu:14.04`
+  - `# echo Hello, volume! >> /root/volume`
+
+도커 볼륨 공유하기
+
+- `$ sudo docker run -i -t --name myvolume_2 -v myvolume:/root/ ubuntu:14.04`
+  - `# cat /root/volume`
+
+도커 볼륨의 실제 위치 알아내기
+
+- `$ sudo docker inspect --type volume myvolume`
+  - `docker inspect` 명령: 컨테이너, 이미지, 볼륨 등 도커의 모든 구성 단위의 정보를 확인할 때 사용
+    - `--type [image|volume|container]`
+
+도커 볼륨 자동 생성하기
+
+- `$ sudo docker run -i -t --name volume_auto -v /root/ ubuntu:14.04`
+
+컨테이너가 사용하는 도커 볼륨 확인하기
+
+- `$ sudo docker container inspect volume_auto`
+
+사용하지 않는 볼륨을 자동으로 삭제하기
+
+- `$ sudo docker volume prune`
+
+#### mount 옵션
+
+mount 옵션으로 도커 볼륨 연결하기
+
+- `$ sudo docker run -i -t --name mount_option_1 --mount type=volume,source=myvolume,target=/root/ ubuntu:14.04`
+
+mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
+
+- `$ sudo docker run -i -t --name mount_option_2 --mount type=bind,source=/home/wordpress_db,target=/root/ ubuntu:14.04`
+
+### 도커 네트워크 다루기
+
+도커 호스트의 가상 이더넷 카드
+
+- `$ ifconfig`
+  - 실행 중인 컨테이너 개수 만큼 `vethxxxx` 가상 이더넷 카드가 생성된 것을 확인 할 수 있다.
+
+#### 도커 네트워크
+
+도커에서 기본적으로 쓸 수 있는 네트워크 확인하기
+
+- `$ sudo docker network ls`
+  - bridge: 컨테이너를 생성할 때 자동으로 연결되는 docker0 브리지를 활용하도록 설정됨
+    - 172.17.0.x IP 대역을 컨테이너에 순차적으로 할당한다.
+
+## 도커 이미지 다루기
+
+도커 허브라는 중앙 이미지 저장소에서 도커 이미지 검색하기
+
+- `$ sudo docker search 키워드`
+
+### 도커 이미지 생성
+
+이미지 목록 조회
+
+- `$ sudo docker images`
+
+이미지로 만들 컨테이너 준비
+
+- `$ sudo docker run -i -t --name commit_test ubuntu:14.04`
+  - 컨테이너 변경: `# echo test_first! >> first`
+
+컨테이너를 이미지로 만들기
+
+- `$ sudo docker commit 옵션 컨테이너명 REPOSITORY:TAG`
+- `$ sudo docker commit -a "alicek106" -m "my first commit" commit_test commit_test:first`
+  - `-a author` : 이미지 작성자에 대한 정보를 이미지에 포함시킨다.
+  - `-m 커밋메시지` : 이미지에 포함될 부가 설명을 설정한다.
+
+만든 이미지로 컨테이너 만들기
+
+- `$ sudo docker run -i -t --name commit_test2 commit_test:first`
+  - 컨테이너 변경: `# echo test_second! >> second`
+
+변경한 컨테이너로 새 이미지 만들기
+
+- `$ sudo docker commit -a "alicek106" -m "my second commit" commit_test2 commit_test:second`
+
+이미지 정보 살펴보기
+
+- `$ sudo docker inspect ubuntu:14.04`
+- `$ sudo docker inspect commit_test:first`
+  - Layers = ubuntu:14.04 Layers + 추가사항 I
+- `$ sudo docker inspect commit_test:second`
+  - Layers = commit_test:first Layers + 추가사항 II
+  - Layers = ubuntu:14.04 Layers + 추가사항 I + 추가사항 II
+
+이미지 레이어 구조에 대한 변경 내역 확인하기
+
+- `$ sudo docker history 도커이미지명`
+- `$ sudo docker history commit_test:first`
+
+이미지 삭제하기
+
+- `$ sudo docker rmi commit_test:first`
+  - 이미지를 사용 중인 컨테이너가 있을 경우 삭제할 수 없다.
+  - 컨테이너를 먼저 삭제한 후 이미지를 삭제해야 한다.
+    - `$ sudo docker stop commit_test2 && sudo docker rm commit_test2`
+
+댕글링(dangling) 이미지 다루기
+
+- 컨테이너 생성
+  - `$ sudo docker run -i -t --name dangle_test commit_test:second`
+  - 컨테이너 확인: `$ sudo docker ps -a`
+- 컨테이너가 사용한 이미지 강제 삭제
+  - `$ sudo docker rmi -f commit_test:second`
+  - 컨테이너 확인: `$ sudo docker ps -a`
+    - 이미지 이름이 변경되어 있다.
+- 삭제된 이미지 확인
+  - `$ sudo docker images -f dangling=true`
