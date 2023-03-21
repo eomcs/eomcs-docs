@@ -309,6 +309,8 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 - `$ sudo docker commit -a "alicek106" -m "my second commit" commit_test2 commit_test:second`
 
+### 도커 이미지 정보 조회
+
 이미지 정보 살펴보기
 
 - `$ sudo docker inspect ubuntu:14.04`
@@ -322,6 +324,8 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 - `$ sudo docker history 도커이미지명`
 - `$ sudo docker history commit_test:first`
+
+### 도커 이미지 삭제
 
 이미지 삭제하기
 
@@ -341,3 +345,71 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
     - 이미지 이름이 변경되어 있다.
 - 삭제된 이미지 확인
   - `$ sudo docker images -f dangling=true`
+
+### 도커 이미지 추출
+
+도커 이미지를 한 개의 파일로 추출하기
+
+-`$ sudo docker save -o ubuntu_14_04.tar ubuntu:14.04`
+
+도커 이미지 로드하기
+
+- `$ sudo docker load -i ubuntu_14_04.tar`
+
+### 도커 이미지 배포
+
+#### 도커 허브(<https://hub.docker.com/>)에 회원 가입 및 로그인
+
+#### 이미지 저장소 생성
+
+- _Create a Repository_ 클릭
+- 저장소명: hello-docker
+- 설명: 테스트용
+- Visibility: private
+
+#### 테스트용 이미지 생성
+
+- `$ sudo docker run -i -t --name commit-container1 ubuntu:14.04`
+  - 컨테이너 변경: `# echo my first push >> test`
+
+#### 테스트용 이미지 커밋하기
+
+- `$ sudo docker commit commit-container1 hello-docker:0.0`
+
+#### 이미지에 태깅하기
+
+- `$ sudo docker tag local-image:tagname new-repo:tagname`
+- `$ sudo docker tag hello-docker:0.0 eomjinyoung/hello-docker:0.0`
+
+#### 도커 허브에 로그인 하기
+
+- `$ sudo docker login`
+
+#### 저장소에 이미지 올리기
+
+- `$ sudo docker push new-repo:tagname`
+- `$ sudo docker push eomjinyoung/hello-docker:0.0`
+
+도커 허브 사이트의 Tags 탭에서 확인할 것!
+
+#### 저장소에 업로드한 이미지 가져오기
+
+- `$ sudo docker pull eomjinyoung/hello-docker:0.0`
+
+#### 가져온 이미지로 컨테이너 생성, 실행 및 접속
+
+도커 이미지 목록 확인하기
+
+- `$ sudo docker images`
+
+도커 이미지로 컨테이너 생성하기
+
+- `$ sudo docker create -i -t --name hello1 eomjinyoung/hello-docker:0.0`
+
+도커 컨테이너 실행하기
+
+- `$ sudo docker start hello1`
+
+도커 컨테이너에 들어가기
+
+- `$ sudo docker attach hello1`
