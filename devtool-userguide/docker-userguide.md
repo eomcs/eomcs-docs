@@ -34,7 +34,7 @@
 컨테이터 나가기 및 종료
 
 - `$ exit` 또는 Ctrl + D : 배시셸을 종료함으로써 컨테이너를 정지시킨다.
-- Ctrl + P 다음에 Ctrl + Q: 단순히 컨테이너의 셸만 빠져나온다.
+- Ctrl + P 다음에 Ctrl + Q(Ctrl + P, Q): 단순히 컨테이너의 셸만 빠져나온다.
 
 ### 도커 컨테이너 실행 세부 단계
 
@@ -61,7 +61,7 @@
 
 정리
 
-- `docker run`
+- `docker run -i -t`
   - 이미지 없으면 `docker pull`
   - `docker create -i -t`
   - `docker start`
