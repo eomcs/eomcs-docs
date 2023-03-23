@@ -125,6 +125,7 @@
 - `$ sudo docker run -i -t --name mywebserver -p 80:80 ubuntu:14.04`
   - `-p 호스트포트:컨테이너포트`
   - 여러 개의 포트 노출: `-p` 옵션을 여러 개 삽입
+  - `-p 컨테이너포트` : 호스트의 임의 포트 번호랑 컨테이너 포트를 연결한다.
 
 컨테이너에 아파치 웹 서버 설치 및 시작시키기
 
@@ -413,3 +414,39 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 도커 컨테이너에 들어가기
 
 - `$ sudo docker attach hello1`
+
+### 웹 애플리케이션 배포 - 지접 컨테이너 구성 및 배치하기
+
+#### MariaDB 컨테이너 생성
+
+MariaDB 도커 이미지 가져오기
+
+- `$ sudo docker pull mariadb`
+
+MariaDB 컨테이너 생성 및 실행
+
+- `$ sudo docker run -p 3306:3306 --detach --name mariadb --env MARIADB_USER=study --env MARIADB_PASSWORD=1111 --env MARIADB_ROOT_PASSWORD=1111  mariadb:latest`
+
+MariaDB 컨테이너 접속
+
+- `$ sudo docker exec -it mariadb /bin/bash`
+
+MariaDB 버전 확인
+
+- `# mysql --version`
+
+MariaDB 클라이언트 실행 및 root 사용자로 서버 접속
+
+- `# mysql -u root -p`
+
+웹애플리케이션의 DB 환경 구축
+
+- `studydb` 데이터베이스 생성
+  - `CREATE DATABASE studydb CHARACTER SET utf8 COLLATE utf8_general_ci`
+- `study` 사용자에게 `studydb` 데이터베이스 사용권한 부여
+  - `GRANT ALL ON studydb.* TO 'study'@'%'`
+- `study` 사용자로 로그인
+  - `# mysql -u study -p`
+- `study` 사용자가 사용할 수 있는 데이터베이스 확인
+  - `show databases`
+- 웹 애플리케이션 테이블 생성
