@@ -153,6 +153,17 @@
 
 - `$ sudo docker exec 컨테이너이름 ls`
 
+### 컨테이너의 네트워크
+
+도커 엔진의 네트워크 목록 조회
+
+- `$ sudo docker network ls`
+
+특정 네트워크의 상태 조사하기
+
+- `$ sudo docker network inspect 네트워크이름`
+- `$ sudo docker network inspect bridge`
+
 ## 도커 컨테이너 활용
 
 ### 데이터베이스 컨테이너와 웹서버 컨테이너 만들기
@@ -160,6 +171,13 @@
 데이터베이스 컨테이너 만들기
 
 - `$ sudo docker run -d --name wordpressdb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=wordpress mysql:5.7`
+
+도커 이미지를 다운로드 받을 때 플랫폼 이름을 명시하지 않으면
+현재 사용하는 OS에 맞는 이미지를 찾는다.
+macOS 플랫폼에 맞는 MySQL 이미지를 찾을 수 없다.
+macOS에서 이미지를 다운로드 받고 싶다면 플랫폼 이름을 명시하라!
+
+- `$ sudo docker run --platform linux/amd64 -d --name wordpressdb -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=wordpress mysql:5.7`
 
 워드프레스 기반 블로그 서비스 만들기
 
@@ -174,7 +192,7 @@
 
 - `$ sudo docker run -d ... -e ... --link ...`
   - `-d` : Detached 모드로 컨테이너 실행. 컨테이너에서 백그라운드에서 동작하는 애플리케이션을 실행할 때 사용.
-    - 이 모드에서는 실행되는 컨테이너가 실행하는 프로그램이 없으면 자동 종료된다.
+    - 이 모드에서는 컨테이너가 실행하는 프로그램이 없으면 자동 종료된다.
       - 테스트: `$ sudo docker run -d --name detach_test ubuntu:14.04`
       - `$ sudo docker ps -a` 로 확인해보면 컨테이너가 실행 즉시 종료되었음을 확인할 수 있다.
   - `-e 환경변수명=값` : 컨테이너 내부의 환경변수 설정. 컨테이너에서 실행되는 애플리케이션이 이 환경 변수를 사용한다.
@@ -227,7 +245,7 @@ volume_override 컨테이너의 볼륨을 공유하기
 도커 볼륨 사용하기
 
 - `$ sudo docker run -i -t --name myvolume_1 -v myvolume:/root/ ubuntu:14.04`
-  - `# echo Hello, volume! >> /root/volume`
+  - `# echo Hello, volume! >> /root/test`
 
 도커 볼륨 공유하기
 
@@ -370,17 +388,17 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 #### 테스트용 이미지 생성
 
-- `$ sudo docker run -i -t --name commit-container1 ubuntu:14.04`
+- `$ sudo docker run -i -t --name mycontainer ubuntu:14.04`
   - 컨테이너 변경: `# echo my first push >> test`
 
 #### 테스트용 이미지 커밋하기
 
-- `$ sudo docker commit commit-container1 hello-docker:0.0`
+- `$ sudo docker commit mycontainer hello-docker:0.1`
 
 #### 이미지에 태깅하기
 
 - `$ sudo docker tag local-image:tagname new-repo:tagname`
-- `$ sudo docker tag hello-docker:0.0 eomjinyoung/hello-docker:0.0`
+- `$ sudo docker tag hello-docker:0.1 eomjinyoung/hello-docker:0.1`
 
 #### 도커 허브에 로그인 하기
 
@@ -389,13 +407,13 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 #### 저장소에 이미지 올리기
 
 - `$ sudo docker push new-repo:tagname`
-- `$ sudo docker push eomjinyoung/hello-docker:0.0`
+- `$ sudo docker push eomjinyoung/hello-docker:0.1`
 
 도커 허브 사이트의 Tags 탭에서 확인할 것!
 
 #### 저장소에 업로드한 이미지 가져오기
 
-- `$ sudo docker pull eomjinyoung/hello-docker:0.0`
+- `$ sudo docker pull eomjinyoung/hello-docker:0.1`
 
 #### 가져온 이미지로 컨테이너 생성, 실행 및 접속
 
@@ -405,7 +423,7 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 도커 이미지로 컨테이너 생성하기
 
-- `$ sudo docker create -i -t --name hello1 eomjinyoung/hello-docker:0.0`
+- `$ sudo docker create -i -t --name hello1 eomjinyoung/hello-docker:0.1`
 
 도커 컨테이너 실행하기
 
@@ -415,7 +433,7 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 - `$ sudo docker attach hello1`
 
-### 웹 애플리케이션 배포 - 지접 컨테이너 구성 및 배치하기
+### 웹 애플리케이션 배포 - 직접 컨테이너 구성 및 배치하기
 
 #### MariaDB 컨테이너 생성
 
