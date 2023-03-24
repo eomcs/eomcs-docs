@@ -278,21 +278,13 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 ### 도커 네트워크
 
+### 컨테이너의 네트워크
+
 도커에서 기본적으로 쓸 수 있는 네트워크 확인하기
 
 - `$ sudo docker network ls`
   - bridge: 컨테이너를 생성할 때 자동으로 연결되는 docker0 브리지를 활용하도록 설정됨
     - 172.17.0.x IP 대역을 컨테이너에 순차적으로 할당한다.
-
-브릿지 바인딩 정보 조회를 위한 도구 설치
-
-- `$ sudo apt-get install bridge-utils`
-
-브릿지 바인딩 정보 조회하기
-
-- `$ brctl show docker0`
-
-### 컨테이너의 네트워크
 
 도커 엔진의 네트워크 목록 조회
 
@@ -302,6 +294,49 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 - `$ sudo docker network inspect 네트워크이름`
 - `$ sudo docker network inspect bridge`
+
+### 브릿지 네트워크
+
+#### 브릿지 바인딩 조회
+
+브릿지 바인딩 정보 조회를 위한 도구 설치
+
+- `$ sudo apt-get install bridge-utils`
+
+브릿지 바인딩 정보 조회하기
+
+- `$ brctl show docker0`
+
+#### 브릿지 네트워크 생성
+
+새 브릿지 네트워크 생성하기
+
+- `$ sudo docker network create --driver bridge mybridge`
+
+새 컨테이너에 브릿지 네트워크 연결하기
+
+- `$ sudo docker run -it --network="mybridge" --name network1 ubuntu:14.04`
+
+브릿지 네트워크 상세 정보 보기
+
+- `$ sudo docker network inspect mybridge`
+
+#### 컨테이너에 브릿지 네트워크를 붙이기/떼기
+
+컨테이너에 브릿지 네트워크 떼기
+
+- `$ sudo docker network disconnect mybridge network1`
+- `$ sudo docker attach network`
+- `# ifconfig`
+  - eth0 네트워크 인터페이스가 제거된 것을 확인할 수 있다.
+
+컨테이너에 브릿지 네트워크 붙이기
+
+- `$ sudo docker network connect bridge network1`
+- `$ sudo docker attach network1`
+- `# ifconfig`
+  - eth0가 생성된다.
+  - bidge 네터워크의 주소가 컨테이너에 연결된 순서대로 설정된다.(예: 172.17.0.\*)
 
 ## 도커 이미지 다루기
 
