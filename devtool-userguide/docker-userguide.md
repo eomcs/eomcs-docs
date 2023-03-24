@@ -500,32 +500,29 @@ nano 에디터 설치
 
 JDK 17 설치
 
-- `# apt install openjdk-17-jdk`
+- `# apt install openjdk-17-jdk -y`
 
 JAVA_HOME 환경 변수 설정
 
 - `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee /etc/profile.d/java17.sh`
-- `# source /etc/profile.d/java17.sh`
-
-환경 변수 적용
-
-- `# source /etc/profile.d/java17.sh`
+  - `# source /etc/profile.d/java17.sh`
+  - docker 컨테이너에서 적용 안됨.
+- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee -a /etc/bash.bashrc`
+  - docker 컨테이너에서 적용됨
+  - Apple silicon에서 실행하는 macOS 에서 JDK 설치하면 디렉토리 이름이 다른다.
+    - `/usr/lib/jvm/java-17-openjdk-arm64`
 
 git 설치
 
-- `# apt install git`
+- `# apt install git -y`
 
 wget 설치
 
-- `# apt install wget`
+- `# apt install wget -y`
 
 unzip 설치
 
-- `# apt install unzip`
-
-ping 설치
-
-- `# apt-get install iputils-ping`
+- `# apt install unzip -y`
 
 gradle 다운로드 및 설치
 
@@ -533,9 +530,14 @@ gradle 다운로드 및 설치
 - `# wget https://services.gradle.org/distributions/gradle-${VERSION}-bin.zip -P /tmp`
 - `# unzip -d /opt/gradle /tmp/gradle-${VERSION}-bin.zip`
 - `# ln -s /opt/gradle/gradle-${VERSION} /opt/gradle/latest`
-- `# echo 'export GRADLE_HOME=/opt/gradle/latest' | tee /etc/profile.d/gradle.sh`
-- `# echo 'export PATH=${GRADLE_HOME}/bin:${PATH}' | tee -a /etc/profile.d/gradle.sh`
-- `# source /etc/profile.d/gradle.sh`
+- `# echo 'export GRADLE_HOME=/opt/gradle/latest' | tee -a /etc/bash.bashrc`
+- `# echo 'export PATH=${GRADLE_HOME}/bin:${PATH}' | tee -a /etc/bash.bashrc`
+- `# source /etc/bash.bashrc`
+
+nodejs 및 npm 설치
+
+- `# apt install nodejs -y`
+- `# apt install npm -y`
 
 myapp git 저장소 가져오기
 
@@ -543,11 +545,24 @@ myapp git 저장소 가져오기
 - `# cd git`
 - `# git clone https://github.com/eomjinyoung/bitcamp-study`
 
-nodejs 및 npm 설치
-
-- `# apt install nodejs`
-- `# apt install npm`
-
 myapp 자바스크립트 라이브러리 설치
 
+- `# cd ~/git/bitcamp-study/myapp/app-server/src/main/webapp`
 - `~/git/bitcamp-study/myapp/app-server/src/main/webapp# npm install`
+
+myapp 빌드
+
+- `# cd ~/git/bitcamp-study/myapp`
+- `~/git/bitcamp-study/myapp# gradle build`
+
+ping 설치
+
+- `# apt-get install iputils-ping -y`
+
+mariadb 접속 확인
+
+- `# ping 172.17.0.2`
+
+myapp 실행
+
+- `~# java -jar ~/git/bitcamp-study/myapp/app-server/build/libs/app-server-0.0.1-SNAPSHOT.jar`
