@@ -443,7 +443,7 @@ MariaDB 도커 이미지 가져오기
 
 MariaDB 컨테이너 생성 및 실행
 
-- `$ sudo docker run -p 3306:3306 --detach --name mariadb --env MARIADB_USER=study --env MARIADB_PASSWORD=1111 --env MARIADB_ROOT_PASSWORD=1111  mariadb:latest`
+- `$ sudo docker run -p 3306:3306 --detach --name mariadb --env MARIADB_USER=study --env MARIADB_PASSWORD=1111 --env MARIADB_ROOT_PASSWORD=1111  mariadb`
 
 MariaDB 컨테이너 접속
 
@@ -468,3 +468,78 @@ MariaDB 클라이언트 실행 및 root 사용자로 서버 접속
 - `study` 사용자가 사용할 수 있는 데이터베이스 확인
   - `show databases`
 - 웹 애플리케이션 테이블 생성
+  - myapp/app-server/doc/
+    - ddl.sql 실행
+    - ddl2.sql 실행
+    - ddl3.sql 실행
+    - ddl4.sql 실행
+    - data4.sql 실행
+
+#### myapp 웹 애플리케이션 컨테이너 생성
+
+Ubuntu 22.04 컨테이너 생성 및 실행
+
+- `$ sudo docker run -p 80:80 -it --name myapp ubuntu`
+
+ifconfig 등 네트워킹 관련 프로그램 추가
+
+- `# apt update`
+- `# apt install net-tools`
+
+nano 에디터 설치
+
+- `# apt install nano`
+
+JDK 17 설치
+
+- `# apt install openjdk-17-jdk`
+
+JAVA_HOME 환경 변수 설정
+
+- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee /etc/profile.d/java17.sh`
+- `# source /etc/profile.d/java17.sh`
+
+환경 변수 적용
+
+- `# source /etc/profile.d/java17.sh`
+
+git 설치
+
+- `# apt install git`
+
+wget 설치
+
+- `# apt install wget`
+
+unzip 설치
+
+- `# apt install unzip`
+
+ping 설치
+
+- `# apt-get install iputils-ping`
+
+gradle 다운로드 및 설치
+
+- `# VERSION=8.0.2`
+- `# wget https://services.gradle.org/distributions/gradle-${VERSION}-bin.zip -P /tmp`
+- `# unzip -d /opt/gradle /tmp/gradle-${VERSION}-bin.zip`
+- `# ln -s /opt/gradle/gradle-${VERSION} /opt/gradle/latest`
+- `# echo 'export GRADLE_HOME=/opt/gradle/latest' | tee /etc/profile.d/gradle.sh`
+- `# echo 'export PATH=${GRADLE_HOME}/bin:${PATH}' | tee -a /etc/profile.d/gradle.sh`
+- `# source /etc/profile.d/gradle.sh`
+
+myapp git 저장소 가져오기
+
+- `# mkdir git`
+- `# cd git`
+- `# git clone https://github.com/eomjinyoung/bitcamp-study`
+
+nodejs 및 npm 설치
+
+- `# apt install nodejs`
+- `# apt install npm`
+
+myapp 자바스크립트 라이브러리 설치
+
+- `~/git/bitcamp-study/myapp/app-server/src/main/webapp# npm install`
