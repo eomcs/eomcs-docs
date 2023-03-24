@@ -153,17 +153,6 @@
 
 - `$ sudo docker exec 컨테이너이름 ls`
 
-### 컨테이너의 네트워크
-
-도커 엔진의 네트워크 목록 조회
-
-- `$ sudo docker network ls`
-
-특정 네트워크의 상태 조사하기
-
-- `$ sudo docker network inspect 네트워크이름`
-- `$ sudo docker network inspect bridge`
-
 ## 도커 컨테이너 활용
 
 ### 데이터베이스 컨테이너와 웹서버 컨테이너 만들기
@@ -280,20 +269,39 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 
 - `$ sudo docker run -i -t --name mount_option_2 --mount type=bind,source=/home/wordpress_db,target=/root/ ubuntu:14.04`
 
-### 도커 네트워크 다루기
+## 도커 네트워크 다루기
 
 도커 호스트의 가상 이더넷 카드
 
 - `$ ifconfig`
   - 실행 중인 컨테이너 개수 만큼 `vethxxxx` 가상 이더넷 카드가 생성된 것을 확인 할 수 있다.
 
-#### 도커 네트워크
+### 도커 네트워크
 
 도커에서 기본적으로 쓸 수 있는 네트워크 확인하기
 
 - `$ sudo docker network ls`
   - bridge: 컨테이너를 생성할 때 자동으로 연결되는 docker0 브리지를 활용하도록 설정됨
     - 172.17.0.x IP 대역을 컨테이너에 순차적으로 할당한다.
+
+브릿지 바인딩 정보 조회를 위한 도구 설치
+
+- `$ sudo apt-get install bridge-utils`
+
+브릿지 바인딩 정보 조회하기
+
+- `$ brctl show docker0`
+
+### 컨테이너의 네트워크
+
+도커 엔진의 네트워크 목록 조회
+
+- `$ sudo docker network ls`
+
+특정 네트워크의 상태 조사하기
+
+- `$ sudo docker network inspect 네트워크이름`
+- `$ sudo docker network inspect bridge`
 
 ## 도커 이미지 다루기
 
