@@ -612,6 +612,8 @@ myapp 실행
 
 #### Docker 파일 작성
 
+.../myapp/app-server/Dockerfile
+
 ```
 FROM openjdk:17
 
