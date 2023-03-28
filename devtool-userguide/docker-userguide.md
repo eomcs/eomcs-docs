@@ -338,6 +338,10 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
   - eth0가 생성된다.
   - bidge 네터워크의 주소가 컨테이너에 연결된 순서대로 설정된다.(예: 172.17.0.\*)
 
+## 컨테이너 로깅
+
+### json-file 로그 사용
+
 ## 도커 이미지 다루기
 
 도커 허브라는 중앙 이미지 저장소에서 도커 이미지 검색하기
@@ -601,3 +605,31 @@ mariadb 접속 확인
 myapp 실행
 
 - `~# java -jar ~/git/bitcamp-study/myapp/app-server/build/libs/app-server-0.0.1-SNAPSHOT.jar`
+
+## Dockerfile 다루기
+
+### 스프링부트 웹 프로젝트를 도커 컨테이너로 실행하기
+
+#### Docker 파일 작성
+
+```
+FROM openjdk:17
+
+ARG JAR_FILE=build/libs/app-server-0.0.1-SNAPSHOT.jar
+
+COPY ${JAR_FILE} app.jar
+
+ENTRYPOINT [ "java", "-jar", "app.jar" ]
+```
+
+#### Dockerfile로 이미지 생성하기
+
+```
+$ docker build -t eomjinyoung/myapp:0.0.2 .
+```
+
+#### 컨테이너 생성 및 실행하기
+
+```
+$ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/webapp-upload:/root/webapp-upload --name myapp eomjinyoung/myapp:0.0.2
+```
