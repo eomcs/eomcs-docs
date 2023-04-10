@@ -25,7 +25,7 @@ $ docker image ls
 
 ```
 $ docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure --name jenkins-jdk11 jenkins/jenkins:lts-jdk11
-$ docker ps
+$ docker container ls
 ```
 
 젠킨스 컨테이너를 재생성 할 때, 기존 젠킨스 볼륨을 제거하기
@@ -116,5 +116,4 @@ Dashboard
   - 저장
 - `지금 빌드` 클릭
   - Console Output 확인
-  - `docker exec -itu 0 jenkins-jdk11 bash` 접속
-    -
+  - ## `docker exec -itu 0 jenkins-jdk11 bash` 접속
