@@ -24,7 +24,7 @@ $ docker image ls
 컨테이너 생성 및 실행하기
 
 ```
-$ docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure --name jenkins-jdk11 jenkins/jenkins:lts-jdk11
+$ docker run --privileged -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure --name jenkins-jdk11 jenkins/jenkins:lts-jdk11
 $ docker container ls
 ```
 
@@ -87,7 +87,7 @@ $ docker exec -itu 0 jenkins-jdk11 bash
         - JAVA_HOME: `/usr/lib/jvm/java-17-openjdk-amd64`
     - SAVE 클릭
 
-### 젠킨스 빌드 테스트
+### github.com의 프로젝트 연동
 
 Dashboard
 
@@ -103,7 +103,10 @@ Dashboard
   - 소스 코드 관리
     - `Git` 선택
       - Repository URL: `https://github.com/eomjinyoung/bitcamp-myapp.git`
+      - Credentials: `username/token`
       - Branch Specifier: \*/main
+  - 빌드 유발
+    - `GitHub hook trigger for GITScm polling` 선택
   - Build Steps
     - `Invoke Gradle script` 선택
       - `Use Gradle Wrapper` 선택
@@ -116,4 +119,19 @@ Dashboard
   - 저장
 - `지금 빌드` 클릭
   - Console Output 확인
-  - ## `docker exec -itu 0 jenkins-jdk11 bash` 접속
+  - `docker exec -itu 0 jenkins-jdk11 bash` 접속
+
+### github webhook 연동
+
+- Repository/Settings/Webhooks
+  - `Add webook` 클릭
+    - Payload URL: `http://젠킨스서버주소:8080/github-webhook/`
+    - Content type: `application/json`
+    - 저장
+
+## 도커 안에서 도커 사용하기
+
+### DinD(Docker in Docker)
+
+- `# docker run --privileged --name dind -d docker:stable-dind`
+- `# docker exec -it dind /bin/ash`
