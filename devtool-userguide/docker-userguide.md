@@ -547,6 +547,7 @@ JAVA_HOME 환경 변수 설정
   - `# source /etc/profile.d/java17.sh`
   - docker 컨테이너에서 적용 안됨.
 - `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee -a /etc/bash.bashrc`
+  - `# source /etc/bash.bashrc`
   - docker 컨테이너에서 적용됨
   - Apple silicon에서 실행하는 macOS 에서 JDK 설치하면 디렉토리 이름이 다른다.
     - `/usr/lib/jvm/java-17-openjdk-arm64`
