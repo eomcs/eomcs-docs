@@ -72,9 +72,9 @@ http://서버주소:8080
 root 사용자로 젠킨스 컨테이너에 접속하기
 
 ```
-# docker exec -itu 0 jenkins-jdk11 bash
-/# apt-get update
-/# apt-get install openjdk-17-jdk -y
+호스트# docker exec -itu 0 jenkins-jdk11 bash
+컨테이너/# apt-get update
+컨테이너/# apt-get install openjdk-17-jdk -y
 ```
 
 ### 젠킨스에 JDK 17 경로 등록
@@ -103,7 +103,12 @@ Dashboard
   - 소스 코드 관리
     - `Git` 선택
       - Repository URL: `https://github.com/eomjinyoung/bitcamp-myapp.git`
-      - Credentials: `username/token`
+      - Credentials:
+        - Add 버튼 클릭: `Add Jenkins` 선택
+        - `Username with Password` 선택
+          - Username: 깃허브 사용자이름
+          - Password: 깃허브 토큰
+        - `Username/토큰` 선택
       - Branch Specifier: \*/main
   - 빌드 유발
     - `GitHub hook trigger for GITScm polling` 선택
@@ -113,8 +118,7 @@ Dashboard
         - `Make gradlew executable` 체크
         - Wrappter location: 비워둠
       - Tasks
-        - `clean`
-        - `build`
+        - `clean npmSetup appNpmInstall build`
         - 입력
   - 저장
 - `지금 빌드` 클릭
