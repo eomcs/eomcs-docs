@@ -192,9 +192,9 @@ root@springboot-svr:~# vi .ssh/authorized_keys
 도커 데몬 실행
 
 ```
-# service docker start
-# systemctl start docker  <=== 권한 문제 해결해야 실행됨
-# /etc/init.d/docker start  <=== 직접 실행하기
+컨테이너/# service docker start
+컨테이너/# systemctl start docker  <=== 권한 문제 해결해야 실행됨
+컨테이너/# /etc/init.d/docker start  <=== 직접 실행하기
 ```
 
 ### Jenkins & Docker 그룹 추가
@@ -202,20 +202,20 @@ root@springboot-svr:~# vi .ssh/authorized_keys
 Docker 그룹에 root 계정 있는지 검사
 
 ```
-# id -nG
+컨테이너/# id -nG
 root docker   <=== 이렇게 출력되면 정상
 ```
 
 만약 root 계정이 추가되지 않았다면
 
 ```
-# usermod -aG docker root
+컨테이너/# usermod -aG docker root
 ```
 
 docker.sock 권한 변경
 
 ```
-# chmod 666 /var/run/docker.sock
+컨테이너/# chmod 666 /var/run/docker.sock
 ```
 
 docker 로그인하기
