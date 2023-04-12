@@ -251,4 +251,4 @@ docker 이미지 생성 및 도커 허브에 push 하기
               - `docker login -u '도커허브아아디' -p '도커허브비번' docker.io`
               - `docker pull [dockerHub UserName]/[dockerHub Repository]:[version]`
               - `docker ps -q --filter name=[containerName] | grep -q . && docker rm -f $(docker ps -aq --filter name=[containerName])`
-              - `docker run -d --name [containerName] -p 9001:9001 [dockerHub UserName]/[dockerHub Repository]:[version]`
+              - `docker run -d --name [containerName] -p 80:80 [dockerHub UserName]/[dockerHub Repository]:[version]`
