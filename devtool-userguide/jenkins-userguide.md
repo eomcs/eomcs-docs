@@ -108,6 +108,7 @@ Dashboard
         - `Username with Password` 선택
           - Username: 깃허브 사용자이름
           - Password: 깃허브 토큰
+          - 'Add' 클릭
         - `Username/토큰` 선택
       - Branch Specifier: \*/main
   - 빌드 유발
