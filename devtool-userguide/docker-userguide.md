@@ -326,7 +326,7 @@ mount 옵션으로 호스트 디렉토리를 컨테이너에 연결하기
 컨테이너에 브릿지 네트워크 떼기
 
 - `$ sudo docker network disconnect mybridge network1`
-- `$ sudo docker attach network`
+- `$ sudo docker attach network1`
 - `# ifconfig`
   - eth0 네트워크 인터페이스가 제거된 것을 확인할 수 있다.
 
