@@ -26,8 +26,8 @@
 작업 디렉토리 생성
 
 ```
-# mkdir docker-workspace
-# cd docker-workspace
+# mkdir jenkins
+# cd jenkins
 ```
 
 install-docker.sh 파일 생성
@@ -132,10 +132,10 @@ USER jenkins
 첫 번째 젠킨스 관리자 등록
 
 ```
-계정명: jenkins
+계정명: admin
 암호: 1111
 암호확인: 1111
-이름: jenkins
+이름: admin
 이메일주소: xxx@xxx.xxx
 ```
 
@@ -203,6 +203,8 @@ root 사용자로 젠킨스 컨테이너에 접속하기
         - JAVA_HOME: `/usr/lib/jvm/java-17-openjdk-amd64`
     - SAVE 클릭
 
+## Jenkins에 프로젝트 등록 및 자동 배포하기
+
 ### github.com의 프로젝트 연동
 
 Dashboard
@@ -251,31 +253,78 @@ Dashboard
     - Content type: `application/json`
     - 저장
 
-## Jenkins와 스프링부트 배포 서버 연동
+### 스프링부트 애플리케이션 docker 이미지 생성 및 도커 허브에 push 하기
+
+- Dashboard
+  - `myapp` Freestyle 아이템 선택
+    - `구성` 탭 선택
+      - Build Steps
+        - `Add build step` : Execute shell 클릭
+          - `docker build -t [dockerHub UserName]/[dockerHub Repository]:[version] app/`
+          - `docker login -u '도커허브아이디' -p '도커허브비번' docker.io`
+          - `docker push [dockerHub UserName]/[dockerHub Repository]:[version]`
+        - 저장
+
+/var/run/docker.sock의 permission denied 발생하는 경우
+
+```
+호스트# chmod 666 /var/run/docker.sock
+```
+
+## 스프링부트 애플리케이션 컨테이너 실행하기
+
+### 작업 디렉토리 만들기
+
+```
+root@bitcamp-jenkins:~# mkdir springboot
+root@bitcamp-jenkins:~# cd springboot
+root@bitcamp-jenkins:~/springboot#
+```
 
 ### ssh key 생성
 
-jenkins-jdk11 도커 컨테이너에서 실행
+docker-jenkins 도커 컨테이너에서 실행
 
 ```
-root@jenkins-svr:~# ssh-keygen -t rsa -C "jenkins-jdk11-key" -m PEM -P "" -f /root/.ssh/jenkins-jdk11-key
-root@jenkins-svr:~# ls .ssh/
-jenkins-jdk11-key  jenkins-jdk11-key.pub
-root@jenkins-svr:~# cat .ssh/jenkins-jdk11-key.pub
-ssh-rsa AAAAB3NzaC1yc2E...
+root@bitcamp-jenkins:~/springboot# docker exec -itu 0 docker-jenkins bash
+root@젠킨스컨테이너:/# ssh-keygen -t rsa -C "docker-jenkins-key" -m PEM -P "" -f /root/.ssh/docker-jenkins-key
+root@젠킨스컨테이너:/# ls ~/.ssh/
+docker-jenkins-key  docker-jenkins-key.pub
+root@젠킨스컨테이너:/# cat ~/.ssh/docker-jenkins-key
+-----BEGIN RSA PRIVATE KEY-----
+MIIG4wIBAAKCAYEAvHpMt5Pyqt6muGkF432CrlKaQ3qk78nf3xn/Jpo5LaG9cuK5
+...
+root@젠킨스컨테이너:/# cat ~/.ssh/docker-jenkins-key.pub
+ssh-rsa AAAAB3NzaC1yc2E
+...
 ```
 
-### 스프링부트 배포 서버에 public key 등록
-
-배포서버에서 vi 편집기 실행
+SSH-KEY 개인키 파일을 젠킨스 홈 폴더에 두기
 
 ```
-root@springboot-svr:~# mkdir .ssh
-root@springboot-svr:~# vi .ssh/authorized_keys
-젠킨스서버의 공개키를 붙여 넣는다.
+root@젠킨스컨테이너:/# cp ~/.ssh/docker-jenkins-key /var/jenkins_home/
+root@젠킨스컨테이너:/# chmod +r /var/jenkins_home/docker-jenkins-key
 ```
 
-### Publish Over SSH 플러그인 설정
+docker-jenkins 컨테이너의 SSH-KEY 공개키 파일을 Host로 복사해오기
+
+```
+root@bitcamp-jenkins:~/springboot# docker cp docker-jenkins:/root/.ssh/docker-jenkins-key.pub ./docker-jenkins-key.pub
+root@bitcamp-jenkins:~/springboot# cat docker-jenkins-key.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQA...
+
+```
+
+### 스프링부트 서버에 SSH-KEY 공개키 등록하기
+
+```
+root@bitcamp-springboot:~# mkdir .ssh
+root@bitcamp-springboot:~# cd .ssh
+root@bitcamp-springboot:~/.ssh# vi authorized_keys
+Jenkins 컨테이너의 공개키 복사
+```
+
+### Jenkins에 Publish Over SSH 플러그인 설정
 
 플러그인 설치
 
@@ -289,7 +338,9 @@ root@springboot-svr:~# vi .ssh/authorized_keys
 - Jenkins 관리
   - 시스템 설정
     - Publish over SSH
-      - Passphrase: 스프링부트서버 암호
+      - Passphrase: 접속하려는 컨테이너의 root 암호 <=== 암호로 접속할 때
+      - Path to key: docker-jenkins-key <=== SSH-KEY로 접속할 때(private key 파일 경로, JENKINS_HOME 기준)
+      - Key: 개인키 파일의 내용 <=== SSH-KEY 개인키 파일의 내용을 직접 입력할 때
       - 추가 버튼 클릭
       - SSH Servers
         - Name: 임의의서버 이름
@@ -298,19 +349,7 @@ root@springboot-svr:~# vi .ssh/authorized_keys
         - `Test Configuration` 버튼 클릭
           - `Success` OK!
 
-## Docker 를 활용해 Jenkins 서버에서 스프링부트 서버로 배포 자동화하기
-
-docker 이미지 생성 및 도커 허브에 push 하기
-
-- Dashboard
-  - `myapp` Freestyle 아이템 선택
-    - `구성` 탭 선택
-      - Build Steps
-        - `Add build step` : Execute shell 클릭
-          - `docker login -u '도커허브아이디' -p '도커허브비번' docker.io`
-          - `docker build -t [dockerHub UserName]/[dockerHub Repository]:[version] app/`
-          - `docker push [dockerHub UserName]/[dockerHub Repository]:[version]`
-        - 저장
+### Jenkins 서버에서 스프링부트 서버를 제어하여 스프링부트 컨테이너 실행하기
 
 스프링부트 서버에서 docker pull 및 run
 
