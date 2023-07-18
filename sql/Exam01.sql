@@ -89,7 +89,7 @@
   insert into test1(no, name, age) values(1, 'aaa', 30);
 
 값을 입력하지 않는 컬럼은 이름과 값 지정을 생략한다.
-> insert into test1(name, age) values('aaa', 30); /* 오류! no는 not null*/
+  insert into test1(name, age) values('aaa', 30); /* 오류! no는 not null*/
 
 컬럼에 default 값이 설정된 경우, 컬럼 값의 입력을 생략하면 기본값이 사용된다.
   insert into test1(no, age) values(3, 30);

@@ -1,4 +1,52 @@
-# MySQL 설치 후 설정
+# MySQL 설치 및 설정
+
+## MySQL 설치
+```
+[windows OS]
+scoop 패키지 관리자를 이용하여 mysql 설치
+> scoop install MySQL
+
+서비스에 등록
+    mysqld --install "서비스명"
+> mysqld --install "MySQL"
+
+서비스 시작
+    net start 서비스명
+> net start MySQL    (windows)
+
+서비스 종료
+    net stop 서비스명
+> net stop MySQL
+
+[mac]
+mysql 설치
+> brew install mysql
+
+mysql 설치 후 root 암호 변경
+> sudo mysql_secure_installation
+
+mysql 실행
+> brew services start mysql
+> brew services stop mysql
+또는
+> mysql.server start
+> mysql.server stop
+
+[linux]
+mysql 설치
+> sudo apt update
+> sudo apt install mysql-server
+> sudo systemctl status mysql
+> mysql -V
+
+mysql 설치 후 root 암호 변경
+> sudo mysql_secure_installation
+
+mysql 실행
+> service mysql start
+> service mysql stop
+> service mysql status
+```
 
 ## mysql 서버에 접속하기
 로컬 MySQL 서버에 접속
