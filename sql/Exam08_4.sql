@@ -58,7 +58,7 @@ select
 from board5 b 
   left outer join attach_file5 a on b.no=a.bno
 order by 
-  no desc;
+  b.no desc;
 
 
 

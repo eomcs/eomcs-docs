@@ -74,7 +74,7 @@ having
     cnt > 3; -- 집합 함수, group by 조건 컬럼, select 절의 컬럼 사용 가능
 
 select
-    r.name,
+    r.name, -- MySQL 8.x 에서는 일반 컬럼을 지정할 수 없다.
     count(*) as cnt
 from
     room r

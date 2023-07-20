@@ -36,9 +36,9 @@ order by loc asc, name asc;
 
 -- order by 에서 컬럼을 지정할 때 select 절에 선택된 컬럼이 아니더라도 지정할 수 있다.
 -- 즉 select 절에 있는 컬럼 또는 테이블 컬럼을 지정할 수 있다.
-select rno, name
+select rno, name, concat(loc,'-',name) as name2
 from room
-order by loc asc, name asc;
+order by loc asc, name2 asc;
 
 -- 실행 순서: from -> where -> select -> order by
 -- 1) from 또는 join : 테이블의 전체 데이터 또는 조인 데이터 

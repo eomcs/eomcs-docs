@@ -84,6 +84,9 @@ insert into board3 values(3, '제목3', '내용');
 insert into attach_file3 values(1, 'a1.gif', 1);
 insert into attach_file3 values(2, 'a2.gif', 1);
 insert into attach_file3 values(3, 'c1.gif', 3);
+insert into attach_file3 values(4, 'x1.gif', 2);
+insert into attach_file3 values(5, 'x2.gif', 2);
+insert into attach_file3 values(6, 'x3.gif', 2);
 
 -- board3의 no와 attach_file3의 no는 PK/FK 관계가 아니다.
 -- 그럼에도 불구하고 이름이 같기 때문에 이 컬럼을 기준으로 데이터를 연결한다.

@@ -1,6 +1,6 @@
--- # select 테스트 용 데이터 준비
+-- select 테스트 용 데이터 준비
 
-/* 강의실 데이터 준비 */
+-- 강의실 데이터 준비
 insert into room(rno, loc, name, qnty) values(1, '강남', '501', 30);
 insert into room(rno, loc, name, qnty) values(2, '강남', '502', 30);
 insert into room(rno, loc, name, qnty) values(3, '강남', '503', 30);
@@ -12,7 +12,7 @@ insert into room(rno, loc, name, qnty) values(8, '서초', '302', 30);
 insert into room(rno, loc, name, qnty) values(9, '서초', '501', 30);
 insert into room(rno, loc, name, qnty) values(10, '서초', '601', 30);
 
-/* 학생 데이터 입력 */
+-- 학생 데이터 입력
 insert into memb(mno, name, tel, email, pwd)
 values(100, 's100', '111-1111', 's100@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
@@ -35,7 +35,7 @@ values(103, 'Y', '1003', '우리은행');
 insert into stnt(mno, work, acc_no, bank)
 values(104, 'N', '1004', '국민은행');
 
-/* 강사 데이터 입력 */
+-- 강사 데이터 입력
 insert into memb(mno, name, tel, email, pwd)
 values(200, 't200', '111-1111', 't200@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
@@ -58,7 +58,7 @@ values(203, 25000, '2003', '우리은행');
 insert into tcher(mno, hr_pay, acc_no, bank)
 values(204, 30000, '2004', '국민은행');
 
-/* 매니저 데이터 입력 */
+-- 매니저 데이터 입력
 insert into memb(mno, name, tel, email, pwd)
 values(300, 'm300', '111-1111', 'm300@', sha2('1111', 224));
 insert into memb(mno, name, tel, email, pwd)
@@ -81,11 +81,11 @@ values(303, '교육', '주임');
 insert into mgr(mno, dept, posi)
 values(304, '교육', '과장');
 
-/* 200번 강사는 교육팀 과장이기도 하다.*/
+-- 200번 강사는 교육팀 과장이기도 하다.
 insert into mgr(mno, dept, posi)
 values(200, '교육', '과장');
 
-/* 강의 데이터 입력 */
+-- 강의 데이터 입력
 insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
 values(1, '자바프로그래밍', '2018-1-1', '2018-5-30', 30, 100, 'Y', '미취업자', 'ok');
 insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
@@ -94,15 +94,15 @@ insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
 values(3, '윈도우프로그래밍', '2018-5-1', '2018-10-30', 30, 300, 'Y', '노동부', 'ok');
 
 
-/* 강의에 매니저 배정 */ 
+-- 강의에 매니저 배정  
 update lect set mno=303 where lno=1;
 update lect set mno=304 where lno=3;
 
-/* 강의에 강의실 배정 */
+-- 강의에 강의실 배정 
 update lect set rno=1 where lno=1;
 update lect set rno=4 where lno=2;
 
-/* 수강신청 데이터 입력 */
+-- 수강신청 데이터 입력 
 insert into lect_appl(lano, lno, mno, rdt) values(1, 1, 100, '2017-11-2');
 insert into lect_appl(lano, lno, mno, rdt) values(2, 1, 101, '2017-11-3');
 insert into lect_appl(lano, lno, mno, rdt) values(3, 1, 102, '2017-11-4');

@@ -149,7 +149,7 @@ from lect_appl la
 
 /* where 절에 서브쿼리 사용하기 */
 
-/* 과장 또는 대리 매니저가 담당하고 있는 수강 신청만 추출하기 */
+/* 과장 또는 주임 매니저가 담당하고 있는 수강 신청만 추출하기 */
 select
     la.lano,
     /* (select titl from lect where lno=la.lno) as lect_title, */
@@ -172,7 +172,7 @@ select
   (select titl from lect where lno=la.lno) lect_title,
   (select name from memb where mno=la.mno) student_name,
   (select work from stnt where mno=la.mno) student_work,
-  to_char(la.rdt, 'YYYY-MM-DD') reg_date,
+  date_format(la.rdt, '%Y-%m-%d') reg_date,
   ifnull((select name from room where rno=(select rno from lect where lno=la.lno)), '') room_name,
   ifnull((select name from memb where mno=(select mno from lect where lno=la.lno)), '') mgr_name,
   ifnull((select posi from mgr where mno=(select mno from lect where lno=la.lno)), '') mgr_posi
@@ -217,7 +217,7 @@ select
   st.std_no,
   st.std_name,
   st.std_work,
-  to_char(la.rdt, 'YYYY-MM-DD') reg_date
+  date_format(la.rdt, '%Y-%m-%d') reg_date
 from lect_appl la
   inner join (
       select
@@ -238,5 +238,3 @@ from lect_appl la
       stnt s
     ) st on la.mno=st.std_no;
 
-
---
