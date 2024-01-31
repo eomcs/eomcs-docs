@@ -83,12 +83,12 @@ insert into test1(no, title) values(10, 'jjj');
 
 첨부파일 데이터 입력:
 
-insert into test2(filepath, bno) values('c:/download/a1.gif', 1);
-insert into test2(filepath, bno) values('c:/download/a2.gif', 1);
-insert into test2(filepath, bno) values('c:/download/a3.gif', 1);
-insert into test2(filepath, bno) values('c:/download/e1.gif', 5);
-insert into test2(filepath, bno) values('c:/download/e2.gif', 5);
-insert into test2(filepath, bno) values('c:/download/j1.gif', 10);
+insert into test2(fno, filepath, bno) values(101, 'c:/download/a1.gif', 1);
+insert into test2(fno, filepath, bno) values(102, 'c:/download/a2.gif', 1);
+insert into test2(fno, filepath, bno) values(103, 'c:/download/a3.gif', 1);
+insert into test2(fno, filepath, bno) values(104, 'c:/download/e1.gif', 5);
+insert into test2(fno, filepath, bno) values(105, 'c:/download/e2.gif', 5);
+insert into test2(fno, filepath, bno) values(106, 'c:/download/j1.gif', 10);
 
 
 ## FK(Foreign Key) 제약 조건이 없을 때
@@ -97,7 +97,7 @@ insert into test2(filepath, bno) values('c:/download/j1.gif', 10);
 - 첨부파일 데이터를 입력할 때 존재하지 않는 게시물 번호가 들어 갈 수 있다.
 - 그러면 첨부파일 데이터는 무효한 데이타 된다.
 
-insert into test2(filepath, bno) values('c:/download/x.gif', 100);
+insert into test2(fno, filepath, bno) values(107, 'c:/download/x.gif', 100);
 
 ### 문제점 2
 - 첨부 파일이 있는 게시물을 삭제할 때,
@@ -108,7 +108,7 @@ delete from test1 where no=1;
 
 이런 문제가 발생한 이유?
 - 다른 테이블의 데이터를 참조하는 경우, 참조 데이터의 존재 유무를 검사하지 않기 때문이다.
-- 테이블의 데이터를 삭제할 때 다른 테이블이 참조하는지 여부를 검사하지 않기 때문이다.
+- 테이블의 데이터를 삭제할 때 다른 테이블의 데이터가 참조하는지 여부를 검사하지 않기 때문이다.
 
 해결책?
 - 다른 데이터를 참조하는 경우 해당 데이터의 존재 유무를 검사하도록 강제한다.
@@ -120,9 +120,7 @@ delete from test1 where no=1;
 - 다른 테이블의 데이터와 연관된 데이터를 저장할 때 무효한 데이터가 입력되지 않도록 제어하는 문법이다.
 - 다른 테이블의 데이터가 참조하는 데이터를 임의의 지우지 못하도록 제어하는 문법이다.
 - 그래서 데이터의 무결성(data integrity; 결함이 없는 상태)을 유지하게 도와주는 문법이다.
-
-
-다른 테이블의 PK를 참조하는 컬럼으로 선언한다.
+- 다른 테이블의 PK 또는 Unique 컬럼을 참조한다.
 
 alter table 테이블명
     add constraint 제약조건이름 foreign key (컬럼명) references 테이블명(컬럼명);
