@@ -192,7 +192,7 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
 
 #### text(65535), mediumtext(약 1.6MB), longtext(약 4GB)
 - 긴 텍스트를 저장할 때 사용하는 컬럼 타입이다.
-- 오라클의 경우 long 타입과 CLOB(character large object) 타입이 있다.
+- 오라클의 경우 long 타입(2GB)과 CLOB(character large object) 타입(4GB)이 있다.
 
 #### date
 - 날짜 정보를 저장할 때 사용한다.
@@ -288,7 +288,7 @@ key column : 데이터를 구분할 때 사용하는 값
   - 비록 primary key는 아니지만, primary key 처럼 데이터를 구분하는
     용도로 대신 사용할 수 있다고 해서 **대안 키(alternate key)** 라 부른다.
 
-#### artificial key (인공키)
+#### artificial key (인공키; surrogate key(대리키)))
 - Primary key로 사용하기에 적절한 컬럼을 찾을 수 없다면,
   - 예) 게시글 : 제목, 내용, 작성자, 등록일, 조회수
 - 이런 경우에 key로 사용할 컬럼을 추가한다.
