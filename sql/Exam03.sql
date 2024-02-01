@@ -92,7 +92,7 @@ where working='Y' and class='java100';
  * where 절을 통해 결과 데이터를 먼저 선택(selection)한 다음
  * 결과 데이터에서 가져올 컬럼을 선택(projection)한다.
  * 따라서 실행 순서는:
- * from ==> where ==> group by ==> having => select ==> order by ==>
+ * from ==> where ==> select ==> order by ==> limit
  */
 select no, name
 from test1

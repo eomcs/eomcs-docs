@@ -95,7 +95,7 @@ having
     r.name = '302'; -- 집합 함수, group by 조건 컬럼, select 절의 컬럼 사용 가능
 
 -- 실행 순서: from --> where --> group by --> select --> having --> order by
--- => MySQL이 아닌 다른 DBMS에서 실행하여 실행 순서를 확인할 필요가 있음!
+-- => MySQL이 아닌 다른 DBMS에서는 실행 순서가 다를 수 있다.
 select
     'okok' as test,
     r.loc as location,
@@ -109,5 +109,5 @@ group by
 having
     cnt > 2 and test = 'okok'
 order by 
-    cnt desc;
+    cnt asc;
     

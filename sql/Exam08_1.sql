@@ -4,7 +4,7 @@
 1) CROSS 조인(=Cartesian product)
 2) NATURAL 조인
 3) JOIN ~ USING(컬럼명)
-4) JOIN ~ ON
+4) [INNER] JOIN ~ ON
 5) OUTER JOIN
 */
 

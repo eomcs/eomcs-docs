@@ -14,7 +14,7 @@ select no, title, content, fno, filepath, bno
 from board5 b join attach_file5 a on b.no=a.bno;
 
 
--- 조건에 일치하는 경우에만 두 테이블의 데이터를 연결한다.
+-- 조건이 일치하는 경우에만 두 테이블의 데이터를 연결한다.
 -- 이런 조인을 'inner join' 이라 부른다.
 -- SQL 문에서도 inner join 이라 기술할 수 있다.
 -- 물론 inner를 생략할 수도 있다.
@@ -59,6 +59,7 @@ from board5 b
   left outer join attach_file5 a on b.no=a.bno
 order by 
   b.no desc;
+
 
 
 

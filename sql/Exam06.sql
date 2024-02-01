@@ -92,7 +92,12 @@ insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
 values(2, 'IoT프로그래밍', '2018-3-1', '2018-7-30', 30, 200, 'Y', '미취업자', 'ok');
 insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
 values(3, '윈도우프로그래밍', '2018-5-1', '2018-10-30', 30, 300, 'Y', '노동부', 'ok');
-
+insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
+values(4, '인공지능', '2024-5-1', '2024-10-30', 30, 300, 'Y', 'K-디지털', 'ok');
+insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
+values(5, '데브옵스', '2024-4-1', '2024-12-30', 30, 300, 'Y', 'K-디지털', 'ok');
+insert into lect(lno, titl, sdt, edt, qnty, pric, nat_sup, sup_typ, dsct)
+values(6, '클라우드', '2024-6-1', '2024-11-30', 30, 300, 'Y', 'K-디지털', 'ok');
 
 -- 강의에 매니저 배정  
 update lect set mno=303 where lno=1;

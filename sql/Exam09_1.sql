@@ -99,8 +99,7 @@ select
     l2.rname,
     l2.mname,
     l2.posi
-from (
-        select
+from (select
             la.lano,
             la.lno,
             la.rdt,
