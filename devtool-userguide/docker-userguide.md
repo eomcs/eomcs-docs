@@ -1,5 +1,17 @@
 # 도커 사용법
 
+## 준비
+
+사용자 등록
+`$ adduser student`
+
+등록한 사용자에게 sudo 권한 부여
+`$ visudo`
+
+편집기에서 다음 항목 추가
+`student ALL=(ALL) ALL`
+
+
 ## 도커 설치
 
 ### 기존 설치 제거
