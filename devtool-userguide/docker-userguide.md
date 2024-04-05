@@ -245,13 +245,13 @@ volume_override 컨테이너의 볼륨을 공유하기
 
 도커 볼륨 사용하기
 
-- `$ sudo docker run -i -t --name myvolume_1 -v myvolume:/root/ ubuntu:14.04`
-  - `# echo Hello, volume! >> /root/test`
+- `$ sudo docker run -i -t --name docker1 -v myvolume:/root/ ubuntu:14.04`
+  - `# echo Hello, volume! >> /root/test.txt`
 
 도커 볼륨 공유하기
 
-- `$ sudo docker run -i -t --name myvolume_2 -v myvolume:/root/ ubuntu:14.04`
-  - `# cat /root/volume`
+- `$ sudo docker run -i -t --name docker2 -v myvolume:/root/ ubuntu:14.04`
+  - `# cat /root/test.txt`
 
 도커 볼륨의 실제 위치 알아내기
 
@@ -551,18 +551,18 @@ nano 에디터 설치
 
 JDK 17 설치
 
-- `# apt install openjdk-17-jdk -y`
+- `# apt install openjdk-21-jdk -y`
 
 JAVA_HOME 환경 변수 설정
 
-- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee /etc/profile.d/java17.sh`
-  - `# source /etc/profile.d/java17.sh`
+- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' | tee /etc/profile.d/java21.sh`
+  - `# source /etc/profile.d/java21.sh`
   - docker 컨테이너에서 적용 안됨.
-- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64' | tee -a /etc/bash.bashrc`
+- `# echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' | tee -a /etc/bash.bashrc`
   - `# source /etc/bash.bashrc`
   - docker 컨테이너에서 적용됨
   - Apple silicon에서 실행하는 macOS 에서 JDK 설치하면 디렉토리 이름이 다른다.
-    - `/usr/lib/jvm/java-17-openjdk-arm64`
+    - `/usr/lib/jvm/java-21-openjdk-arm64`
 
 git 설치
 
@@ -578,7 +578,7 @@ unzip 설치
 
 gradle 다운로드 및 설치
 
-- `# VERSION=8.0.2`
+- `# VERSION=8.7`
 - `# wget https://services.gradle.org/distributions/gradle-${VERSION}-bin.zip -P /tmp`
 - `# unzip -d /opt/gradle /tmp/gradle-${VERSION}-bin.zip`
 - `# ln -s /opt/gradle/gradle-${VERSION} /opt/gradle/latest`
@@ -628,13 +628,13 @@ myapp 실행
 .../myapp/app-server/Dockerfile
 
 ```
-FROM openjdk:17
+FROM openjdk:21-jdk
 
-ARG JAR_FILE=build/libs/app-server-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=build/libs/app-0.0.1-SNAPSHOT.jar
 
 COPY ${JAR_FILE} app.jar
 
-ENTRYPOINT [ "java", "-jar", "app.jar" ]
+ENTRYPOINT [ "java", "-Dspring.profiles.active=prod", "-jar", "app.jar" ]
 ```
 
 #### Dockerfile로 이미지 생성하기
