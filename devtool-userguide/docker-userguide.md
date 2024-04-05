@@ -625,12 +625,12 @@ myapp 실행
 
 #### Docker 파일 작성
 
-.../myapp/app-server/Dockerfile
+.../myapp/Dockerfile
 
 ```
 FROM openjdk:21-jdk
 
-ARG JAR_FILE=build/libs/app-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=app/build/libs/app-0.0.1-SNAPSHOT.jar
 
 COPY ${JAR_FILE} app.jar
 
@@ -645,6 +645,12 @@ $ docker build -t eomjinyoung/myapp:0.0.2 .
 
 #### 컨테이너 생성 및 실행하기
 
+Windows OS
 ```
-$ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/webapp-upload:/root/webapp-upload --name myapp eomjinyoung/myapp:0.0.2
+$ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/webapp-upload:/root/webapp-upload --name myapp2 eomjinyoung/myapp:0.0.2
+```
+
+Linux, macOS, Unix
+```
+$ docker run -d -p 80:80 -v /home/student/config:/root/config --name myapp2 eomjinyoung/myapp:0.0.2
 ```
