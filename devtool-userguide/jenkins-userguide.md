@@ -17,11 +17,11 @@
 #### 젠킨스 도커 이미지 가져오기
 
 ```
-# docker pull jenkins/jenkins:lts-jdk17
+# docker pull jenkins/jenkins:jdk21
 # docker image ls
 ```
 
-#### 도커 이미지 만들기: 젠킨스 + JDK17 + 도커 클라이언트
+#### 도커 이미지 만들기: 젠킨스 + JDK21 + 도커 클라이언트
 
 작업 디렉토리 생성
 
@@ -74,7 +74,7 @@ apt-get -y install docker-ce
 Dockerfile 내용
 
 ```shell
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:jdk21
 
 USER root
 
@@ -91,20 +91,20 @@ USER jenkins
 도커 이미지 생성
 
 ```
-# docker build -t eomjinyoung/hello-docker:1.0 .
+# docker build -t eomjinyoung/bitcamp:jenkins .
 ```
 
 도커 이미지를 도커 허브 사이트에 업로드 하기
 
 ```
 # docker login
-# docker push eomjinyoung/hello-docker:1.0
+# docker push eomjinyoung/bitcamp:jenkins
 ```
 
 컨테이너 생성 및 실행하기(DooD 방식)
 
 ```
-# docker run --privileged -d -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure --network="jenkins" --name docker-jenkins eomjinyoung/hello-docker:1.0
+# docker run --privileged -d -v /var/run/docker.sock:/var/run/docker.sock -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 --restart=on-failure --network="jenkins" --name docker-jenkins eomjinyoung/bitcamp:jenkins
 # docker container ls
 ```
 
@@ -152,17 +152,17 @@ http://서버주소:8080
 #### JDK 및 Gradle 설정
 
 - Dashboard / Jenkins 관리
-  - System Configuration / Global Tool Configuration
+  - System Configuration / Tools
     - JDK
       - `Add JDK` 클릭
-      - Name: OpenJDK-17
+      - Name: OpenJDK-21
       - JAVA_HOME: /opt/java/openjdk
       - Apply 클릭
     - Gradle
       - `Add Gradle` 클릭
-      - Name: Gradle 8.1.1
+      - Name: Gradle 8.7
       - Install automatically: 체크
-      - Version: 8.1.1 선택
+      - Version: 8.7 선택
       - Apply 클릭
 
 #### Node.js 설정
@@ -217,10 +217,10 @@ Dashboard
   - General
     - 설명: `myapp 빌드`
     - `GitHub project` 체크
-      - Project url: `https://github.com/eomjinyoung/bitcamp-ncp-myapp.git`
+      - Project url: `https://github.com/eomjinyoung/myapp.git`
   - 소스 코드 관리
     - `Git` 선택
-      - Repository URL: `https://github.com/eomjinyoung/bitcamp-ncp-myapp.git`
+      - Repository URL: `https://github.com/eomjinyoung/myapp.git`
       - Credentials: (push를 할 경우)
         - Add 버튼 클릭: `Add Jenkins` 선택
         - `Username with Password` 선택
@@ -237,17 +237,19 @@ Dashboard
   - Build Steps
     - `Invoke Gradle script` 선택
       - `Invoke Gradle` 선택
-        - Gradle Version: Gradle 8.1.1 선택
+        - Gradle Version: Gradle 8.7 선택
       - Tasks
         - `clean build` 입력
   - 저장
 - `지금 빌드` 클릭
   - Console Output 확인
   - `docker exec -itu 0 docker-jenkins bash` 접속
+  - `cd ~/workspace`
+
 
 ### github webhook 연동
 
-- Repository/Settings/Webhooks
+- [Repository]/Settings/Webhooks
   - `Add webook` 클릭
     - Payload URL: `http://젠킨스서버주소:8080/github-webhook/`
     - Content type: `application/json`
@@ -260,13 +262,12 @@ Dashboard
     - `구성` 탭 선택
       - Build Steps
         - `Add build step` : Execute shell 클릭
-          - `docker build -t [dockerHub UserName]/[dockerHub Repository]:[version] app/`
+          - `docker build -t [dockerHub UserName]/[dockerHub Repository]:[version] .`
           - `docker login -u '도커허브아이디' -p '도커허브비번' docker.io`
           - `docker push [dockerHub UserName]/[dockerHub Repository]:[version]`
         - 저장
 
 /var/run/docker.sock의 permission denied 발생하는 경우
-
 ```
 호스트# chmod 666 /var/run/docker.sock
 ```

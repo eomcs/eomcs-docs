@@ -640,17 +640,18 @@ ENTRYPOINT [ "java", "-Dspring.profiles.active=prod", "-jar", "app.jar" ]
 #### Dockerfile로 이미지 생성하기
 
 ```
-$ docker build -t eomjinyoung/myapp:0.0.2 .
+$ docker build -t eomjinyoung/bitcamp:myapp .
 ```
 
 #### 컨테이너 생성 및 실행하기
 
 Windows OS
 ```
-$ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/webapp-upload:/root/webapp-upload --name myapp2 eomjinyoung/myapp:0.0.2
+$ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/config:/root/config --name myapp2 eomjinyoung/bitcamp:myapp
 ```
 
 Linux, macOS, Unix
 ```
-$ docker run -d -p 80:80 -v /home/student/config:/root/config --name myapp2 eomjinyoung/myapp:0.0.2
+$ docker run -d -p 80:80 -v /home/student/config:/root/config --name myapp2 eomjinyoung/bitcamp:myapp
 ```
+ 
