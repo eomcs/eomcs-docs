@@ -246,7 +246,7 @@ Dashboard
   - `docker exec -itu 0 docker-jenkins bash` 접속
   - `cd ~/workspace`
 
-
+ 
 ### github webhook 연동
 
 - [Repository]/Settings/Webhooks
@@ -319,6 +319,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQA...
 ### 스프링부트 서버에 SSH-KEY 공개키 등록하기
 
 ```
+일반사용자@bitcamp-springboot:~$ sudo -i
 root@bitcamp-springboot:~# mkdir .ssh
 root@bitcamp-springboot:~# cd .ssh
 root@bitcamp-springboot:~/.ssh# vi authorized_keys
@@ -330,14 +331,14 @@ Jenkins 컨테이너의 공개키 복사
 플러그인 설치
 
 - Jenkins 관리
-  - 플러그인 관리
-  - `Available plugins` 탭
-    - `Publish Over SSH` 플러그인 설치
+  - plugins
+    - `Available plugins` 탭
+      - `Publish Over SSH` 플러그인 설치
 
 플러그인 연동
 
 - Jenkins 관리
-  - 시스템 설정
+  - System(시스템 설정)
     - Publish over SSH
       - Passphrase: 접속하려는 컨테이너의 root 암호 <=== 암호로 접속할 때
       - Path to key: docker-jenkins-key <=== SSH-KEY로 접속할 때(private key 파일 경로, JENKINS_HOME 기준)
@@ -364,5 +365,5 @@ Jenkins 컨테이너의 공개키 복사
             - Exec command
               - `docker login -u '도커허브아아디' -p '도커허브비번' docker.io`
               - `docker pull [dockerHub UserName]/[dockerHub Repository]:[version]`
-              - `docker ps -q --filter name=[containerName] | grep -q . && docker rm -f $(docker ps -aq --filter name=[containerName])`
-              - `docker run -d --name [containerName] -p 80:80 [dockerHub UserName]/[dockerHub Repository]:[version]`
+              - `docker ps -aq --filter name=[containerName] | grep -q . && docker rm -f $(docker ps -aq --filter name=[containerName])`
+              - `docker run -d --name [containerName] -p 80:80 -v /root/config:/root/config [dockerHub UserName]/[dockerHub Repository]:[version]`

@@ -9,5 +9,8 @@
 		{
 			"path": "../../eomcs-java"
 		}
-	]
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "disabled"
+	}
 }
