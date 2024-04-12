@@ -8,6 +8,12 @@
 		},
 		{
 			"path": "../../eomcs-java"
+		},
+		{
+			"path": "../../myapp"
+		},
+		{
+			"path": "../../bitcamp-20230424"
 		}
 	],
 	"settings": {
