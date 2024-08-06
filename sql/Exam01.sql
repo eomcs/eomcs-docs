@@ -135,8 +135,8 @@
   insert into test1(c2) values(3.14159);
 
   insert into test1(c3) values(100);
-  insert into test1(c3) values(123456789); /* 입력 오류. 5자리 초과 */
-  insert into test1(c3) values(12345); /* 입력 오류. 1자리 초과 */
+  insert into test1(c3) values(123456789); /* 입력 오류. 4자리 초과 */
+  insert into test1(c3) values(12345); /* 입력 오류. 4자리 초과 */
   insert into test1(c3) values(1234);
   insert into test1(c3) values(3.14);
   insert into test1(c3) values(3.14159); /* 2자리를 초과한 값은 반올림. */
@@ -156,6 +156,8 @@
 #### varchar(n)
 - 최대 n개의 문자를 저장.
 - 0 ~ 65535 바이트 크기를 갖는다.
+- 단, 한 행의 최대 크기 65535 바이트를 초과하지 않아야 한다.
+- 만약 초과해야 한다면, TEXT 나 BLOB 를 사용하라.
 - n 값은 문자집합에 따라 최대 값이 다르다.
 - 한 문자에 1바이트를 사용하는 ISO-8859-n 문자집한인 경우 최대 65535 이다.
 - 그러나 UTF-8로 지정된 경우는, n은 최대 21844까지 지정할 수 있다.
