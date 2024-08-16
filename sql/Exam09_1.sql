@@ -28,7 +28,7 @@ select
   la.lano,
   la.lno,
   la.mno,
-  date_format(la.rdt, '%m/%d/%Y') reg_dt
+  date_format(la.rdt, '%Y-%m-%d') reg_dt
 from lect_appl la;
 
 /* => 2단계 : 서브 쿼리를 이용하여 강의명을 가져오기

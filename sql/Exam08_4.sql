@@ -56,7 +56,7 @@ select
   a.filepath, 
   a.bno
 from board5 b 
-  left outer join attach_file5 a on b.no=a.bno
+  left join attach_file5 a on b.no=a.bno
 order by 
   b.no desc;
 
