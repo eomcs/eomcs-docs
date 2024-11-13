@@ -16,22 +16,59 @@
 
 ### 기존 설치 제거
 
-`$ sudo apt remove docker docker-engine docker.io containerd runc`
+#### apt
+
+기존에 설치된 Docker 제거
+- `$ sudo apt remove docker docker-engine docker.io containerd runc`
+
+도커 설치 스크립트 다운로드
+- `$ sudo apt-get update`
+- `$ sudo apt-get install curl`
+- `$ curl https://get.docker.com > docker-install.sh`
+- `$ chmod 755 docker-install.sh`
+
+도커 설치
+- `$ sudo ./docker-install.sh`
+
+#### yum
+
+기존에 설치된 docker 제거 
+```
+$ sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+```
+
+Docker 설치 파일을 받기 위한 저장소 등록
+```
+$ sudo yum install -y yum-utils         
+$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo         
+```
+
+Docker 엔진 설치 
+```
+$ sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Docker 엔진 시작
+```
+$ sudo systemctl start docker
+```
+
+Docker 설치 확인
+```
+$ sudo docker run hello-world
+```
 
 기존에 저장된 도커 오브젝트(images, containers, volumes, network) 제거
 `$ sudo rm -rf /var/lib/docker`
 `$ sudo rm -rf /var/lib/containerd`
 
-### 도커 설치 스크립트 다운로드
-
-`$ sudo apt-get update`
-`$ sudo apt-get install curl`
-`$ curl https://get.docker.com > docker-install.sh`
-`$ chmod 755 docker-install.sh`
-
-### 도커 설치
-
-`$ sudo ./docker-install.sh`
 
 ## 도커 컨테이너 다루기
 
@@ -549,7 +586,7 @@ nano 에디터 설치
 
 - `# apt install nano`
 
-JDK 17 설치
+JDK 21 설치
 
 - `# apt install openjdk-21-jdk -y`
 
