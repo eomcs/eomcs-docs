@@ -32,7 +32,7 @@ Git에서 commit을 수행하면 다음의 절차에 따라 커밋 정보를 저
 
 ### main(or master) 브랜치
 
-- `git init`를 통해 Git 저장소를 만들 때 'master'라는 이름으로 기본 브랜치를 생성한다.
+- `git init`를 통해 Git 저장소를 만들 때 'main'라는 이름으로 기본 브랜치를 생성한다.
 - master 브랜치로 작업하는 동안에는 항상 가장 마지막 커밋을 가리킨다.
 
 ### HEAD
