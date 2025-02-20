@@ -108,6 +108,14 @@ $ sudo docker run hello-world
 
 - `$ sudo docker attach mycentos`
 
+도커 컨테이너 나가기
+
+- `$ exit`
+
+도커 컨테이너를 종료하지 않고 나가기
+
+- CTRL + P 실행 후 이어서 CTRL + Q 실행
+
 정리
 
 - `docker run -i -t`
