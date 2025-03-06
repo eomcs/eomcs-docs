@@ -347,7 +347,70 @@
 
 ### 쉘 명령(Shell Commands)
 
+#### 예약어(Reserved Words)
 
+쉘에서 특별한 의미로 사용되는 단어이다. 복합 명령을 시작하고 끝내는 데 사용된다.
+
+```
+if	then	elif	else	fi	time
+for	in	until	while	do	done
+case	esac	coproc	select	function
+{	}	[[	]]	!
+```
+
+- `in` 
+    - `select` 나 `case`, `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
+- `do`
+    - `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
+
+#### 간단한 명령(Simple Commands)
+
+가장 기본적인 형태의 명령이다. 
+    
+- 공백(space, tab)으로 구분된 일련의 단어들의 조합이다.
+- 쉘의 제어 연산자가 나오면 종료된다.
+- 첫 단어는 실행할 명령이고, 나머지는 해당 명령의 아규먼트다.
+
+```bash
+# command_name arg1, arg2 ... argN
+
+# 예1)
+echo "Hello, World!"
+
+# echo : 명령
+# ""Hello, World!" : 아규먼트
+
+# 예2)
+ls -l /home/user
+
+# ls : 명령
+# -l : 옵션
+# /home/user : 아규먼트
+```
+
+명령어를 종료시키는 제어 연산자
+
+- `;`: 여러 명령을 순차적으로 실행 (command1; command2)
+- `&` : 명령을 백그라운드에서 실행 (command &)
+- `&&` : 앞의 명령이 성공하면 다음 명령 실행 (command1 && command2)
+- `||` : 앞의 명령이 실패하면 다음 명령 실행 (command1 || command2)
+- \`: backtick(\`) 
+
+
+리턴 상태는
+
+- waitpid 함수가 제공하는 exit status 이다.
+- 명령어가 signal n 으로 종료되었다면 128 + n 값을 갖는다.
+
+#### 파이프라인(Pipelines)
+
+#### 명령 목록(Lists of Commands)
+
+#### 복합 명력(Compound Commands)
+
+#### 공동 프로세스(Coprocesses)
+
+#### GNU 병렬(GNU Parallel)
 
 
 
