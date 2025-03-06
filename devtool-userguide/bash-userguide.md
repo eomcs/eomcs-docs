@@ -89,7 +89,7 @@
 
 쉘 스크립트 파일, -c 옵션 또는 터미널에서 명령을 읽으면 다음의 절차에 따라 처리한다.
 
-1. 주석 무시 - 입력이 주석의 시작을 나타내면, 주석 기호(`#`)와 그 줄의 나머지 부분을 무시한다.
+1. 주석 무시 - 주석의 시작을 의미하는 `#` 기호가 나타나면 그 줄의 나머지 부분을 무시한다.
     ```bash
     echo "Hello" # 이 부분은 주석이므로 무시됨
     ```
@@ -217,9 +217,153 @@
     ```
 
 4. ANSI-C 인용
+
+    $'문자열' 형식의 문자열을 **ANSI-C quoting** 이라 부른다. 문자열 안에 이스케이프 문자(`\`)가 있을 경우 ANSI C 표준에 따라 변환한다.
+
+    ```bash
+    echo 'Hello\nWorld'
+    echo 'Hello\tWorld'
+    echo 'Hello\\World'
+    echo $'I\'m happy'
+    echo $'\x41\x42\x43'
+    echo $'\a'
+
+    # 출력 결과
+    Hello
+    World
+    Hello	World
+    Hello\World
+    I'm happy
+    ABC
+    (벨소리 출력)
+    ````
+
+    - `\a` : 벨소리 출력
+    - `\b` : backspace 
+    - `\f` : form feed  
+    - `\n` : newline 
+    - `\r` : carriage return 
+    - `\t` : horizontal tab 
+    - `\v` : vertical tab
+    - `\\` : backslash
+    - `\'` : single quote
+    - `\"` : double quote
+    - `\?` : question mark
+    - `\nnn` : 8진수 ASCII 문자코드(8비트) 
+    - `\xHH` : 16진수 ASCII 문자코드(8비트)
+    - `\uHHHH` : 16진수 유니코드(16비트) 
+    - `\UHHHHHHHH` : 16진수 유니코드(32비트) 
+    - `\cx` : control + 제어문자 
+        - \cA : Ctrl+A (0x01), 터미널에서 줄의 맨 앞으로 이동
+        - \cB : Ctrl+B (0x02), 커서를 왼쪽으로 이동
+        - \cC : Ctrl+C (0x03), 실행 중인 프로세스 중단 (Interrupt)
+        - \cD : Ctrl+D (0x04), 입력 종료 (EOF)
+        - \cG : Ctrl+G (0x07), 경고음 (Bell)
+        - \cH : Ctrl+H (0x08), 백스페이스 (\b)
+        - \cJ : Ctrl+J (0x0A), 줄 바꿈 (\n)
+        - \cM : Ctrl+M (0x0D), 캐리지 리턴 (\r)
+
+
 5. 로케일별 번역
 
-#### 주석(Comments)
+    $"문자열" 형식으로 문자열을 작성하면 현재 로케일 설정에 따라 번역이 수행될 수 있다. 
+    이 기능은 GNU gettext 시스템을 사용하여 문자열을 변환한다. 주로 다국어 지원을 위한 스크립트에 활용된다.
+
+    - 쉘 스크립트 작성(`test.sh`)
+    ```bash
+    #!/bin/bash
+
+    # gettext를 못찾으면, gettext.sh 스크립트를 찾아서 포함시킨다.
+    # 찾기 명령: $ find /usr -name gettext.sh
+    # 포함 문장: source /usr/local/bin/gettext.sh
+
+    export TEXTDOMAIN=myapp
+    export TEXTDOMAINDIR=./locale
+
+    USER="Alice"
+
+    echo "Current Locale: $LANG"
+    echo $"Hello, $USER!"  # echo $(eval_gettext "Hello, \$USER!")
+    ```
+
+    - gettext 템플릿 파일(`myapp.pot`) 생성(쉘스크립트 파일에서 추출)
+    ```bash
+    # bash --dump-po-strings 스크립트이름 > 도메인.pot
+    $ bash --dump-po-strings test.sh > myapp.pot
+    ```
+
+    - 템플릿 파일을 복사하여 국제화를 지원할 언어 파일(`fr.po`) 생성
+    ```bash
+    $ cp myapp.pot fr.po
+    ```
+
+    - 언어 파일(`fr.po`) 작성
+    ```bash
+    msgid ""
+    msgstr ""
+    "Content-Type: text/plain; charset=UTF-8\n"
+    "Content-Transfer-Encoding: 8bit\n"
+    "Language: fr\n"
+    "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+    msgid "Hello, $USER!"
+    msgstr "Bonjour, $USER!"
+    ```
+
+    - gettext 도구에서 사용할 수 있도록 MO 파일로(`fr.mo`) 변환
+    ```bash
+    # msgfmt 명령이 없다고 오류가 발생한다면,
+    # - gettext 패키지 설치
+    $ apt update && apt install -y gettext
+
+    # 실행
+    $ msgfmt -o fr.mo fr.po
+    ```
+
+    - MO 파일을 TEXTDOMAINDIR 변수가 가리키는 폴더에 설치
+    ```bash
+    $ cp fr.mo ./locale/fr/LC_MESSAGES/myapp.mo
+    ```
+
+    - 로케일을 프랑스어로 설정 후 실행
+    ```bash
+    # 로케일이 생성되지 않아 번역이 적용되지 않는 문제가 발생한다면,
+    # - 로케일 패키지 설치
+    $ apt update && apt install -y locales
+
+    # - 로케일 생성
+    $ locale-gen fr_FR.UTF-8
+
+    # 실행
+    $ export LANG=fr_FR.UTF-8
+
+    # test.sh 파일에 실행 권한 부여
+    $ chmod +x test.sh
+
+    # test.sh 실행
+    $ ./test.sh
+    ```
+
+
+### 쉘 명령(Shell Commands)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### 셸 변수
