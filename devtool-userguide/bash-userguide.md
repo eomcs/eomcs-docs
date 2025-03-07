@@ -82,10 +82,7 @@
     - 단어는 따옴표 없는 metacharacter를 포함할 수 없다.
 
 
-## 기본 구성 요소
-
-
-### 쉘 구문(Shell Syntax)
+## 쉘 구문(Shell Syntax)
 
 쉘 스크립트 파일, -c 옵션 또는 터미널에서 명령을 읽으면 다음의 절차에 따라 처리한다.
 
@@ -127,7 +124,7 @@
 7. 종료 상태 저장 - 종료 상태를 추가 검사나 작업에 사용할 수 있도록 한다.
 
 
-#### 인용(Quoting)
+### 인용(Quoting)
 
 특정 문자나 단어의 특수 의미를 제거하는 데 사용된다.
 
@@ -345,13 +342,13 @@
     ```
 
 
-### 쉘 명령(Shell Commands)
+## 쉘 명령(Shell Commands)
 
-#### 예약어(Reserved Words)
+### 예약어(Reserved Words)
 
 쉘에서 특별한 의미로 사용되는 단어이다. 복합 명령을 시작하고 끝내는 데 사용된다.
 
-```
+```bash
 if	then	elif	else	fi	time
 for	in	until	while	do	done
 case	esac	coproc	select	function
@@ -363,7 +360,7 @@ case	esac	coproc	select	function
 - `do`
     - `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
 
-#### 간단한 명령(Simple Commands)
+### 간단한 명령(Simple Commands)
 
 가장 기본적인 형태의 명령이다. 
     
@@ -397,20 +394,338 @@ ls -l /home/user
 - \`: backtick(\`) 
 
 
-리턴 상태는
+리턴 상태(return status) = 종료 상태(exit status)
 
-- waitpid 함수가 제공하는 exit status 이다.
-- 명령어가 signal n 으로 종료되었다면 128 + n 값을 갖는다.
+- 값의 범위
+    - waitpid 시스템 콜 또는 이와 동등한 함수에서 리턴한 값이다.
+    - 0 ~ 255 사이의 정수 값이다. 125 이상의 값은 특별한 용도로 사용된다.
+- 성공과 실패 기준
+    - 0이면 성공, 0이 아니면 실패이다.
+    - 실패 원인을 구분할 수 있도록 다양한 0이 아닌 값이 사용된다.
+- 특별한 값
+    - 128 + n : 프로세스가 치명적인 Signal n 에 의해 종료된 경우
+    - 127 : 실행할 명령을 찾을 수 없는 경우
+    - 126 : 명령어는 존재하지만 실행할 수 없는 경우
+    - 2 : 잘못된 옵션이나 아규먼트로 인해 Bash built-in 명령이 실패한 경우
+- 확장 및 리디렉션 오류
+    - 명령 실행 중 확장(expansion)이나 리디렉션(redirection) 오류가 발생하면 0 보다 큰 값을 리턴한다.
 
-#### 파이프라인(Pipelines)
+### 파이프라인(Pipelines)
 
-#### 명령 목록(Lists of Commands)
+여러 개의 명령을 제어 연산자 `|` 또는 `|&` 로 연결하여 실행하는 방식이다. 이 과정에서 앞 명령어의 출력은 다음 명령의 입력으로 전달된다.
 
-#### 복합 명력(Compound Commands)
+#### `|` 파이프 연산자
 
-#### 공동 프로세스(Coprocesses)
+- 앞 명령의 **출력(`stdout`)** 이 다음 명령의 **입력(`stdin`)** 으로 전달된다.
+- 연결된 모든 명령이 순차적으로 실행되며, 마지막 명령의 출력이 최종 결과다.
 
-#### GNU 병렬(GNU Parallel)
+```bash
+$ ls /etc | grep conf | sort -r
+```
+
+1. `ls /etc` : `/etc` 폴더에 있는 파일 목록 출력
+2. `grep conf` : `conf` 를 포함하는 파일을 필터링
+3. `sort -r` : 파일명을 역순으로 정렬
+
+#### `|&` 파이프 연산자
+
+- `|&` : 앞 명령의 **출력(`stdout`) + 오류(`stderr`)** 가 다음 명령의 입력(`stdin`)으로 전달된다.
+- `2>&1 |`의 단축 표현이다.
+
+```bash
+$ ls /okok | tee log.txt # ls의 실행 오류는 tee에 전달되지 않는다.
+$ cat log.txt # log.txt는 빈 파일이다.
+
+$ ls /okok |& tee log.txt # ls의 실행 오류는 tee에 전달된다.
+$ cat log.txt # log.txt에 오류 내용이 들어 있다.
+```
+
+#### 실행 시간 측정
+
+- 쉘 예약어 `time` 을 사용하면 명령어 또는 전체 파이프라인 실행 시간을 측정할 수 있다.
+
+```bash
+$ time find /usr -name "gettext.sh"
+
+real	0m0.017s # 전체 실행 시간
+user	0m0.007s # 사용자 모드에서 소모된 시간
+sys	    0m0.011s # 커널 모드에서 소모된 시간
+```
+
+#### 실행 방식
+
+- 파이프라인의 각 명령은 서브쉘(Subshell)에서 실행된다.
+```bash
+$ name='Gildong Hong'
+$ read name
+James Kim
+$ echo $name
+James Kim
+
+$ name='Gildong Hong'
+$ echo "James Kim" | read name # 각 명령은 별도의 서브쉘에서 실행한다. 부모쉘에는 영향을 미치지 않는다.
+$ echo $name
+Gildong Hong
+```
+
+- `shopt -s lastpipe` 옵션을 설정하면 파이프라인의 마지막 명령은 현재 쉘에서 실행된다.
+- 단, 인터렉티브 모드(터미널에서 직접 실행)에서는 적용되지 않는다.
+```bash
+ #!/bin/bash
+shopt -s lastpipe
+name='Gildong Hong'
+echo "James Kim" | read name
+echo $name
+```
+
+#### `pipefail` 옵션
+
+- 기본적으로 파이프라인의 종료 상태(exit status)는 마지막 명령의 종료 상태이다.
+```bash
+$ false | true
+$ echo $? # 0, 마지막 명령의 값(true)이 종료 상태로 리턴된다.
+```
+
+- 파이프라인에서 첫 번째로 실패한 명령어의 종료 상태를 리턴 받기
+```bash
+$ set -o pipefail
+$ false | true
+$ echo $? # 1, 첫 번째로 실패한 명령의 값(true)이 종료 상태로 리턴된다.
+```
+
+### 명령 목록(Lists of Commands)
+
+하나 이상의 **파이프라인(`|`나 `|&`로 연결된 명령어들)** 을 `&&`, `||`, `;`, `&` 연산자로 연결하여 실행할 수 있다.
+
+#### 연산자 우선순위
+
+1. `&&`, `||` (같은 우선 순위)
+2. `;`, `&` (같은 우선 순위, 1번 보다 낮음) 
+
+#### `&&` (AND 연산)
+- 앞 명령이 성공(0 리턴)하면 다음 명령을 실행한다.
+- 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령은 실행되지 않는다.
+```bash
+# 성공할 경우 현재 폴더를 test로 바꾼다.
+$ mkdir test && cd test 
+
+# 성공할 경우 삭제 메시지를 출력한다.
+$ rm test.txt && echo "File deleted"
+```
+
+#### `||` (OR 연산)
+- 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령을 실행한다.
+- 앞 명령이 성공(0 리턴)하면 뒤의 명령은 실행되지 않는다.
+```bash
+# 파일 삭제가 실패할 경우 메시지를 출력한다.
+$ rm test.txt || echo "File not found"
+```
+
+#### `&&` + `||`
+
+- 우선 순위가 같기 때문에 왼쪽에서 오른쪽으로 연산을 수행(Left Associativity)한다.
+```bash
+$ false && echo "Success" || echo "Failure"
+```
+
+- `&&`와 `||`로 연결된 명령문의 종료 상태는 마지막 명령문의 종료 상태 값이다.
+```bash
+$ false && true || echo "Failed" && echo $?
+```
+1. `false` 실행 : 1 리턴
+2. `&&` 연산에 의해 `true` 실행 안함
+3. `||` 연산에 의해 `echo "Failed"` 실행
+4. `echo "Failed"`의 리턴 값(0; 성공)을 출력 
+
+
+#### `;` (순차 실행)
+
+- `;` 을 사용하여 명령을 순차적으로 실행시킬 수 있다. 
+- 앞 명령 결과에 상관없이 다음 명령이 순차적으로 실행된다.
+```bash
+$ echo "Hello"; echo "World"
+```
+
+- `;` 연산자로 연결된 명령문의 종료 상태는 마지막 명령문의 종료 상태 값이다.
+```bash
+$ true; false; true
+$ echo $?
+```
+
+#### `&` (백그라운드 실행)
+
+- 명령문 뒤에 `&` 를 붙이면, 별도의 서브쉘에서 백그라운드로 실행시키고 다음 명령문로 바로 넘어간다.
+- 입력이 필요한 경우 /dev/null 을 입력으로 사용한다.
+```bash
+$ sleep 5 # 5초 동안 실행을 중단한 후 다음 명령으로 넘어 간다.
+$ echo "Hello!"
+
+$ sleep 5 & echo "Hello!" # sleep 5 명령문은 별도의 서브쉘에서 실행시키고, 즉시 echo 명령문을 처리한다.
+```
+
+
+### 복합 명령(Compound Commands)
+
+여러 개의 명령문을 반복, 조건, 그룹화 등의 문법을 사용하여 실행 흐름을 제어할 수 있다. 
+
+
+#### 반복문(Looping Constructs)
+
+반복적인 작업을 수행할 때 사용한다. 즉 특정 조건이 충족될 때까지 동일한 코드 블록을 여러 번 실행시키는 문법이다.
+
+- until 반복문 - 조건이 거짓(exit status != 0)인 동안 실행
+```bash
+until test-commands; do consequent-commands; done    
+    # test-commands: 조건을 검사하는 명령
+    # consequent-commands: test-commands가 실패(exit status != 0)하면 실행한다. 
+    # 즉 test-command가 성공(exit status = 0) 할 때까지 반복한다.
+    # 리턴 상태는 마지막 명령의 종료 상태이다.
+    # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+```
+
+```bash
+# count가 5보다 커질 때까지 반복
+count=1
+until [ $count -gt 5 ]; do
+    echo "Count: $count"
+    ((count++))
+done
+echo "return status: $?" 
+```
+
+- while 반복문 - 조건이 참(exit status = 0)인 동안 실행
+```bash
+while test-commands; do consequent-commands; done
+    # test-commands: 조건을 검사하는 명령
+    # consequent-commands: test-commands가 성공(exit status = 0)하면 실행한다. 
+    # 즉 test-commands가 실패(exit status != 0) 할 때까지 반복한다.
+    # 리턴 상태는 마지막 명령의 종료 상태이다.
+    # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+```
+
+```bash
+# count가 5 이하인 동안 반복
+count=1
+while [ $count -le 5 ]; do
+    echo "Count: $count"
+    ((count++))
+done
+echo "return status: $?" 
+```
+
+- for 반복문 - 리스트 또는 특정 범위의 값을 반복하여 실행
+```bash
+for name [ [in [words …] ] ; ] do commands; done
+    # name: 리스트의 각 요소를 담는 변수
+    # words: 리스트(공백으로 구분된 여러 값, 파일 목록 등)
+    # commands: 리스트의 각 값에 대해 실행할 명령
+    # words에 포함된 값들을 하나씩 가져와서 name에 저장하고, commands를 실행한다.
+    # words에 더 이상 값이 없을 때 반복을 종료한다.
+    # 리턴 상태는 마지막 명령의 종료 상태이다.
+    # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+```
+
+```bash
+for i in 1 2 3; do
+    echo "Number: $i"
+done
+
+for fruit in apple banana cherry; do
+    echo "Fruit: $fruit"
+done
+```
+
+- `in` 없는 `for` 반복문 - 위치 파라미터(`$@`, positional parameter)를 사용
+```bash
+#!/bin/bash
+for fruit; do # $@ 에서 파라미터를 한 개씩 꺼낸다.
+    echo "Fruit: $fruit"
+done
+```
+```bash
+$ for-test.sh apple banana cherry
+```
+
+```bash
+for ((expr1; expr2; expr3)) ; do commands; done
+    # expr1: 초기화 산술 표현식(반복 시작 전 한 번 실행)
+    # expr2: 반복 조건 산술 표현식(non-zero 이면 계속 반복, zero 이면 종료)
+    # expr3: 반복 실행 후 수행할 산술 표현식
+    # expr1/2/3 은 산술 표현식이어야 한다. 생략되면 1로 간주한다. 
+    # 리턴 상태는 마지막 명령의 종료 상태이다.
+    # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+```
+
+```bash
+for ((i=1; i<=5; i++)) ; do
+    echo "Number: $i"
+done    
+```
+
+- `break` - 현재 실행 중인 반복문을 즉시 종료한다.
+```bash
+i=1
+for (( ; ; )) do
+  if [ $i -gt 5 ]; then
+    break
+  fi
+  echo "Number: $i"
+  ((i++))
+done
+```
+
+- `continue` - 다음 반복으로 건너 뛰기
+```bash
+for ((i=1; i<=10; i++)) ; do
+    if (( i % 2 != 0 )); then
+        continue
+    fi
+    echo "Number: $i"
+done
+
+for i in 1 2 3 4 5; do
+  if [ $i -eq 3 ]; then
+    continue
+  fi
+  echo "Number: $i"
+done
+```
+
+
+
+#### 조건문(Conditional Constructs)
+
+조건에 따라 실행할 문장을 지정하는 문법이다.
+
+- `if` 조건문
+```bash
+if test-commands; then
+    consequent-commands;  # test-commands의 exit status = 0 일 때 실행
+[elif more-test-commands; then
+    more-consequents;] # more-test-commands의 exit status = 0 일 때 실행
+[else 
+    alternate-consequents;] # if 와 elif 모두 만족하지 않을 때 실행
+fi
+    # test-commands: 조건을 검사하는 명령
+    # consequent-commands: test-commands의 exit status = 0 일 때, 실행하는 명령
+    # 리턴 상태는 마지막 명령의 종료 상태이다.
+    # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+
+```
+
+
+
+- `case` 조건문
+
+
+
+#### 그룹화(Grouping Commands)
+
+
+
+### 공동 프로세스(Coprocesses)
+
+### GNU 병렬(GNU Parallel)
 
 
 
