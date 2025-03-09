@@ -340,6 +340,73 @@
     # test.sh 실행
     $ ./test.sh
     ```
+#### 로케일(locale)
+
+일반적으로 `language_territory.codeset` 형식으로 표현한다.
+
+- 언어(language): ISO 639-1
+    - 한국어(ko), 영어(en), 프랑스어(fr), 독일어(de), 일본어(ja), 중국어(zh) 등
+- 지역(territory): ISO 3166-1
+    - 한국(KR), 미국(US), 프랑스어(FR), 독일어(DE), 일본어(JP), 중국어(CN), 영국(GB) 등
+- 문자집합(codeset): 문자집합
+    - UTF-8, EUC-KR 등
+
+로케일 값과 변수
+
+- `LC_ALL`: 전역 로케일 설정 값. 우선 순위가 가장 높다.
+- `LANG`: 전역 로케일 설정 값. 다른 값이 설정되어 있지 않을 때 사용됨. 우선 순위가 가장 낮다.
+- `LC_MESSAGES`: 메시지를 표시하는 기준이 되는 로케일 설정 값.
+- `LC_CTYPE`: 문자 분류, 글자 수, 대소문자 구분이 되는 로케일 설정 값.
+- `LC_NUMERIC`: 숫자와 관련된 기준이 되는 로케일 설정 값.
+- `LC_MONETARY`: 통화나 금액과 관련된 숫자의 기준이 되는 로케일 설정 값.
+- `LC_TIME`: 날짜, 시간과 관련된 로케일 설정 값.
+- `LC_COLLATE`: 문자열의 정렬 순서를 결정하는 로케일 설정 값.
+
+
+시스템 로케일 정보 확인하기
+
+```bash
+$ locale # 현재 시스템에 설정된 로케일 정보
+$ locale -a # 현재 시스템에서 사용 가능한 모든 로케일
+```
+
+로케일 생성하기
+
+```bash
+# 생성 가능한 로케일 목록 확인
+$ cat /usr/share/i18n/SUPPORTED
+...
+ko_KR.UTF-8 UTF-8
+ko_KR.EUC-KR EUC-KR
+...
+
+# 로케일 생성 방법1)
+$ localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
+
+# 로케일 생성 방법2)
+$ locale-gen ko_KR.UTF-8 # 내부적으로 localedef 명령을 실행한다. 결국 위의 명령과 동일하다.
+
+# 한국어 패키지 설치
+$ apt-get install -y language-pack-ko
+```
+
+로케일 설정하기
+
+```bash
+# 현재 터미널에만 적용하기
+$ export LC_ALL=ko_KR.UTF-8
+$ export LANG=ko_KR.UTF-8
+
+# 도커 컨테이너를 재시작할 때마다 다시 설정하지 않으려면,
+# 방법1) 전체 사용자에게 적용하기
+$ echo "LANG=ko_KR.UTF-8" >> /etc/default/locale
+$ echo "LC_ALL=ko_KR.UTF-8" >> /etc/default/locale
+
+# 방법2) 현재 로그인 한 사용자에게만 적용하기
+$ echo 'export LANG=ko_KR.UTF-8' >> ~/.bashrc
+$ echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.bashrc
+$ source ~/.bashrc
+```
 
 
 ## 쉘 명령(Shell Commands)
@@ -582,7 +649,7 @@ until test-commands; do consequent-commands; done
     # 리턴 상태는 마지막 명령의 종료 상태이다.
     # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 ```
-
+예)    
 ```bash
 # count가 5보다 커질 때까지 반복
 count=1
@@ -602,7 +669,7 @@ while test-commands; do consequent-commands; done
     # 리턴 상태는 마지막 명령의 종료 상태이다.
     # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 ```
-
+예)
 ```bash
 # count가 5 이하인 동안 반복
 count=1
@@ -614,6 +681,7 @@ echo "return status: $?"
 ```
 
 - for 반복문 - 리스트 또는 특정 범위의 값을 반복하여 실행
+
 ```bash
 for name [ [in [words …] ] ; ] do commands; done
     # name: 리스트의 각 요소를 담는 변수
@@ -624,7 +692,7 @@ for name [ [in [words …] ] ; ] do commands; done
     # 리턴 상태는 마지막 명령의 종료 상태이다.
     # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 ```
-
+예)
 ```bash
 for i in 1 2 3; do
     echo "Number: $i"
@@ -646,19 +714,27 @@ done
 $ for-test.sh apple banana cherry
 ```
 
+- C 언어 스타일의 `for` 반복문
 ```bash
 for ((expr1; expr2; expr3)) ; do commands; done
+    # C 언어의 for 문과 유사하게 동작한다. 
     # expr1: 초기화 산술 표현식(반복 시작 전 한 번 실행)
     # expr2: 반복 조건 산술 표현식(non-zero 이면 계속 반복, zero 이면 종료)
+    #        표현식의 실행 결과가 non-zero이면 return status는 0이고, 
+    #        zero 이면 return status는 1이다.
     # expr3: 반복 실행 후 수행할 산술 표현식
-    # expr1/2/3 은 산술 표현식이어야 한다. 생략되면 1로 간주한다. 
+    # expr1/2/3 은 산술 표현식이어야 한다. 표현식을 생략하면 결과 값이 1로 간주 된다. 
     # 리턴 상태는 마지막 명령의 종료 상태이다.
     # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 ```
-
+예)
 ```bash
 for ((i=1; i<=5; i++)) ; do
     echo "Number: $i"
+done    
+for ((i=1; 100 >> i; i++)) ; do
+    result=$((100 >> i))
+    echo "Number: $result"
 done    
 ```
 
@@ -699,25 +775,56 @@ done
 
 - `if` 조건문
 ```bash
-if test-commands; then
-    consequent-commands;  # test-commands의 exit status = 0 일 때 실행
+if test-commands; then # test-commands 조건을 검사한다.
+    consequent-commands;  # test-commands의 exit status = 0 일 때 실행한다.
 [elif more-test-commands; then
     more-consequents;] # more-test-commands의 exit status = 0 일 때 실행
 [else 
-    alternate-consequents;] # if 와 elif 모두 만족하지 않을 때 실행
+    alternate-consequents;] # if 와 elif 모두 exit status = 1 일 때 실행
 fi
-    # test-commands: 조건을 검사하는 명령
-    # consequent-commands: test-commands의 exit status = 0 일 때, 실행하는 명령
     # 리턴 상태는 마지막 명령의 종료 상태이다.
     # 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+```
+예)
+```bash
+if ls /home; then
+  echo "디렉터리 목록을 성공적으로 가져왔습니다." # ls 명령의 return status가 0일 때
+else
+  echo "디렉터리를 찾을 수 없습니다." # ls 명령의 return status가 non-zero일 때
+fi
 
+num=10
+if [ $num -gt 5 ]; then
+  echo "num은 5보다 큽니다."
+elif [ $num -eq 5 ]; then
+  echo "num은 5입니다."
+else
+  echo "num은 5보다 작습니다."
+fi
 ```
 
 
-
 - `case` 조건문
-
-
+```bash
+case 변수 in
+    패턴1) 명령1 ;;
+    패턴2) 명령2 ;;
+    패턴3 | 패턴4) 명령3 ;;
+    *) 기본 명령 ;;
+esac
+    # 변수의 값이 패턴 1과 일치하면 명령1 실행한다.
+    # | 연산자를 사용하여 여러 패턴을 묶어 처리할 수 있다.
+    # *) 는 모든 경우에 매칭되는 기본 패턴이다. (default case)
+```
+예)
+```bash
+read -p '동물 이름?' animal
+case $animal in
+    horse | dog | cat) echo "다리 4개";;
+    man | kangaroo) echo "다리 2개";;
+    *) echo "다리 갯수 모름";;
+esac
+```
 
 #### 그룹화(Grouping Commands)
 
