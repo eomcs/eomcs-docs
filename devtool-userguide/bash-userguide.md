@@ -1,29 +1,34 @@
 # Bash Shell User Guide
 
-## 개요
+## 1 개요
 
-### 쉘(shell)이란?
+### 1.1 쉘(shell)이란?
 
 - 운영체제에서 사용자와 커널 간의 인터페이스 역할을 하는 프로그램
 - 사용자가 입력한 명령을 해석하여 커널에게 전달하고 그 실행 결과를 출력
 - 명령어를 직접 입력하는 CLI(Command Line Interface) 환경 제공
 - 배치 작업 및 자동화를 위한 스크립트(.sh 파일) 실행 기능 지원 
 
-### 주요 쉘
-
-- Bash(Bourne Again Shell): 기본 리눅스 쉘, sh 호환, 빠르고 가볍다, `/bin/bash`
-- Sh(Bourne Shell): 오래된 유닉스 계열 기본 쉘, 빠르고 가볍다, `/bin/sh`
-- Zsh(Z Shell): Bash와 호환, 자동완성 및 추천, 플러그인 기능 지원, `/bin/zsh`
-- Ksh(Korn Shell): Bash 보다 성능이 뛰어나며 스크립트 작성에 강점, `/bin/ksh`
-- Fish(Friendly Interactive Shell): 사용하기 쉬운 GUI 스타일과 자동 완성 기능 제공, `/usr/bin/fish` 
-
-### Bash 쉘
+### 1.2 Bash 쉘
 
 - sh 호환 쉘이다. ksh, csh 의 유용한 기능을 통합하였다.
 - IEEE POSIX P1003.2/ISO 9945.2 쉘 및 도구 표준을 따른다.
 
+#### 1.2.1 주요 쉘
 
-### 용어 정의
+- Bash(Bourne Again Shell)
+    - 기본 리눅스 쉘, sh 호환, 빠르고 가볍다, `/bin/bash`
+- Sh(Bourne Shell)
+    - 오래된 유닉스 계열 기본 쉘, 빠르고 가볍다, `/bin/sh`
+- Zsh(Z Shell)
+    - Bash와 호환, 자동완성 및 추천, 플러그인 기능 지원, `/bin/zsh`
+- Ksh(Korn Shell)
+    - Bash 보다 성능이 뛰어나며 스크립트 작성에 강점, `/bin/ksh`
+- Fish(Friendly Interactive Shell)
+    - 사용하기 쉬운 GUI 스타일과 자동 완성 기능 제공, `/usr/bin/fish` 
+
+
+### 1.2 용어 정의
 
 - POSIX 
     - 유닉스 계열 운영체제의 표준 인터페이스를 정의한 규격이다.
@@ -82,49 +87,75 @@
     - 단어는 따옴표 없는 metacharacter를 포함할 수 없다.
 
 
-## 쉘 구문(Shell Syntax)
+## 2 쉘 문법(Shell Syntax)
 
-쉘 스크립트 파일, -c 옵션 또는 터미널에서 명령을 읽으면 다음의 절차에 따라 처리한다.
+### 2.1 쉘 명령 실행 방식
 
-1. 주석 무시 - 주석의 시작을 의미하는 `#` 기호가 나타나면 그 줄의 나머지 부분을 무시한다.
-    ```bash
-    echo "Hello" # 이 부분은 주석이므로 무시됨
-    ```
+- 쉘 스크립트 파일 실행 
+```bash
+$ bash test.sh
+```
+- `-c` 옵션으로 스크립트 코드를 문자열로 전달
+```bash
+$ bash -c "echo Hello; echo World!"
+```
 
-2. 단어와 연산자 구분(tokenizing) - 따옴표 규칙에 따르며, metacharacter를 기준으로 입력을 **단어(words)**와 **연산자(operators)**로 나눈다. 이렇게 구분된 것을 **토큰(token)** 이라고 한다.
-    ```bash
-    cat "hello world.txt" # "Hello World.txt"는 한 개의 단어로 인식한다.
-    cat hello world.txt # hello와 world.txt는 각각 개별 단어로 인식한다.
-    ls -l /home # ls 와 /home 은 단어가 되고, -l 은 연산자가 된다.
-    ```
+- 터미널에 명령어 입력
+```bash
+$ echo Hello; echo World!
+```
 
-3. 명령어 해석 - 이렇게 나눈 토큰(token)을 명령이나 기타 구조로 분석한다.
+### 2.2 명령어 실행 절차
 
-4. 특수 의미 제거 및 확장 - 일부 단어나 문자열의 특별한 의미를 제거하고, 필요한 경우 확장(expansion) 작업을 수행한다.
-    ```bash
-    echo *  # 특별한 의미로 사용(확장)
-    ```
-    와일드카드(*) 문자는 '작업 디렉토리의 모든 파일과 디렉토리'로 의미를 확장한다. 예) `echo a.txt b.txt c.gif dir1 dir2`
+#### 1) 주석 무시
+주석의 시작을 의미하는 `#` 기호가 나타나면 그 줄의 나머지 부분을 무시한다.
 
-    ```bash
-    echo \*  # 특별한 의미 제거
-    ```
-    이스케이프 문자를 통해 '와일드카드의 의미를 제거'하고 단순 문자로 취급한다.
+```bash
+echo "Hello" # 이 부분은 주석이므로 무시됨
+```
 
-    ```bash
-    cat hello\ world.txt # 특별한 의미 제거
-    ```
-    \ 뒤에 오는 공백을 metacharacter로 간주하지 않고 단순 공백 문자로 간주한다. 즉 'hello world.txt' 파일명이다.
+#### 2) 단어와 연산자 구분(tokenizing)
+따옴표 규칙에 따르며, metacharacter를 기준으로 입력을 **단어(words)**와 **연산자(operators)**로 나눈다. 이렇게 구분된 것을 **토큰(token)** 이라고 한다.
+
+```bash
+cat "hello world.txt" # "Hello World.txt"는 한 개의 단어로 인식한다.
+cat hello world.txt # hello와 world.txt는 각각 개별 단어로 인식한다.
+ls -l /home # ls 와 /home 은 단어가 되고, -l 은 연산자가 된다.
+```
+
+#### 3) 명령어 해석
+
+이렇게 나눈 토큰(token)을 명령이나 기타 구조로 분석한다.
+
+#### 4) 특수 의미 제거 및 확장
+일부 단어나 문자열의 **특별한 의미를 제거**하고, 필요한 경우 **확장(expansion) 작업을 수행**한다.
+
+```bash
+echo *  # 특별한 의미로 사용(확장)
+```
+와일드카드(*) 문자는 '작업 디렉토리의 모든 파일과 디렉토리'로 의미를 확장한다. 예) `echo a.txt b.txt c.gif dir1 dir2`
+
+```bash
+echo \*  # 특별한 의미 제거
+```
+이스케이프 문자를 통해 '와일드카드의 의미를 제거'하고 단순 문자로 취급한다.
+
+```bash
+cat hello\ world.txt # 특별한 의미 제거
+```
+`\` 뒤에 오는 공백을 metacharacter로 간주하지 않고 단순 공백 문자로 간주한다. 즉 `hello world.txt` 파일명이다.
+
+#### 5) 입출력 리디렉션
+필요에 따라 입력과 출력을 리디렉션 한다.
+
+#### 6) 명령 실행
+지정된 명령을 실행하고, 명령어의 종료 상태를 기다린다.
+
+#### 7) 종료 상태 저장
+종료 상태를 추가 검사나 작업에 사용할 수 있도록 한다.
 
 
-5. 입출력 리디렉션 - 필요에 따라 입력과 출력을 리디렉션 한다.
-
-6. 명령 실행 - 지정된 명령을 실행하고, 명령어의 종료 상태를 기다린다.
-
-7. 종료 상태 저장 - 종료 상태를 추가 검사나 작업에 사용할 수 있도록 한다.
-
-
-### 인용(Quoting)
+### 2.3 인용(Quoting)
 
 특정 문자나 단어의 특수 의미를 제거하는 데 사용된다.
 
@@ -132,215 +163,214 @@
 - 예약어가 예약어로 인식되는 것을 방지
 - 매개 변수 확장을 방지
 
-1. 이스케이프 문자
+#### 2.3.1 이스케이프 문자
 
-    `\` 다음에 오는 문자의 특수 의미를 제거하고 문자 그대로 해석한다. 예를 들어, 공백(space)이나 메타문자(*, ?, $, " 등)와 같이 특별한 의미가 있는 문자를 일반 문자로 취급한다.
+`\` 다음에 오는 문자의 특수 의미를 제거하고 문자 그대로 해석한다. 예를 들어, **공백(space)** 이나 **메타문자**(`*`, `?`, `$`, `"` 등)와 같이 특별한 의미가 있는 문자를 일반 문자로 취급한다.
     
-    ```bash
-    cat hello\ world.txt
-    ````
-    `hello world.txt` 이라는 파일명을 의미한다.
+```bash
+cat hello\ world.txt
+````
+`hello world.txt` 이라는 파일명을 의미한다.
 
-    ```bash
-    cat Hello\
-    Python\
-    Wworld
-    ````
-    `\` 다음에 오는 `newline`은 무시된다. 즉 `cat helloPythonWorld` 와 같다.
+```bash
+cat Hello\
+Python\
+Wworld
+````
+`\` 다음에 오는 `newline`은 무시된다. 즉 `cat helloPythonWorld` 와 같다.
 
-    ```bash
-    cat \$HOME
-    ````
-    `\` 다음에 오는 `$`는 단순 문자로 취급된다.
+```bash
+cat \$HOME
+````
+`\` 다음에 오는 `$`는 단순 문자로 취급된다.
 
-2. 작은 따옴표
+#### 2.3.2 작은 따옴표
 
-    작은 따옴표 안의 문자는 그대로 유지된다. 메타 문자도 단순 문자로 취급한다.
+작은 따옴표 안의 문자는 그대로 유지된다. 메타 문자도 단순 문자로 취급한다.
     
-    ```bash
-    name="홍길동"
-    echo 'Hello $name'  # 출력: Hello $name
-    echo "Hello $name"  # 출력: Hello 홍길동
-    ````
-    
-    ```bash
-    echo 'Hello\
-    World'
+```bash
+name="홍길동"
+echo 'Hello $name'  # 출력: Hello $name
+echo "Hello $name"  # 출력: Hello 홍길동
+````
 
-    # 출력 결과
-    Hello\
-    World
-    ````
-    `\` 도 단순 문자로 취급된다.
+```bash
+echo 'Hello\
+World'
+
+# 출력 결과
+Hello\
+World
+````
+`\` 도 단순 문자로 취급된다.
+
+#### 2.3.3 큰 따옴표
+
+작은 따옴표와 달리 큰 따옴표 내부에서는 **변수 확장**, **명령어 치환**, **이스케이프**, **히스토리 확장**이 동작할 수 있다. 또한 일부 메타 문자도 해석된다.
+
+- 변수 확장 예)
+```bash
+name="홍길동"
+echo "Hello $name"  # 출력: Hello 홍길동
+``` 
+
+- 명령어 치환 예)
+```bash
+echo 'Today is `date`' # Today is `date`
+echo "Today is `date`"  # Today is Wed Mar  5 08:08:52 UTC 2025
+``` 
+
+- 히스토리 확장 예) 
+```bash
+pwd
+whoami
+ls
+echo "마지막 두 번째 명령: !-2" # 명령문 확장: echo "====> whoami"
+echo '마지막 두 번째 명령: !-2' # 명령문 확장 안함
+```
+
+- 이스케이프 예)
+```bash
+name="홍길동"
+echo "Hello $name"  # 출력: Hello 홍길동
+echo "Hello \$name" # 출력: Hello $name
+
+echo "Today is `date`" # Today is Wed Mar  5 08:08:52 UTC 2025
+echo "Today is \`date\`" # Today is `date`
+
+echo "File path: \C:\Users" # \C 나 \U 는 특별한 의미가 없으므로 그냥 출력
+
+echo "She said, \"Hello\"" # She said, "Hello"
+```
+
+#### 2.3.4 ANSI-C 인용
+
+$'문자열' 형식의 문자열을 **ANSI-C quoting** 이라 부른다. 문자열 안에 이스케이프 문자(`\`)가 있을 경우 ANSI C 표준에 따라 변환한다.
+
+```bash
+echo 'Hello\nWorld'
+echo 'Hello\tWorld'
+echo 'Hello\\World'
+echo $'I\'m happy'
+echo $'\x41\x42\x43'
+echo $'\a'
+
+# 출력 결과
+Hello
+World
+Hello	World
+Hello\World
+I'm happy
+ABC
+(벨소리 출력)
+````
+
+- `\a` : 벨소리 출력
+- `\b` : backspace 
+- `\f` : form feed  
+- `\n` : newline 
+- `\r` : carriage return 
+- `\t` : horizontal tab 
+- `\v` : vertical tab
+- `\\` : backslash
+- `\'` : single quote
+- `\"` : double quote
+- `\?` : question mark
+- `\nnn` : 8진수 ASCII 문자코드(8비트) 
+- `\xHH` : 16진수 ASCII 문자코드(8비트)
+- `\uHHHH` : 16진수 유니코드(16비트) 
+- `\UHHHHHHHH` : 16진수 유니코드(32비트) 
+- `\cx` : control + 제어문자 
+    - `\cA` : Ctrl+A (0x01), 터미널에서 줄의 맨 앞으로 이동
+    - `\cB` : Ctrl+B (0x02), 커서를 왼쪽으로 이동
+    - `\cC` : Ctrl+C (0x03), 실행 중인 프로세스 중단 (Interrupt)
+    - `\cD` : Ctrl+D (0x04), 입력 종료 (EOF)
+    - `\cG` : Ctrl+G (0x07), 경고음 (Bell)
+    - `\cH` : Ctrl+H (0x08), 백스페이스 (\b)
+    - `\cJ` : Ctrl+J (0x0A), 줄 바꿈 (\n)
+    - `\cM` : Ctrl+M (0x0D), 캐리지 리턴 (\r)
 
 
-3. 큰 따옴표
+#### 2.3.5 로케일별 번역
 
-    작은 따옴표와 달리 큰 따옴표 내부에서는 **변수 확장**, **명령어 치환**, **이스케이프**, **히스토리 확장**이 동작할 수 있다. 또한 일부 메타 문자도 해석된다.
+$"문자열" 형식으로 문자열을 작성하면 현재 로케일 설정에 따라 번역이 수행될 수 있다. 
+이 기능은 GNU gettext 시스템을 사용하여 문자열을 변환한다. 주로 다국어 지원을 위한 스크립트에 활용된다.
 
-    - 변수 확장 예)
-    ```bash
-    name="홍길동"
-    echo "Hello $name"  # 출력: Hello 홍길동
-    ``` 
+- 쉘 스크립트 작성(`test.sh`)
+```bash
+#!/bin/bash
 
-    - 명령어 치환 예)
-    ```bash
-    echo 'Today is `date`' # Today is `date`
-    echo "Today is `date`"  # Today is Wed Mar  5 08:08:52 UTC 2025
-    ``` 
+# gettext를 못찾으면, gettext.sh 스크립트를 찾아서 포함시킨다.
+# 찾기 명령: $ find /usr -name gettext.sh
+# 포함 문장: source /usr/local/bin/gettext.sh
 
-    - 히스토리 확장 예) 
-    ```bash
-    pwd
-    whoami
-    ls
-    echo "마지막 두 번째 명령: !-2" # 명령문 확장: echo "====> whoami"
-    echo '마지막 두 번째 명령: !-2' # 명령문 확장 안함
-    ```
+export TEXTDOMAIN=myapp
+export TEXTDOMAINDIR=./locale
 
-    - 이스케이프 예)
-    ```bash
-    name="홍길동"
-    echo "Hello $name"  # 출력: Hello 홍길동
-    echo "Hello \$name" # 출력: Hello $name
+USER="Alice"
 
-    echo "Today is `date`" # Today is Wed Mar  5 08:08:52 UTC 2025
-    echo "Today is \`date\`" # Today is `date`
+echo "Current Locale: $LANG"
+echo $"Hello, $USER!"  # echo $(eval_gettext "Hello, \$USER!")
+```
 
-    echo "File path: \C:\Users" # \C 나 \U 는 특별한 의미가 없으므로 그냥 출력
-    
-    echo "She said, \"Hello\"" # She said, "Hello"
-    ```
+- gettext 템플릿 파일(`myapp.pot`) 생성(쉘스크립트 파일에서 추출)
+```bash
+# bash --dump-po-strings 스크립트이름 > 도메인.pot
+$ bash --dump-po-strings test.sh > myapp.pot
+```
 
-4. ANSI-C 인용
+- 템플릿 파일을 복사하여 국제화를 지원할 언어 파일(`fr.po`) 생성
+```bash
+$ cp myapp.pot fr.po
+```
 
-    $'문자열' 형식의 문자열을 **ANSI-C quoting** 이라 부른다. 문자열 안에 이스케이프 문자(`\`)가 있을 경우 ANSI C 표준에 따라 변환한다.
+- 언어 파일(`fr.po`) 작성
+```bash
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-    ```bash
-    echo 'Hello\nWorld'
-    echo 'Hello\tWorld'
-    echo 'Hello\\World'
-    echo $'I\'m happy'
-    echo $'\x41\x42\x43'
-    echo $'\a'
+msgid "Hello, $USER!"
+msgstr "Bonjour, $USER!"
+```
 
-    # 출력 결과
-    Hello
-    World
-    Hello	World
-    Hello\World
-    I'm happy
-    ABC
-    (벨소리 출력)
-    ````
+- gettext 도구에서 사용할 수 있도록 MO 파일로(`fr.mo`) 변환
+```bash
+# msgfmt 명령이 없다고 오류가 발생한다면,
+# - gettext 패키지 설치
+$ apt update && apt install -y gettext
 
-    - `\a` : 벨소리 출력
-    - `\b` : backspace 
-    - `\f` : form feed  
-    - `\n` : newline 
-    - `\r` : carriage return 
-    - `\t` : horizontal tab 
-    - `\v` : vertical tab
-    - `\\` : backslash
-    - `\'` : single quote
-    - `\"` : double quote
-    - `\?` : question mark
-    - `\nnn` : 8진수 ASCII 문자코드(8비트) 
-    - `\xHH` : 16진수 ASCII 문자코드(8비트)
-    - `\uHHHH` : 16진수 유니코드(16비트) 
-    - `\UHHHHHHHH` : 16진수 유니코드(32비트) 
-    - `\cx` : control + 제어문자 
-        - \cA : Ctrl+A (0x01), 터미널에서 줄의 맨 앞으로 이동
-        - \cB : Ctrl+B (0x02), 커서를 왼쪽으로 이동
-        - \cC : Ctrl+C (0x03), 실행 중인 프로세스 중단 (Interrupt)
-        - \cD : Ctrl+D (0x04), 입력 종료 (EOF)
-        - \cG : Ctrl+G (0x07), 경고음 (Bell)
-        - \cH : Ctrl+H (0x08), 백스페이스 (\b)
-        - \cJ : Ctrl+J (0x0A), 줄 바꿈 (\n)
-        - \cM : Ctrl+M (0x0D), 캐리지 리턴 (\r)
+# 실행
+$ msgfmt -o fr.mo fr.po
+```
 
+- MO 파일을 TEXTDOMAINDIR 변수가 가리키는 폴더에 설치
+```bash
+$ cp fr.mo ./locale/fr/LC_MESSAGES/myapp.mo
+```
 
-5. 로케일별 번역
+- 로케일을 프랑스어로 설정 후 실행
+```bash
+# 로케일이 생성되지 않아 번역이 적용되지 않는 문제가 발생한다면,
+# - 로케일 패키지 설치
+$ apt update && apt install -y locales
 
-    $"문자열" 형식으로 문자열을 작성하면 현재 로케일 설정에 따라 번역이 수행될 수 있다. 
-    이 기능은 GNU gettext 시스템을 사용하여 문자열을 변환한다. 주로 다국어 지원을 위한 스크립트에 활용된다.
+# - 로케일 생성
+$ locale-gen fr_FR.UTF-8
 
-    - 쉘 스크립트 작성(`test.sh`)
-    ```bash
-    #!/bin/bash
+# 실행
+$ export LANG=fr_FR.UTF-8
 
-    # gettext를 못찾으면, gettext.sh 스크립트를 찾아서 포함시킨다.
-    # 찾기 명령: $ find /usr -name gettext.sh
-    # 포함 문장: source /usr/local/bin/gettext.sh
+# test.sh 파일에 실행 권한 부여
+$ chmod +x test.sh
 
-    export TEXTDOMAIN=myapp
-    export TEXTDOMAINDIR=./locale
-
-    USER="Alice"
-
-    echo "Current Locale: $LANG"
-    echo $"Hello, $USER!"  # echo $(eval_gettext "Hello, \$USER!")
-    ```
-
-    - gettext 템플릿 파일(`myapp.pot`) 생성(쉘스크립트 파일에서 추출)
-    ```bash
-    # bash --dump-po-strings 스크립트이름 > 도메인.pot
-    $ bash --dump-po-strings test.sh > myapp.pot
-    ```
-
-    - 템플릿 파일을 복사하여 국제화를 지원할 언어 파일(`fr.po`) 생성
-    ```bash
-    $ cp myapp.pot fr.po
-    ```
-
-    - 언어 파일(`fr.po`) 작성
-    ```bash
-    msgid ""
-    msgstr ""
-    "Content-Type: text/plain; charset=UTF-8\n"
-    "Content-Transfer-Encoding: 8bit\n"
-    "Language: fr\n"
-    "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-    msgid "Hello, $USER!"
-    msgstr "Bonjour, $USER!"
-    ```
-
-    - gettext 도구에서 사용할 수 있도록 MO 파일로(`fr.mo`) 변환
-    ```bash
-    # msgfmt 명령이 없다고 오류가 발생한다면,
-    # - gettext 패키지 설치
-    $ apt update && apt install -y gettext
-
-    # 실행
-    $ msgfmt -o fr.mo fr.po
-    ```
-
-    - MO 파일을 TEXTDOMAINDIR 변수가 가리키는 폴더에 설치
-    ```bash
-    $ cp fr.mo ./locale/fr/LC_MESSAGES/myapp.mo
-    ```
-
-    - 로케일을 프랑스어로 설정 후 실행
-    ```bash
-    # 로케일이 생성되지 않아 번역이 적용되지 않는 문제가 발생한다면,
-    # - 로케일 패키지 설치
-    $ apt update && apt install -y locales
-
-    # - 로케일 생성
-    $ locale-gen fr_FR.UTF-8
-
-    # 실행
-    $ export LANG=fr_FR.UTF-8
-
-    # test.sh 파일에 실행 권한 부여
-    $ chmod +x test.sh
-
-    # test.sh 실행
-    $ ./test.sh
-    ```
-#### 로케일(locale)
+# test.sh 실행
+$ ./test.sh
+```
+#### 2.3.6 로케일(locale)
 
 일반적으로 `language_territory.codeset` 형식으로 표현한다.
 
@@ -409,9 +439,9 @@ $ source ~/.bashrc
 ```
 
 
-## 쉘 명령(Shell Commands)
+## 3 쉘 명령(Shell Commands)
 
-### 예약어(Reserved Words)
+### 3.1 예약어(Reserved Words)
 
 쉘에서 특별한 의미로 사용되는 단어이다. 복합 명령을 시작하고 끝내는 데 사용된다.
 
@@ -427,7 +457,7 @@ case	esac	coproc	select	function
 - `do`
     - `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
 
-### 간단한 명령(Simple Commands)
+### 3.2 간단한 명령(Simple Commands)
 
 가장 기본적인 형태의 명령이다. 
     
@@ -452,7 +482,7 @@ ls -l /home/user
 # /home/user : 아규먼트
 ```
 
-명령어를 종료시키는 제어 연산자
+#### 3.2.1 명령어를 종료시키는 제어 연산자
 
 - `;`: 여러 명령을 순차적으로 실행 (command1; command2)
 - `&` : 명령을 백그라운드에서 실행 (command &)
@@ -461,7 +491,7 @@ ls -l /home/user
 - \`: backtick(\`) 
 
 
-리턴 상태(return status) = 종료 상태(exit status)
+#### 3.2.2. 리턴 상태(return status) = 종료 상태(exit status)
 
 - 값의 범위
     - waitpid 시스템 콜 또는 이와 동등한 함수에서 리턴한 값이다.
@@ -477,11 +507,11 @@ ls -l /home/user
 - 확장 및 리디렉션 오류
     - 명령 실행 중 확장(expansion)이나 리디렉션(redirection) 오류가 발생하면 0 보다 큰 값을 리턴한다.
 
-### 파이프라인(Pipelines)
+### 3.3 파이프라인(Pipelines)
 
 여러 개의 명령을 제어 연산자 `|` 또는 `|&` 로 연결하여 실행하는 방식이다. 이 과정에서 앞 명령어의 출력은 다음 명령의 입력으로 전달된다.
 
-#### `|` 파이프 연산자
+#### 3.3.1 `|` 파이프 연산자
 
 - 앞 명령의 **출력(`stdout`)** 이 다음 명령의 **입력(`stdin`)** 으로 전달된다.
 - 연결된 모든 명령이 순차적으로 실행되며, 마지막 명령의 출력이 최종 결과다.
@@ -490,11 +520,11 @@ ls -l /home/user
 $ ls /etc | grep conf | sort -r
 ```
 
-1. `ls /etc` : `/etc` 폴더에 있는 파일 목록 출력
-2. `grep conf` : `conf` 를 포함하는 파일을 필터링
-3. `sort -r` : 파일명을 역순으로 정렬
+1) `ls /etc` : `/etc` 폴더에 있는 파일 목록 출력
+2) `grep conf` : `conf` 를 포함하는 파일을 필터링
+3) `sort -r` : 파일명을 역순으로 정렬
 
-#### `|&` 파이프 연산자
+#### 3.3.2 `|&` 파이프 연산자
 
 - `|&` : 앞 명령의 **출력(`stdout`) + 오류(`stderr`)** 가 다음 명령의 입력(`stdin`)으로 전달된다.
 - `2>&1 |`의 단축 표현이다.
@@ -507,7 +537,7 @@ $ ls /okok |& tee log.txt # ls의 실행 오류는 tee에 전달된다.
 $ cat log.txt # log.txt에 오류 내용이 들어 있다.
 ```
 
-#### 실행 시간 측정
+#### 3.3.3 실행 시간 측정
 
 - 쉘 예약어 `time` 을 사용하면 명령어 또는 전체 파이프라인 실행 시간을 측정할 수 있다.
 
@@ -519,7 +549,7 @@ user	0m0.007s # 사용자 모드에서 소모된 시간
 sys	    0m0.011s # 커널 모드에서 소모된 시간
 ```
 
-#### 실행 방식
+#### 3.3.4 실행 방식
 
 - 파이프라인의 각 명령은 서브쉘(Subshell)에서 실행된다.
 ```bash
@@ -535,8 +565,7 @@ $ echo $name
 Gildong Hong
 ```
 
-- `shopt -s lastpipe` 옵션을 설정하면 파이프라인의 마지막 명령은 현재 쉘에서 실행된다.
-- 단, 인터렉티브 모드(터미널에서 직접 실행)에서는 적용되지 않는다.
+- `shopt -s lastpipe` 옵션을 설정하면 파이프라인의 마지막 명령은 현재 쉘에서 실행된다. 단, 인터렉티브 모드(터미널에서 직접 실행)에서는 적용되지 않는다.
 ```bash
  #!/bin/bash
 shopt -s lastpipe
@@ -545,7 +574,7 @@ echo "James Kim" | read name
 echo $name
 ```
 
-#### `pipefail` 옵션
+#### 3.3.5 `pipefail` 옵션
 
 - 기본적으로 파이프라인의 종료 상태(exit status)는 마지막 명령의 종료 상태이다.
 ```bash
@@ -560,18 +589,19 @@ $ false | true
 $ echo $? # 1, 첫 번째로 실패한 명령의 값(true)이 종료 상태로 리턴된다.
 ```
 
-### 명령 목록(Lists of Commands)
+### 3.4 명령 목록(Lists of Commands)
 
 하나 이상의 **파이프라인(`|`나 `|&`로 연결된 명령어들)** 을 `&&`, `||`, `;`, `&` 연산자로 연결하여 실행할 수 있다.
 
-#### 연산자 우선순위
+#### 3.4.1 연산자 우선순위
 
 1. `&&`, `||` (같은 우선 순위)
 2. `;`, `&` (같은 우선 순위, 1번 보다 낮음) 
 
-#### `&&` (AND 연산)
+#### 3.4.2 `&&` (AND 연산)
 - 앞 명령이 성공(0 리턴)하면 다음 명령을 실행한다.
 - 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령은 실행되지 않는다.
+
 ```bash
 # 성공할 경우 현재 폴더를 test로 바꾼다.
 $ mkdir test && cd test 
@@ -580,15 +610,16 @@ $ mkdir test && cd test
 $ rm test.txt && echo "File deleted"
 ```
 
-#### `||` (OR 연산)
+#### 3.4.3 `||` (OR 연산)
 - 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령을 실행한다.
 - 앞 명령이 성공(0 리턴)하면 뒤의 명령은 실행되지 않는다.
+
 ```bash
 # 파일 삭제가 실패할 경우 메시지를 출력한다.
 $ rm test.txt || echo "File not found"
 ```
 
-#### `&&` + `||`
+#### 3.4.4 `&&` + `||`
 
 - 우선 순위가 같기 때문에 왼쪽에서 오른쪽으로 연산을 수행(Left Associativity)한다.
 ```bash
@@ -599,13 +630,13 @@ $ false && echo "Success" || echo "Failure"
 ```bash
 $ false && true || echo "Failed" && echo $?
 ```
-1. `false` 실행 : 1 리턴
-2. `&&` 연산에 의해 `true` 실행 안함
-3. `||` 연산에 의해 `echo "Failed"` 실행
-4. `echo "Failed"`의 리턴 값(0; 성공)을 출력 
+1) `false` 실행 : 1 리턴
+1) `&&` 연산에 의해 `true` 실행 안함
+1) `||` 연산에 의해 `echo "Failed"` 실행
+1) `echo "Failed"`의 리턴 값(0; 성공)을 출력 
 
 
-#### `;` (순차 실행)
+#### 3.4.5 `;` (순차 실행)
 
 - `;` 을 사용하여 명령을 순차적으로 실행시킬 수 있다. 
 - 앞 명령 결과에 상관없이 다음 명령이 순차적으로 실행된다.
@@ -619,7 +650,7 @@ $ true; false; true
 $ echo $?
 ```
 
-#### `&` (백그라운드 실행)
+#### 3.4.6 `&` (백그라운드 실행)
 
 - 명령문 뒤에 `&` 를 붙이면, 별도의 서브쉘에서 백그라운드로 실행시키고 다음 명령문로 바로 넘어간다.
 - 입력이 필요한 경우 /dev/null 을 입력으로 사용한다.
@@ -630,26 +661,26 @@ $ echo "Hello!"
 $ sleep 5 & echo "Hello!" # sleep 5 명령문은 별도의 서브쉘에서 실행시키고, 즉시 echo 명령문을 처리한다.
 ```
 
-
-### 복합 명령(Compound Commands)
+### 3.5 복합 명령(Compound Commands)
 
 여러 개의 명령문을 반복, 조건, 그룹화 등의 문법을 사용하여 실행 흐름을 제어할 수 있다. 
 
 
-#### 반복문(Looping Constructs)
+#### 3.5.1 반복문(Looping Constructs)
 
 반복적인 작업을 수행할 때 사용한다. 즉 특정 조건이 충족될 때까지 동일한 코드 블록을 여러 번 실행시키는 문법이다.
 
-##### until 반복문 - 조건이 거짓(exit status != 0)인 동안 실행
+##### until 반복문
+조건이 거짓(exit status != 0)인 동안 실행
 
 ```bash
 until test-commands; do consequent-commands; done    
 ```
-* `test-commands`: 조건을 검사하는 명령
-* `consequent-commands`: `test-commands`가 실패(exit status != 0)하면 실행한다. 
-* 즉 `test-command`가 성공(exit status = 0) 할 때까지 반복한다.
-* 리턴 상태는 마지막 명령의 종료 상태이다.
-* 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+1) `test-commands`: 조건을 검사하는 명령
+1) `consequent-commands`: `test-commands`가 실패(exit status != 0)하면 실행한다. 
+1) 즉 `test-command`가 성공(exit status = 0) 할 때까지 반복한다.
+1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
    
 ```bash
@@ -662,16 +693,17 @@ done
 echo "return status: $?" 
 ```
 
-##### while 반복문 - 조건이 참(exit status = 0)인 동안 실행
+##### while 반복문
+조건이 참(exit status = 0)인 동안 실행
 
 ```bash
 while test-commands; do consequent-commands; done
 ```
-- `test-commands`: 조건을 검사하는 명령
-- `consequent-commands`: `test-commands`가 성공(exit status = 0)하면 실행한다. 
-- 즉 `test-commands`가 실패(exit status != 0) 할 때까지 반복한다.
-- 리턴 상태는 마지막 명령의 종료 상태이다.
-- 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+1) `test-commands`: 조건을 검사하는 명령
+1) `consequent-commands`: `test-commands`가 성공(exit status = 0)하면 실행한다. 
+1) 즉 `test-commands`가 실패(exit status != 0) 할 때까지 반복한다.
+1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
 ```bash
 # count가 5 이하인 동안 반복
@@ -683,19 +715,19 @@ done
 echo "return status: $?" 
 ```
 
-##### for 반복문 - 리스트 또는 특정 범위의 값을 반복하여 실행
+##### for 반복문
+리스트 또는 특정 범위의 값을 반복하여 실행
 
 ```bash
 for name [ [in [words …] ] ; ] do commands; done
 ```
-
-- `name`: 리스트의 각 요소를 담는 변수
-- `words`: 리스트(공백으로 구분된 여러 값, 파일 목록 등)
-- `commands`: 리스트의 각 값에 대해 실행할 명령
-- `words`에 포함된 값들을 하나씩 가져와서 `name`에 저장하고, `commands`를 실행한다.
-- `words`에 더 이상 값이 없을 때 반복을 종료한다.
-- 리턴 상태는 마지막 명령의 종료 상태이다.
-- 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+1) `name`: 리스트의 각 요소를 담는 변수
+1) `words`: 리스트(공백으로 구분된 여러 값, 파일 목록 등)
+1) `commands`: 리스트의 각 값에 대해 실행할 명령
+1) `words`에 포함된 값들을 하나씩 가져와서 `name`에 저장하고, `commands`를 실행한다.
+1) `words`에 더 이상 값이 없을 때 반복을 종료한다.
+1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
 
 ```bash
@@ -708,7 +740,8 @@ for fruit in apple banana cherry; do
 done
 ```
 
-##### `in` 없는 `for` 반복문 - 위치 파라미터(`$@`, positional parameter)를 사용
+##### `in` 없는 `for` 반복문
+위치 파라미터(`$@`, positional parameter)를 사용
 
 - `for-test.sh` 스크립트 파일
 ```bash
@@ -724,21 +757,20 @@ $ for-test.sh apple banana cherry
 ```
 
 ##### C 언어 스타일의 `for` 반복문
+C 언어의 `for` 문과 유사하게 동작한다. 
 
 ```bash
 for ((expr1; expr2; expr3)) ; do commands; done
 ```
-
-- C 언어의 `for` 문과 유사하게 동작한다. 
-- `expr1`: 초기화 산술 표현식(반복 시작 전 한 번 실행)
-- `expr2`: 반복 조건 산술 표현식(non-zero 이면 계속 반복, zero 이면 종료)
-- 표현식의 실행 결과
-    - non-zero이면 return status는 0이고, 
-    - zero 이면 return status는 1이다.
-- `expr3`: 반복 실행 후 수행할 산술 표현식
-- `expr1/2/3` 은 산술 표현식이어야 한다. 표현식을 생략하면 결과 값이 1로 간주 된다. 
-- 리턴 상태는 마지막 명령의 종료 상태이다.
-- 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+1) `expr1`: 초기화 산술 표현식(반복 시작 전 한 번 실행)
+1) `expr2`: 반복 조건 산술 표현식(non-zero 이면 계속 반복, zero 이면 종료)
+1) 표현식의 실행 결과
+    * non-zero이면 return status는 0이고, 
+    * zero 이면 return status는 1이다.
+1) `expr3`: 반복 실행 후 수행할 산술 표현식
+1) `expr1/2/3` 은 산술 표현식이어야 한다. 표현식을 생략하면 결과 값이 1로 간주 된다. 
+1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
 
 ```bash
@@ -751,7 +783,8 @@ for ((i=1; 100 >> i; i++)) ; do
 done    
 ```
 
-##### `break` - 현재 실행 중인 반복문을 즉시 종료한다.
+##### `break`
+현재 실행 중인 반복문을 즉시 종료한다.
 
 ```bash
 i=1
@@ -764,7 +797,8 @@ for (( ; ; )) do
 done
 ```
 
-##### `continue` - 다음 반복으로 건너 뛰기
+##### `continue`
+다음 반복으로 건너 뛰기
 
 ```bash
 for ((i=1; i<=10; i++)) ; do
@@ -782,7 +816,7 @@ for i in 1 2 3 4 5; do
 done
 ```
 
-#### 조건문(Conditional Constructs)
+#### 3.5.2  조건문(Conditional Constructs)
 
 조건에 따라 실행할 문장을 지정하는 문법이다.
 
@@ -797,8 +831,8 @@ if test-commands; then # test-commands 조건을 검사한다.
     alternate-consequents;] # if 와 elif 모두 exit status = 1 일 때 실행
 fi
 ```
-- 리턴 상태는 마지막 명령의 종료 상태이다.
-- 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
+1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
 
 ```bash
@@ -818,7 +852,6 @@ else
 fi
 ```
 
-
 ##### `case` 조건문
 
 - 값의 패턴으로 여러 조건을 검사할 때 사용
@@ -831,13 +864,12 @@ case word in
     *) default-command-list ;; 
 esac
 ```
-
-- `word` : 비교할 문자열/변수/값
-- `pattern` : `word`와 비교할 패턴(*, ?, [] 등 사용 가능)
-- `command-list` : 패턴이 일치할 때 실행할 명령어 목록
-- `;;` : 해당 패턴을 실행한 후 case 문 종료
-- `*)` : 기본 패턴(일치하는 패턴이 없을 경우 실행)
-- `|` : 여러 패턴을 묶을 경우
+1) `word` : 비교할 문자열/변수/값
+1) `pattern` : `word`와 비교할 패턴(*, ?, [] 등 사용 가능)
+1) `command-list` : 패턴이 일치할 때 실행할 명령어 목록
+1) `;;` : 해당 패턴을 실행한 후 case 문 종료
+1) `*)` : 기본 패턴(일치하는 패턴이 없을 경우 실행)
+1) `|` : 여러 패턴을 묶을 경우
 
 ```bash
 read -p '동물 이름?' animal
@@ -851,7 +883,8 @@ case $animal in
 esac
 ```
 
-###### `;;` 사용법 : 첫 번째로 찾은 패턴을 실행한 후 case 문 종료
+###### `;;` 사용법
+첫 번째로 찾은 패턴을 실행한 후 case 문 종료
 
 ```bash
 VAR=apple
@@ -862,7 +895,8 @@ case $VAR in
 esac
 ```
 
-###### `;&` 사용법 : 첫 번째로 찾은 패턴을 실행한 후 다음 패턴의 명령도 실행
+###### `;&` 사용법
+첫 번째로 찾은 패턴을 실행한 후 다음 패턴의 명령도 실행
 
 ```bash
 VAR=apple
@@ -873,7 +907,8 @@ case $VAR in
 esac
 ```
 
-###### `;;&` 사용법 : 첫 번째로 찾은 패턴을 실행한 후 나머지 패턴도 검사하고 실행
+###### `;;&` 사용법
+첫 번째로 찾은 패턴을 실행한 후 나머지 패턴도 검사하고 실행
 
 ```bash
 VAR=apple
@@ -884,7 +919,8 @@ case $VAR in
 esac
 ```
 
-###### `word`의 확장 : 패턴을 비교하기 전에 word 확장을 먼저 수행
+###### `word`의 확장
+패턴을 비교하기 전에 word 확장을 먼저 수행
 
 - 틸드 확장(`~`)
 - 변수 확장(`$VAR`)
@@ -912,18 +948,17 @@ select name [in word1 word2 ...]; do
     commands
 done
 ```
-
-- `name` : 사용자가 선택한 값을 저장하는 변수
-- `word1 word2 ...` : 선택할 메뉴 목록
-- `commands` : 선택 후 실행될 명령 
-- `PS3` : 사용자에게 표시될 프롬프트 문자열(기본 값: #?)
-- `REPLY` : 사용자가 입력한 값이 저장되는 변수(숫자 입력)
-- 실행 절차
-    - `in` 뒤에 있는 단어 목록에 번호를 붙여 메뉴 목록으로 출력됨
-    - `PS3` 프롬프트가 표시되고 사용자 입력을 기다림
-    - 사용자가 번호를 입력하면 해당 값이 `name` 변수에 저장됨
-    - `commands` 블록이 실행됨
-    - `break` 또는 **EOF(Ctrl + D)** 입력 시 루프 종료
+1) `name` : 사용자가 선택한 값을 저장하는 변수
+1) `word1 word2 ...` : 선택할 메뉴 목록
+1) `commands` : 선택 후 실행될 명령 
+1) `PS3` : 사용자에게 표시될 프롬프트 문자열(기본 값: #?)
+1) `REPLY` : 사용자가 입력한 값이 저장되는 변수(숫자 입력)
+1) 실행 절차
+    * `in` 뒤에 있는 단어 목록에 번호를 붙여 메뉴 목록으로 출력됨
+    * `PS3` 프롬프트가 표시되고 사용자 입력을 기다림
+    * 사용자가 번호를 입력하면 해당 값이 `name` 변수에 저장됨
+    * `commands` 블록이 실행됨
+    * `break` 또는 **EOF(Ctrl + D)** 입력 시 루프 종료
 
 
 ```bash
@@ -943,10 +978,9 @@ done
 ```bash
 (( expression ))
 ```
-
-- `expression` : C 스타일의 산술 연산 실행
-- non-zero 또는 참 : return status 0(성공)
-- zero 또는 거짓 : return status 1(실패)
+1) `expression` : C 스타일의 산술 연산 실행
+1) non-zero 또는 참 : return status 0(성공)
+1) zero 또는 거짓 : return status 1(실패)
 
 ```bash
 # 참/거짓의 return status 확인
@@ -1005,8 +1039,8 @@ echo $?
 ```bash
 [[ expression ]]
 ```
-- `expression` : 조건식
-- return status :
+1) `expression` : 조건식
+1) return status :
     - 참이면, 0
     - 거짓이면, 1
 
@@ -1052,9 +1086,9 @@ word="hello123"; [[ $word =~ ^hello ]]; echo $? # 0: 성공
 word="hello123"; [[ $word =~ hello$ ]]; echo $? # 1: 실패
 word="hello123"; [[ $word =~ +hello ]]; echo $? # 2: 정규식 문법 오류
 ```
-- `=~` : POSIX 정규표현식(ERE, Extended Reqular Expression) 비교 연산자
-- 시작(`^`), 끝(`$`)을 의미
-- 정규식이 잘못되면 return status 2 반환
+1) `=~` : POSIX 정규표현식(ERE, Extended Reqular Expression) 비교 연산자
+1) 시작(`^`), 끝(`$`)을 의미
+1) 정규식이 잘못되면 return status 2 반환
 
 ###### 변수 상태 검사
 
@@ -1123,16 +1157,16 @@ result=$(( (4 + 3) * 5 )); echo $result # 35
 [[ ! -f "en.mo" && (-f "ko.mo" || -f "fr.mo") ]]; echo $?
 ```
 
-#### 그룹화(Grouping Commands)
+#### 3.5.3 그룹화(Grouping Commands)
 
 ##### `( list )` : 서브쉘에서 실행
 
 ```bash
 ( command1; command2; command3 )
 ```
-- 소괄호로 감싼 명령 목록은 서브쉘에서 실행된다.
-- 변수의 변경이 부모쉘에 영향을 미치지 않는다.
-- 그룹화된 모든 명령의 출력을 한 번에 리디렉션 할 수 있다.
+1) 소괄호로 감싼 명령 목록은 서브쉘에서 실행된다.
+1) 변수의 변경이 부모쉘에 영향을 미치지 않는다.
+1) 그룹화된 모든 명령의 출력을 한 번에 리디렉션 할 수 있다.
 
 ```bash
 # 변수의 값 변경
@@ -1152,10 +1186,10 @@ cat output.txt
 ```bash
 { command1; command2; command3; }
 ```
-- 중괄호로 감싼 명령 목록은 현재 쉘에서 실행된다.
-- 서브쉘이 생성되지 않기 때문에 부모쉘의 변수가 변경된다.
-- 리디렉션은 전체 명령의 출력을 하나의 스트림으로 다룬다.
-- 마지막 명령은 반드시 세미콜론(`;`) 또는 줄바꿈(new line)으로 끝나야 한다.
+1) 중괄호로 감싼 명령 목록은 현재 쉘에서 실행된다.
+1) 서브쉘이 생성되지 않기 때문에 부모쉘의 변수가 변경된다.
+1) 리디렉션은 전체 명령의 출력을 하나의 스트림으로 다룬다.
+1) 마지막 명령은 반드시 세미콜론(`;`) 또는 줄바꿈(new line)으로 끝나야 한다.
 
 ```bash
 # 변수의 값 변경
@@ -1170,7 +1204,7 @@ echo "중괄호 밖: $VAR"
 cat output.txt
 ```
 
-### 코프로세스(Coprocesses)
+### 3.6 코프로세스(Coprocesses)
 
 - 백그라운드에서 실행되는 서브쉘 프로세스이다.
 - 비동기(asynchronous) 실행: `&` 연산자로 실행하는 백그라운드 프로세스와 유사하게 실행된다.
@@ -1187,26 +1221,33 @@ coproc NAME compound-command
 coproc compound-command
 coproc simple-command
 ```
-- `coproc` : 백그라운드에서 프로세스 실행시키는 명령
-- `NAME` : 코프로세스의 이름 설정(기본값: COPROC)
-- `command` : 실행할 명령(단순 명령 또는 복합 명령)
-- `redirections` : 입출력 리디렉션 설정
+1) `coproc` : 백그라운드에서 프로세스 실행시키는 명령
+1) `NAME` : 코프로세스의 이름 설정(기본값: COPROC)
+1) `command` : 실행할 명령(단순 명령 또는 복합 명령)
+1) `redirections` : 입출력 리디렉션 설정
 
+#### 기본 사용법
 ```bash
-# 기본 사용법
 coproc bc # 계산기 프로그램(bc)를 코프로세스로 실행
 echo "3 + 5" >&"${COPROC[1]}" # 출력을 코프로세스 입력으로 전달
 read result <&"${COPROC[0]}" # 코프로세스 출력을 입력으로 읽기
 echo "결과: $result"
 ```
 
+#### 코프로세스 이름 지정
 ```bash
-# 코프로세스 이름 지정
 coproc MATH_PROCESS { bc -l; } # 코프로세스 이름: MATH_PROCESS
 echo "10 / 2" >&"${MATH_PROCESS[1]}"
 read output <&"${MATH_PROCESS[0]}"
 echo "결과: $output"
 ```
+
+#### `wait` 사용법
+백그라운드에서 실행 중인 프로세스가 종료될 때까지 대기하는 명령
+- 특정 백그라운드 프로세스의 종료를 기다릴 때 사용
+- 백그라운드 프로세스의 exit status를 리턴
+- wait 뒤에 프로세스 ID 지정하면, 해당 프로세스를 기다림
+- wait 뒤에 프로세스 ID 생략하면, 모든 백그라운드 프로젝스 기다림
 
 ```bash
 coproc MYPROC { sleep 5; echo "끝!"; }
@@ -1214,11 +1255,6 @@ echo "코프로세스 PID: $MYPROC_PID" # 코프로세스 ID: 이름_PID
 wait "$MYPROC_PID"
 echo "코프로세스 종료됨!"
 ```
-- `wait` : 백그라운드에서 실행 중인 프로세스가 종료될 때까지 대기하는 명령
-    - 특정 백그라운드 프로세스의 종료를 기다릴 때 사용
-    - 백그라운드 프로세스의 exit status를 리턴
-    - wait 뒤에 프로세스 ID 지정하면, 해당 프로세스를 기다림
-    - wait 뒤에 프로세스 ID 생략하면, 모든 백그라운드 프로젝스 기다림
 
 #### `()` 서브쉘 vs `coproc` 차이점
 
@@ -1238,6 +1274,17 @@ echo "코프로세스 종료됨!"
 
 ### GNU 병렬(GNU Parallel)
 
+## 4 쉘 함수(Shell Functions)
+
+## 5. 쉘 파라미터(Shell Parameters)
+
+## 6. 쉘 확장(Shell Expansions)
+
+## 7. 리디렉션(Redirections)
+
+## 8. 명령 실행(Executing Commands)
+
+## 9. 쉘 스크립트(Shell Scripts)
 
 
 
