@@ -353,11 +353,43 @@ apt-get install -y git wget zip build-essential apt-transport-https
 - 배포 시나리오 선택
   - 배포 시작하기
 
-git 1:2.7
-subversion 1.9
-wget 1.17
-curl 7.47
-zip 3.0
-unzip 6.0
-build-essential 12
-apt-transport-https 1.2
+## SourcePipeline 사용법
+
+### 파이프라인 생성
+
+- 기본 설정
+  - 파이프라인 이름: `myproject-backend-auth`
+  - 파이프라인 설명: `사용자 인증 백엔드 프로젝트 파이프라인`
+- 파이프라인 구성
+  - 작업추가
+    - 이름: `build-001`
+    - 타입: `SourceBuild`
+    - 프로젝트: `auth-server`
+    - 연결정보
+      - 타입: SourceCommit
+      - 리포지토리: myproject-backend-auth
+      - 브랜치: main
+    - 확인
+  - 작업추가
+    - 이름: `deploy-001`
+    - 타입: `SourceDeploy`
+    - 프로젝트: `myproject-backend-auth`
+    - 스테이지: `real`
+    - 시나리오: `kube-deployment`
+    - 연결정보
+      - 타입: nks
+      - 정보: ./kube/auth-server-secret.yml
+    - 확인
+  - 선행작업
+    - build-001: 선행작업 없음
+    - deploy-001: `build-001`
+  - 트리거 설정
+    - 종류: Push 체크
+    - Push 설정
+      - 리포지토리 종류: sourcecommit
+      - 리포지토리 이름: myproject-backend-auth
+      - 브랜치: main
+      - 추가
+  - 다음
+- 최종확인
+  - 파이프라인 생성
