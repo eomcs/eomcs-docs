@@ -80,7 +80,7 @@ $ sudo docker run -d --env-file .env -p 8010:8010 --name auth-server k8s-edu-118
     - 0, ICMP, 0.0.0.0/0, 허용
     - 10, TCP, 0.0.0.0/0, 허용
     - 20, UDP, 0.0.0.0/0, 허용
-- bitcamp-vpc-lb-nacl: 로드밸러서용 외부 접속 제어
+- bitcamp-vpc-lb-nacl: 로드밸런서용 외부 접속 제어
   - Inbound 규칙
     - 10, TCP, 0.0.0.0/0, 1-65535, 허용
   - Outbound 규칙
@@ -215,7 +215,7 @@ kubectl get namespaces --kubeconfig kubeconfig.yml
 nano ~/.bashrc
 alias kubectl2='kubectl --kubeconfig=$HOME/kubeconfig.yml'   -> 파일 맨 밑에 alias 내용 추가
 source ~/.bashrc
-kubectl get namespaces
+kubectl2 get namespaces
 ```
 
 #### Container Registry의 Access/Scret Key를 저장한 Secret 옵브젝트 생성
@@ -326,7 +326,7 @@ apt-get install -y git wget zip build-essential apt-transport-https
 ### 배포 시나리오 생성
 
 - 기본 설정
-  - 배포 프로젝트 이름: myproject-backend-aut
+  - 배포 프로젝트 이름: myproject-backend-auth
   - 배포 stage: real
   - 배포 시나리오 이름: `kube-deployment`
   - 배포 시나리오 설명: `쿠버네티스에 배포하기`
