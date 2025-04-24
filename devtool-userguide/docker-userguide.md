@@ -3,14 +3,13 @@
 ## 준비
 
 사용자 등록
-`$ adduser student`
+`$ adduser bitcamp`
 
 등록한 사용자에게 sudo 권한 부여
 `$ visudo`
 
 편집기에서 다음 항목 추가
-`student ALL=(ALL) ALL`
-
+`bitcamp ALL=(ALL) ALL`
 
 ## 도커 설치
 
@@ -19,20 +18,24 @@
 #### apt
 
 기존에 설치된 Docker 제거
+
 - `$ sudo apt remove docker docker-engine docker.io containerd runc`
 
 도커 설치 스크립트 다운로드
+
 - `$ sudo apt-get update`
 - `$ sudo apt-get install curl`
 - `$ curl https://get.docker.com > docker-install.sh`
 - `$ chmod 755 docker-install.sh`
 
 도커 설치
+
 - `$ sudo ./docker-install.sh`
 
 #### yum
 
-기존에 설치된 docker 제거 
+기존에 설치된 docker 제거
+
 ```
 $ sudo yum remove docker \
                   docker-client \
@@ -45,22 +48,26 @@ $ sudo yum remove docker \
 ```
 
 Docker 설치 파일을 받기 위한 저장소 등록
+
 ```
-$ sudo yum install -y yum-utils         
-$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo         
+$ sudo yum install -y yum-utils
+$ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 ```
 
-Docker 엔진 설치 
+Docker 엔진 설치
+
 ```
 $ sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 Docker 엔진 시작
+
 ```
 $ sudo systemctl start docker
 ```
 
 Docker 설치 확인
+
 ```
 $ sudo docker run hello-world
 ```
@@ -68,7 +75,6 @@ $ sudo docker run hello-world
 기존에 저장된 도커 오브젝트(images, containers, volumes, network) 제거
 `$ sudo rm -rf /var/lib/docker`
 `$ sudo rm -rf /var/lib/containerd`
-
 
 ## 도커 컨테이너 다루기
 
@@ -691,12 +697,13 @@ $ docker build -t eomjinyoung/bitcamp:myapp .
 #### 컨테이너 생성 및 실행하기
 
 Windows OS
+
 ```
 $ docker run -d -p 80:80 -v /mnt/c/Users/bitcamp/config:/root/config --name myapp2 eomjinyoung/bitcamp:myapp
 ```
 
 Linux, macOS, Unix
+
 ```
 $ docker run -d -p 80:80 -v /home/student/config:/root/config --name myapp2 eomjinyoung/bitcamp:myapp
 ```
- 
