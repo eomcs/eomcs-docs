@@ -1,4 +1,4 @@
-# Bash Shell User Guide
+# Bash Shell User Guide - 기초편
 
 ## 1 개요
 
@@ -55,7 +55,7 @@
     - 파일을 식별하는 데 사용되는 문자열이다.
 - job
     - 파이프라인을 구성하는 프로세스 집합과 이 파이프라인에서 파생되는 프로세스들이다. 
-    - 모두 동인한 프로세시 그룹에 속한다.
+    - 모두 동인한 프로세스 그룹에 속한다.
 - job control
     - 사용자가 프로세스 실행을 중지(일시 중단)하고 다시 시작(재개)할 수 있는 메커니즘이다.
 - metacharacter
@@ -81,31 +81,48 @@
     - POSIX 표준에서 특수 명령어로 분류된 쉘 내장 명령어이다.
 - token
     - 쉘에서 단일 단위로 간주되는 문자열이다. 
+    - 즉 쉘에 명령어 줄을 해석할 때 분리하는 최소 단위이다.
     - ***단어(word)*** 또는 ***연산자(operator)***
 - word
     - 쉘에서 한 단위로 취급하는 문자열이다. 
+    - 즉 token 중에서 명령어나 아규먼트, 변수로 사용될 수 있는 문자열이다.
     - 단어는 따옴표 없는 metacharacter를 포함할 수 없다.
+    ```arduino
+    bash 입력: echo "Hello" > output.txt
+    토큰:
+      |-- word: echo
+      |-- word: "Hello"
+      |-- operator: >
+      |-- word: output.txt
+    ```
 
 
 ## 2 쉘 문법(Shell Syntax)
 
 ### 2.1 쉘 명령 실행 방식
 
-- 쉘 스크립트 파일 실행 
+- 쉘 스크립트 파일을 실행 
 ```bash
 $ bash test.sh
 ```
-- `-c` 옵션으로 스크립트 코드를 문자열로 전달
+- `-c` 옵션으로 스크립트 코드를 문자열로 전달하여 실행
 ```bash
-$ bash -c "echo Hello; echo World!"
+$ bash -c 'echo Hello; echo World!'
 ```
 
-- 터미널에 명령어 입력
+- 터미널에 명령어를 입력하여 실행
 ```bash
 $ echo Hello; echo World!
 ```
 
 ### 2.2 명령어 실행 절차
+
+- 입력을 읽는다. 
+    - 입력 예: 파일, -c 옵션으로 전달된 명령문, 터미널에 입력된 명령문 
+- 따옴표 규칙(quoting rules)을 고려하여 읽은 문장을 word 와 operator 로 쪼갠다.
+    - token은 metacharacter로 분리된다.
+    - 별명(Alias) 확장도 이 단계에서 수행한다.
+
 
 #### 1) 주석 무시
 주석의 시작을 의미하는 `#` 기호가 나타나면 그 줄의 나머지 부분을 무시한다.
