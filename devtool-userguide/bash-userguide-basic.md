@@ -193,7 +193,7 @@ $ echo Hello; echo World!
 
 #### 2.3.1 이스케이프 문자
 
-`\` 다음에 오는 문자의 특수 의미를 제거하고 문자 그대로 해석한다. 예를 들어, **공백(space)** 이나 **메타문자**(`*`, `?`, `$`, `"` 등)와 같이 특별한 의미가 있는 문자를 일반 문자로 취급한다.
+`\` 다음에 오는 문자는 일반 문자로 취급한다. 예를 들어, **공백(space)** 이나 **메타문자**(`*`, `?`, `$`, `"` 등)와 같이 특별한 의미가 있는 문자를 일반 문자로 취급한다.
     
 ```bash
 cat hello\ world.txt
@@ -205,7 +205,7 @@ echo Hello\
 Python\
 Wworld
 ```
-`\` 다음에 오는 `newline`은 무시된다. 즉 `echo helloPythonWorld` 와 같다.
+`\` 다음에 오는 `newline`은 라인 연결자로 간주한다. 즉 `echo helloPythonWorld` 와 같다.
 
 ```bash
 echo \$HOME
@@ -215,7 +215,7 @@ echo \$HOME
 
 #### 2.3.2 작은 따옴표(`''`)
 
-작은 따옴표 안의 문자는 그대로 유지된다. 메타 문자도 단순 문자로 취급한다.
+작은 따옴표 안의 문자는 일반 문자로 취급된다. 즉 메타 문자도 단순 문자로 취급한다.
     
 ```bash
 name="홍길동"
@@ -231,25 +231,25 @@ World'
 Hello\
 World
 ```
-`\` 도 단순 문자로 취급된다.
+`\` 도 단순 문자로 취급한다.
 
 #### 2.3.3 큰 따옴표(`""`)
 
-작은 따옴표와 달리 큰 따옴표 내부에서는 **변수 확장**, **명령어 치환**, **이스케이프**, **히스토리 확장**이 동작할 수 있다. 또한 일부 메타 문자도 해석된다.
+큰 따옴표 내부의 문자들은 **변수 확장**, **명령어 치환**, **이스케이프**, **히스토리 확장** 이 적용된다. 또한 일부 메타 문자도 해석된다.
 
-- 변수 확장 예)
+- 변수 확장
 ```bash
 name="홍길동"
 echo "Hello $name"  # 출력: Hello 홍길동
 ``` 
 
-- 명령어 치환 예)
+- 명령어 치환
 ```bash
 echo 'Today is `date`' # Today is `date`
 echo "Today is `date`"  # Today is Wed Mar  5 08:08:52 UTC 2025
 ``` 
 
-- 히스토리 확장 예) 
+- 히스토리 확장 
 ```bash
 pwd
 whoami
@@ -274,7 +274,7 @@ echo "She said, \"Hello\"" # She said, "Hello"
 
 #### 2.3.4 ANSI-C 인용
 
-$'문자열' 형식의 문자열을 **ANSI-C quoting** 이라 부른다. 문자열 안에 이스케이프 문자(`\`)가 있을 경우 ANSI C 표준에 따라 변환한다.
+`$'문자열'` 형식의 문자열을 **ANSI-C quoting** 이라 부른다. 문자열 안에 이스케이프 문자(`\`)가 있을 경우 ANSI C 표준에 따라 변환한다.
 
 ```bash
 echo 'Hello\nWorld'
@@ -292,7 +292,7 @@ Hello\World
 I'm happy
 ABC
 (벨소리 출력)
-````
+```
 
 - `\a` : 벨소리 출력
 - `\b` : backspace 
@@ -322,7 +322,7 @@ ABC
 
 #### 2.3.5 로케일별 번역
 
-$"문자열" 형식으로 문자열을 작성하면 현재 로케일 설정에 따라 번역이 수행될 수 있다. 
+`$"문자열"` 형식으로 문자열을 작성하면 현재 로케일 설정에 따라 번역이 수행될 수 있다. 
 이 기능은 GNU gettext 시스템을 사용하여 문자열을 변환한다. 주로 다국어 지원을 위한 스크립트에 활용된다.
 
 - 쉘 스크립트 작성(`test.sh`)
@@ -355,13 +355,6 @@ $ cp myapp.pot fr.po
 
 - 언어 파일(`fr.po`) 작성
 ```bash
-msgid ""
-msgstr ""
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
 msgid "Hello, $USER!"
 msgstr "Bonjour, $USER!"
 ```
@@ -370,7 +363,7 @@ msgstr "Bonjour, $USER!"
 ```bash
 # msgfmt 명령이 없다고 오류가 발생한다면,
 # - gettext 패키지 설치
-$ apt update && apt install -y gettext
+$ sudo apt update && apt install -y gettext
 
 # 실행
 $ msgfmt -o fr.mo fr.po
@@ -399,6 +392,7 @@ $ chmod +x test.sh
 # test.sh 실행
 $ ./test.sh
 ```
+
 #### 2.3.6 로케일(locale)
 
 일반적으로 `language_territory.codeset` 형식으로 표현한다.
@@ -440,13 +434,13 @@ ko_KR.EUC-KR EUC-KR
 ...
 
 # 로케일 생성 방법1)
-$ localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
+$ sudo localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
 
 # 로케일 생성 방법2)
-$ locale-gen ko_KR.UTF-8 # 내부적으로 localedef 명령을 실행한다. 결국 위의 명령과 동일하다.
+$ sudo locale-gen ko_KR.UTF-8 # 내부적으로 localedef 명령을 실행한다. 결국 위의 명령과 동일하다.
 
 # 한국어 패키지 설치
-$ apt-get install -y language-pack-ko
+$ sudo apt-get install -y language-pack-ko
 ```
 
 로케일 설정하기
@@ -465,68 +459,7 @@ $ echo "LC_ALL=ko_KR.UTF-8" >> /etc/default/locale
 $ echo 'export LANG=ko_KR.UTF-8' >> ~/.bashrc
 $ echo 'export LC_ALL=ko_KR.UTF-8' >> ~/.bashrc
 $ source ~/.bashrc
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### 1) 주석 무시
-주석의 시작을 의미하는 `#` 기호가 나타나면 그 줄의 나머지 부분을 무시한다.
-
-```bash
-echo "Hello" # 이 부분은 주석이므로 무시됨
-```
-
-#### 2) 단어와 연산자 구분(tokenizing)
-따옴표 규칙에 따르며, metacharacter를 기준으로 입력을 **단어(words)**와 **연산자(operators)**로 나눈다. 이렇게 구분된 것을 **토큰(token)** 이라고 한다.
-
-```bash
-cat "hello world.txt" # "Hello World.txt"는 한 개의 단어로 인식한다.
-cat hello world.txt # hello와 world.txt는 각각 개별 단어로 인식한다.
-ls -l /home # ls 와 /home 은 단어가 되고, -l 은 연산자가 된다.
-```
-
-#### 3) 명령어 해석
-
-이렇게 나눈 토큰(token)을 명령이나 기타 구조로 분석한다.
-
-#### 4) 특수 의미 제거 및 확장
-일부 단어나 문자열의 **특별한 의미를 제거**하고, 필요한 경우 **확장(expansion) 작업을 수행**한다.
-
-```bash
-echo *  # 특별한 의미로 사용(확장)
-```
-와일드카드(*) 문자는 '작업 디렉토리의 모든 파일과 디렉토리'로 의미를 확장한다. 예) `echo a.txt b.txt c.gif dir1 dir2`
-
-```bash
-echo \*  # 특별한 의미 제거
-```
-이스케이프 문자를 통해 '와일드카드의 의미를 제거'하고 단순 문자로 취급한다.
-
-```bash
-cat hello\ world.txt # 특별한 의미 제거
-```
-`\` 뒤에 오는 공백을 metacharacter로 간주하지 않고 단순 공백 문자로 간주한다. 즉 `hello world.txt` 파일명이다.
-
-#### 5) 입출력 리디렉션
-필요에 따라 입력과 출력을 리디렉션 한다.
-
-#### 6) 명령 실행
-지정된 명령을 실행하고, 명령어의 종료 상태를 기다린다.
-
-#### 7) 종료 상태 저장
-종료 상태를 추가 검사나 작업에 사용할 수 있도록 한다.
-
+``` 
 
 
 ## 3 쉘 명령(Shell Commands)
