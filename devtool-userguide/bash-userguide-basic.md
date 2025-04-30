@@ -464,9 +464,24 @@ $ source ~/.bashrc
 
 ## 3 쉘 명령(Shell Commands)
 
+쉘 명령은 단순 구조의 명령어과 복합 구조의 명령어로 구분할 수 있다. 
+
+- 단순 구조의 쉘 명령(Simple Shell Command)
+    - 하나의 명령과 아규먼트들로 구성된다.
+    - 공백으로 나뉜다.
+- 복합 구조의 쉘 명령(Compount/Complex Shell Command)
+    - 단순 구조의 명령들을 파이브라인으로 연결한 것.
+    - 반복문이나 조건문으로 구성된 명령들.
+    - 여러 개의 명령을 그룹으로 묶은 것.
+
+
 ### 3.1 예약어(Reserved Words)
 
-쉘에서 특별한 의미로 사용되는 단어이다. 복합 명령을 시작하고 끝내는 데 사용된다.
+예약어는 쉘에서 특별한 의미로 사용되는 단어다. 
+
+- 복합 쉘 명령의 시작과 끝에 사용한다.
+- 따옴표로 감싸지 않아야 한다.
+- 명령어 줄에서 첫 번째 단어여야 한다.
 
 ```bash
 if	then	elif	else	fi	time
@@ -478,18 +493,18 @@ case	esac	coproc	select	function
 - `in` 
     - `select` 나 `case`, `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
 - `do`
-    - `for` 명령의 세 번째 단어로 등장할 때 예약어로 인식된다. 
+    - `for` 명령의 세 번째 또는 다섯 번째 단어로 등장할 때 예약어로 인식된다. 
 
 ### 3.2 간단한 명령(Simple Commands)
 
 가장 기본적인 형태의 명령이다. 
     
 - 공백(space, tab)으로 구분된 일련의 단어들의 조합이다.
-- 쉘의 제어 연산자가 나오면 종료된다.
 - 첫 단어는 실행할 명령이고, 나머지는 해당 명령의 아규먼트다.
+- 쉘의 제어 연산자가 나오면 종료된다.
 
 ```bash
-# command_name arg1, arg2 ... argN
+# command_name arg1 arg2 ... argN
 
 # 예1)
 echo "Hello, World!"
@@ -511,7 +526,7 @@ ls -l /home/user
 - `&` : 명령을 백그라운드에서 실행 (command &)
 - `&&` : 앞의 명령이 성공하면 다음 명령 실행 (command1 && command2)
 - `||` : 앞의 명령이 실패하면 다음 명령 실행 (command1 || command2)
-- \`: backtick(\`) 
+- \`: backtick 
 
 
 #### 3.2.2. 리턴 상태(return status) = 종료 상태(exit status)
@@ -538,6 +553,8 @@ ls -l /home/user
 
 - 앞 명령의 **출력(`stdout`)** 이 다음 명령의 **입력(`stdin`)** 으로 전달된다.
 - 연결된 모든 명령이 순차적으로 실행되며, 마지막 명령의 출력이 최종 결과다.
+- 쉘은 파이프에 포함된 모든 명령이 종료될 때까지 기다린다. 
+- 마지막 명령의 종료 상태를 반환한다.
 
 ```bash
 $ ls /etc | grep conf | sort -r
@@ -551,6 +568,14 @@ $ ls /etc | grep conf | sort -r
 
 - `|&` : 앞 명령의 **출력(`stdout`) + 오류(`stderr`)** 가 다음 명령의 입력(`stdin`)으로 전달된다.
 - `2>&1 |`의 단축 표현이다.
+    - `stdout`: 정상적인 출력(1)
+    - `stderr`: 오류 메시지 출력(2)
+    - `>`: stdout을 파일로 리디렉션(덮어쓰기)
+    - `>>`: stdout을 파일로 리디렉션(덧붙이기)
+    - `2>`: stderr를 파일로 리디렉션(덮어쓰기)
+    - `2>>`: stderr를 파일로 리디렉션(덧붙이기)
+    - `2>&1`: stderr를 stdout으로 합침(리디렉션 조합용)
+    - `&>`: stdout + stderr를 같은 파일로 리디렉션(`2>&1 >`) 축약형
 
 ```bash
 $ ls /okok | tee log.txt # ls의 실행 오류는 tee에 전달되지 않는다.
@@ -575,6 +600,7 @@ sys	    0m0.011s # 커널 모드에서 소모된 시간
 #### 3.3.4 실행 방식
 
 - 파이프라인의 각 명령은 서브쉘(Subshell)에서 실행된다.
+
 ```bash
 $ name='Gildong Hong'
 $ read name
@@ -589,6 +615,7 @@ Gildong Hong
 ```
 
 - `shopt -s lastpipe` 옵션을 설정하면 파이프라인의 마지막 명령은 현재 쉘에서 실행된다. 단, 인터렉티브 모드(터미널에서 직접 실행)에서는 적용되지 않는다.
+
 ```bash
  #!/bin/bash
 shopt -s lastpipe
@@ -600,21 +627,30 @@ echo $name
 #### 3.3.5 `pipefail` 옵션
 
 - 기본적으로 파이프라인의 종료 상태(exit status)는 마지막 명령의 종료 상태이다.
+
 ```bash
 $ false | true
 $ echo $? # 0, 마지막 명령의 값(true)이 종료 상태로 리턴된다.
 ```
 
-- 파이프라인에서 첫 번째로 실패한 명령어의 종료 상태를 리턴 받기
+- 파이프라인에서 가장 마지막에 실패한 명령어의 종료 상태를 리턴 받기. 모든 명령이 성공하면 0을 리턴한다.
+
 ```bash
 $ set -o pipefail
 $ false | true
-$ echo $? # 1, 첫 번째로 실패한 명령의 값(true)이 종료 상태로 리턴된다.
+$ echo $?
+```
+
+- 파이프라인 앞에 `!` 를 붙이면 종료 상태의 논리적 반대값을 반환한다.
+
+```bash
+$ ! false
+$ echo $?
 ```
 
 ### 3.4 명령 목록(Lists of Commands)
 
-하나 이상의 **파이프라인(`|`나 `|&`로 연결된 명령어들)** 을 `&&`, `||`, `;`, `&` 연산자로 연결하여 실행할 수 있다.
+여러 개의 **파이프라인(`|`나 `|&`로 연결된 명령어들)** 을 `&&`, `||`, `;`, `&` 으로 연결하여 순차적 또는 조건적으로 실행하는 구조.
 
 #### 3.4.1 연산자 우선순위
 
@@ -622,6 +658,7 @@ $ echo $? # 1, 첫 번째로 실패한 명령의 값(true)이 종료 상태로 �
 2. `;`, `&` (같은 우선 순위, 1번 보다 낮음) 
 
 #### 3.4.2 `&&` (AND 연산)
+
 - 앞 명령이 성공(0 리턴)하면 다음 명령을 실행한다.
 - 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령은 실행되지 않는다.
 
@@ -634,6 +671,7 @@ $ rm test.txt && echo "File deleted"
 ```
 
 #### 3.4.3 `||` (OR 연산)
+
 - 앞 명령이 실패(0이 아닌 값 리턴)하면 다음 명령을 실행한다.
 - 앞 명령이 성공(0 리턴)하면 뒤의 명령은 실행되지 않는다.
 
@@ -645,11 +683,13 @@ $ rm test.txt || echo "File not found"
 #### 3.4.4 `&&` + `||`
 
 - 우선 순위가 같기 때문에 왼쪽에서 오른쪽으로 연산을 수행(Left Associativity)한다.
+
 ```bash
 $ false && echo "Success" || echo "Failure"
 ```
 
 - `&&`와 `||`로 연결된 명령문의 종료 상태는 마지막 명령문의 종료 상태 값이다.
+
 ```bash
 $ false && true || echo "Failed" && echo $?
 ```
@@ -663,11 +703,13 @@ $ false && true || echo "Failed" && echo $?
 
 - `;` 을 사용하여 명령을 순차적으로 실행시킬 수 있다. 
 - 앞 명령 결과에 상관없이 다음 명령이 순차적으로 실행된다.
+
 ```bash
 $ echo "Hello"; echo "World"
 ```
 
 - `;` 연산자로 연결된 명령문의 종료 상태는 마지막 명령문의 종료 상태 값이다.
+
 ```bash
 $ true; false; true
 $ echo $?
@@ -677,6 +719,7 @@ $ echo $?
 
 - 명령문 뒤에 `&` 를 붙이면, 별도의 서브쉘에서 백그라운드로 실행시키고 다음 명령문로 바로 넘어간다.
 - 입력이 필요한 경우 /dev/null 을 입력으로 사용한다.
+
 ```bash
 $ sleep 5 # 5초 동안 실행을 중단한 후 다음 명령으로 넘어 간다.
 $ echo "Hello!"
@@ -688,13 +731,58 @@ $ sleep 5 & echo "Hello!" # sleep 5 명령문은 별도의 서브쉘에서 실�
 
 여러 개의 명령문을 반복, 조건, 그룹화 등의 문법을 사용하여 실행 흐름을 제어할 수 있다. 
 
+- 복합 명령은 항상 특정 예약어 또는 제어 연산자로 시작하고, 그에 대응하는 예약어 또는 제어 연산자로 끝난다.
+    - `if ~ then ~ fi`
+    - `for ~ in ~ do ~ done`
+    - `while ~ do ~ done`
+    - `{ ... ; }`, `( ... )`
+- 복합 명령에 입출력 리디렉션(`>`, `<`, `>>`)이 붙으면, 복합 명령 모두에 적용된다.
+    ```bash
+    # 다음 두 개의 echo 명령 모두 output.txt로 출력된다.
+    {
+        echo "Hello"
+        echo "World"
+    } > output.txt
+    ```
+- 복합 명령 안에 있는 명령 목록(command list) 는 일반적으로 줄바꿈으로 구분된다. `;` 대신 줄바꿈을 사용할 수 있다.
+    ```bash
+    x=100
+    if [ "$x" -gt 0 ]; then
+      echo "양수"
+    fi
+
+    x=-100
+    if [ "$x" -gt 0 ]  # ; 대신 newline 사용 가능
+    then
+      echo "양수"
+    fi
+    ```
+- 복합 명령의 유형
+    - 반복문: `for`, `while`, `until`
+    - 조건문: `if`, `case`
+    - 그룹화: `{}`, `()`, 
+    - 복합조건: `[[ 조건 ]]`, 
+    - 수식평가: `(( 수식 ))`
 
 #### 3.5.1 반복문(Looping Constructs)
 
-반복적인 작업을 수행할 때 사용한다. 즉 특정 조건이 충족될 때까지 동일한 코드 블록을 여러 번 실행시키는 문법이다.
-
+- 반복적인 작업을 수행할 때 사용한다. 
+- 즉 특정 조건이 충족될 때까지 동일한 코드 블록을 여러 번 실행시키는 문법이다.
+- `;`은 줄바꿈(newline)으로 대체할 수 있다.
+    ```bash
+    while true; do echo hi; done
+    ```
+    위 문장은 다음 문장과 같다.
+    ```bash
+    while true
+    do
+        echo hi
+    done
+    ```
+    
 ##### until 반복문
-조건이 거짓(exit status != 0)인 동안 실행
+
+조건이 거짓(exit status != 0)인 동안 실행.
 
 ```bash
 until test-commands; do consequent-commands; done    
@@ -717,7 +805,8 @@ echo "return status: $?"
 ```
 
 ##### while 반복문
-조건이 참(exit status = 0)인 동안 실행
+
+조건이 참(exit status = 0)인 동안 실행.
 
 ```bash
 while test-commands; do consequent-commands; done
@@ -739,7 +828,8 @@ echo "return status: $?"
 ```
 
 ##### for 반복문
-리스트 또는 특정 범위의 값을 반복하여 실행
+
+리스트 또는 특정 범위의 값을 반복하여 실행.
 
 ```bash
 for name [ [in [words …] ] ; ] do commands; done
@@ -764,9 +854,11 @@ done
 ```
 
 ##### `in` 없는 `for` 반복문
-위치 파라미터(`$@`, positional parameter)를 사용
+
+위치 파라미터(`$@`, positional parameter)를 사용.
 
 - `for-test.sh` 스크립트 파일
+
 ```bash
 #!/bin/bash
 for fruit; do # $@ 에서 파라미터를 한 개씩 꺼낸다.
@@ -775,11 +867,13 @@ done
 ```
 
 - 스크립트 파일 실행
+
 ```bash
 $ for-test.sh apple banana cherry
 ```
 
 ##### C 언어 스타일의 `for` 반복문
+
 C 언어의 `for` 문과 유사하게 동작한다. 
 
 ```bash
@@ -797,16 +891,17 @@ for ((expr1; expr2; expr3)) ; do commands; done
 
 
 ```bash
-for ((i=1; i<=5; i++)) ; do
+for ((i = 1; i <= 5; i++)) ; do
     echo "Number: $i"
 done    
-for ((i=1; 100 >> i; i++)) ; do
+for ((i = 1; 100 >> i; i++)) ; do
     result=$((100 >> i))
     echo "Number: $result"
 done    
 ```
 
 ##### `break`
+
 현재 실행 중인 반복문을 즉시 종료한다.
 
 ```bash
@@ -824,7 +919,7 @@ done
 다음 반복으로 건너 뛰기
 
 ```bash
-for ((i=1; i<=10; i++)) ; do
+for ((i = 1; i <= 10; i++)) ; do
     if (( i % 2 != 0 )); then
         continue
     fi
