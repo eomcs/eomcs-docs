@@ -1445,7 +1445,67 @@ echo "코프로세스 종료됨!"
 
 ### GNU 병렬(GNU Parallel)
 
+- bash 자체 기능은 아니다.
+- 명령어들을 병렬로 실행할 수 있게 도와주는 외부 도구이다.
+- 대량의 작업을 효율적으로 처리할 때 매우 유용하다.
+- 사용 예:
+    - 동일한 명령을 다양한 아규먼트와 함께 여러 번 실행하고 싶을 때.
+    - 여러 파일, 사용자, 호스트에 대해 같은 작업을 병렬로 실행하고 싶을 때.
+    - xargs 보다 더 유연하게 병렬 처리를 하고 싶을 때.
+    - for 반복문을 사용하지 않고, 여러 작업을 동시에 실행시킬 수 있다.
+
+#### 기본 문법
+
+```bash
+parallel command ::: arg1 arg2 arg3 ...
+```
+1) `command`: 실행할 명령어
+2) `:::` 뒤에 나오는 인자들을 각각 병령 실행에 사용한다.
+
+```bash
+parallel gzip ::: file1.txt file2.txt file3.txt
+```
+- `gzip file1.txt`, `gzip file2.txt`, `gzip file3.txt` 를 병렬로 동시에 실행한다. 
+
+#### 표준 입력을 통해 아규먼트 받기
+
+```bash
+cat file_list.txt | parallel gzip
+```
+- `file_list.txt` 의 각 줄을 받아서 `gzip` 명령어로 병렬 처리한다.
+
+
+#### 자리 표시자(`{}`) 사용
+
+```bash
+parallel "convert {} {.}.jpg" ::: *.png
+```
+1) `{}`: 현재 아규먼트 (예: `image.png`)
+1) `{.}`: 확장자를 제외한 파일명 (예: `image`)
+1) 실행 결과: `convert image.png image.jpg`
+
 ## 4 쉘 함수(Shell Functions)
+
+- 쉘 함수는 여러 명령어를 묶어서 하나의 이름으로 실행할 수 있도록 하는 문법이다.
+- 마치 명령어처럼 사용할 수 있으며, 현재 쉘 환경에서 실행된다.
+- 즉 새로운 프로세스를 만들지 않고 동일한 쉘 컨텍스트에서 실행된다.
+
+### 4.1 함수 정의
+
+```bash
+# 방법 1
+fname () compound-command [ redirections ]
+
+# 방법 2
+function fname [()] compound-command [ redirections ]
+```
+1) `function`: 옵션이다. 
+1) `()`는 **'방법 1'** 인 경우 필수, **'방법 2'** 인 경우 생략 가능하다.
+1) `{}`: 명령어 블록을 감싼다.
+    - 여백 또는 개행(newline)으로 명령어와 구분되어야 한다.
+    - 즉 `{` 와 첫 명령 사이, 마지막 명령과 `}` 사이에 공백 또는 개행(newline)이 있어야 한다.
+
+
 
 ## 5. 쉘 파라미터(Shell Parameters)
 
