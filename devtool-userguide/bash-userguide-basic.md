@@ -949,17 +949,22 @@ if test-commands; then # test-commands 조건을 검사한다.
     alternate-consequents;] # if 와 elif 모두 exit status = 1 일 때 실행
 fi
 ```
-1) 리턴 상태는 마지막 명령의 종료 상태이다.
+1) `test-commands` 를 실행하고 exist status가 `0`(성공)이면 then 블록을 실행한다.
+1) `0` 이 아니라면, 각 `elif` 블록을 순서대로 검사한다. 
+1) 모든 `if` 및 `elif` 조건이 실패하면, `else` 블록을 실행한다.
+1) 리턴 상태는 마지막으로 실행한 명령의 종료 상태이다.
 1) 아무런 명령도 실행하지 않았다면, 0을 리턴한다.
 
 
 ```bash
 if ls /home; then
-  echo "디렉터리 목록을 성공적으로 가져왔습니다." # ls 명령의 return status가 0일 때
+  echo "파일 및 디렉터리 목록을 성공적으로 가져왔습니다." # ls 명령의 return status가 0일 때
 else
-  echo "디렉터리를 찾을 수 없습니다." # ls 명령의 return status가 non-zero일 때
+  echo "파일 및 디렉터리를 찾을 수 없습니다." # ls 명령의 return status가 non-zero일 때
 fi
+```
 
+```bash
 num=10
 if [ $num -gt 5 ]; then
   echo "num은 5보다 큽니다."
@@ -985,7 +990,9 @@ esac
 1) `word` : 비교할 문자열/변수/값
 1) `pattern` : `word`와 비교할 패턴(*, ?, [] 등 사용 가능)
 1) `command-list` : 패턴이 일치할 때 실행할 명령어 목록
-1) `;;` : 해당 패턴을 실행한 후 case 문 종료
+1) `;;` : 해당 블록을 실행한 후, case 문 종료
+1) `;&` : 해당 블록을 실행한 후, 다음 블록의 명령도 실행
+1) `;;&` : 해당 블록을 실행한 후, 다음 블록의 패턴들도 검사
 1) `*)` : 기본 패턴(일치하는 패턴이 없을 경우 실행)
 1) `|` : 여러 패턴을 묶을 경우
 
@@ -1038,6 +1045,7 @@ esac
 ```
 
 ###### `word`의 확장
+
 패턴을 비교하기 전에 word 확장을 먼저 수행
 
 - 틸드 확장(`~`)
@@ -1087,11 +1095,16 @@ select name in apple banana cherry; do
 done
 ```
 
-##### `((expression))` 문 
+##### `((expression))` : 산술 평가문(arithmetic evaluation) 
 
-- 산술 연산(arithmetic evaluation) 수행
-- 수학 연산을 간결하게 처리
-- `if` 문 등과 함께 조건문에서 활용
+- 정수형 산술 표현식을 평가하고 그 결과에 따라 exit status를 설정한다.
+- C 스타일의 산술 계산을 수행한다.
+    - 사칙 연산자: `+`, `-`, `*`, `/`, `%` (나머지)
+    - 비교 연산자: `==`, `!=`, `<`, `<=`, `>`, `>=`
+    - 논리 연산자: `&&`, `||`, `!`
+    - 비트 연산자: `&`, `|`, `^`, `<<`, `>>`
+- 변수 확장, 명령 치환 등 대부분의 확장이 적용된다.
+- `if` 문 등과 함께 조건문에서 활용한다.
 
 ```bash
 (( expression ))
@@ -1113,9 +1126,30 @@ echo $?
 # 변수 사용
 x=10
 y=5
-(( result = x + y ))
-echo $result
+(( x + y )) # 15는 0이 아님 --> 참 --> exit status = 0
+echo $?
 ```
+
+```bash
+# 변수 사용
+x=10
+y=-10
+(( x + y )) # 계산 결과는 0 --> 거짓 --> exit status = 1
+echo $?
+```
+
+```bash
+read x
+(( x == 10 )) # exit status: true --> 1, false --> 0
+echo $?
+```
+
+```bash
+read x
+(( x == 'aaa' )) # 실행 오류: 문자열 비교는 안된다. 정수 연산만 가능!
+echo $?
+```
+
 
 ```bash
 # if 문
@@ -1153,6 +1187,14 @@ echo $?
 - 조건식(conditional expression) 실행
 - if, while 등의 조건문에서 많이 사용
 - `test` 또는 `[ expression ]` 보다 강력한 기능 제공
+- 확장 처리
+    - 틸드 확장(`~`)
+    - 변수 확장(`$var`)
+    - 산술 확장(`$(( ... ))`)
+    - 명령어 치환(`$(...)`)
+    - 프로세스 치환(`<(...)`)
+    - 따옴표 제거
+    - 단어 분리(word splitting) 및 파일 이름 확장(globbing)은 수행하지 않음.
 
 ```bash
 [[ expression ]]
@@ -1165,18 +1207,24 @@ echo $?
 ###### 문자열 비교(문자열, `-z`, `-n`, `==`, `=`, `!=`, `<`, `>`)
 
 ```bash
-# 문자열 또는 -n
-# zero: false = return statuc 1
-# non-zero: true = return statuc 0
+# 문자열
+#   빈문자열이 아닌 경우: true = return status 0
+#   빈문자열: false = return status 1
+# -n 문자열
+#   문자열의 길이가 1이상: true = return status 0
+#   문자열의 길이가 0: false = return status 1
+#   그냥 문자열을 쓰는 것 보다 의미가 더 명확함.
+
 name=""; [[ $name ]]; echo $?
-name=""; [[ -n $name ]]; echo $?
+name=""; [[ -n $name ]]; echo $? 
 
 name="abc"; [[ $name ]]; echo $?
 name="abc"; [[ -n $name ]]; echo $?
 
 # -z
-# zero: true = return statuc 0
-# non-zero: false = return statuc 1
+#   빈 문자열인지 검사
+#   zero: true = return status 0
+#   non-zero: false = return status 1
 name=""; [[ -z $name ]]; echo $?
 name="abc"; [[ -z $name ]]; echo $?
 
@@ -1268,14 +1316,14 @@ file="test.sh"; [[ -f $file ]]; echo $?
 - `! expression` : false --> true, true --> false
 
 ```bash
-result=$(( 4 + 3 * 5 )); echo $result # 10
+result=$(( 4 + 3 * 5 )); echo $result # 19
 result=$(( (4 + 3) * 5 )); echo $result # 35
 (( 100 < 200 )); echo $? # true: return status 0
 (( ! (100 < 200) )); echo $? # false: return status 1
 [[ ! -f "en.mo" && (-f "ko.mo" || -f "fr.mo") ]]; echo $?
 ```
 
-#### 3.5.3 그룹화(Grouping Commands)
+#### 3.5.3 명령어 그룹화(Grouping Commands)
 
 ##### `( list )` : 서브쉘에서 실행
 
@@ -1312,7 +1360,7 @@ cat output.txt
 ```bash
 # 변수의 값 변경
 VAR="Hello"
-{ VAR="World"; echo "중괄호 안 : $VAR" }
+{ VAR="World"; echo "중괄호 안 : $VAR"; } # 마지막 명령도 ; 을 붙이거나 newline 이어야 한다.
 echo "중괄호 밖: $VAR"
 ```
 
@@ -1346,13 +1394,18 @@ coproc simple-command
 
 #### 기본 사용법
 ```bash
-coproc bc # 계산기 프로그램(bc)를 코프로세스로 실행
-echo "3 + 5" >&"${COPROC[1]}" # 출력을 코프로세스 입력으로 전달
-read result <&"${COPROC[0]}" # 코프로세스 출력을 입력으로 읽기
+coproc bc
+echo "3 + 5" >&"${COPROC[1]}"
+read result <&"${COPROC[0]}"
 echo "결과: $result"
 ```
+1) `coproc bc`: 계산기 프로그램(bc)를 코프로세스로 실행한다.
+1) `echo "3 + 5" >&"${COPROC[1]}"`: echo 출력 결과인 "3 + 5"를 계산기의 stdin 으로 보낸다.
+1) `read result <&"${COPROC[0]}"`: 코프로세스 출력을 입력으로 읽는다.
+1) `echo "결과: $result"`: result 변수의 값을 출력한다. 
 
 #### 코프로세스 이름 지정
+
 ```bash
 coproc MATH_PROCESS { bc -l; } # 코프로세스 이름: MATH_PROCESS
 echo "10 / 2" >&"${MATH_PROCESS[1]}"
