@@ -1490,7 +1490,7 @@ parallel "convert {} {.}.jpg" ::: *.png
 - 마치 명령어처럼 사용할 수 있으며, **새로운 프로세스를 생성하지 않고 현재 쉘에서 실행** 된다.
     - 외부 명령은 보통 서브 프로세스를 생성하여 실행한다.
 
-### 4.1 함수 정의
+### 4.1 함수 정의와 호출
 
 - 문법 1
 ```bash
@@ -1509,7 +1509,7 @@ function fname [()] compound-command [ redirections ]
     - `{` + `공백` 또는 `개행(newline)` + 명령어
     - `;` 또는 `개행(newline)` + `}`
 
-- 예1
+- 예
 ```bash
 hello() {
     echo 'Hello, world!'
@@ -1517,9 +1517,22 @@ hello() {
 
 # 한 줄로 작성한다면,
 hello() { echo 'Hello, world!'; }
+
+# 함수 호출
+hello
 ```
 
+### 4.2 아규먼트(arguments)
 
+```bash
+f1() {
+    echo "아규먼트 개수: $#"
+    echo "아규먼트 값: $1 $2 $3"
+    echo "스크립트 이름: $0"
+    echo "함수 이름: ${FUNCNAME[0]}"
+}
+f1 aaa bbb ccc
+```
 
 
 ## 5. 쉘 파라미터(Shell Parameters)
