@@ -68,7 +68,7 @@
 - ACG 설정
   - Inbound 규칙
     - ICMP, 0.0.0.0/0, 허용
-    - TCP, 0.0.0.0/16, 80, 허용
+    - TCP, 0.0.0.0/0, 80, 허용
     - TCP, myIp, 22, 허용
     - TCP, 10.0.0.0/16, 22, 허용
   - Outbound 규칙
@@ -196,8 +196,8 @@ $ sudo docker run -d --env-file .env -p 8010:8010 --name auth-server k8s-edu-118
   - 가용 zone: KR-2
   - 네트워크 타입: Public
   - subnet: bitcamp-vpc-web
-  - LB private subnet: lb-private-subnet
-  - LB public subnet: bitcamp-vpc-lb-subnet
+  - LB private subnet: bitcamp-vpc-private-lb-subnet
+  - LB public subnet: bitcamp-vpc-public-lb-subnet
   - Audit Log : 미설정
   - 반납보호: 미설정
 - 노드 풀 추가
