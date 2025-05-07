@@ -1487,7 +1487,7 @@ parallel "convert {} {.}.jpg" ::: *.png
 ## 4 쉘 함수(Shell Functions)
 
 - 쉘 함수는 여러 명령어를 하나의 이름으로 묶어서 필요할 때마다 호출할 수 있게 만든 문법 구조이다.
-- 마치 명령어처럼 사용할 수 있으며, **새로운 프로세스를 생성하지 않고 현재 쉘에서 실행** 된다.
+- 마치 명령어처럼 사용할 수 있으며, **새로운 프로세스를 생성하지 않고 현재 쉘 컨텍스트에서 실행** 된다.
     - 외부 명령은 보통 서브 프로세스를 생성하여 실행한다.
 
 ### 4.1 함수 정의와 호출
@@ -1503,6 +1503,7 @@ fname () compound-command [ redirections ]
 function fname [()] compound-command [ redirections ]
 ```
 1) `fname`: 함수 이름이다.
+1) `()`: 괄호는 생략 가능.
 1) `compound-command`: 보통 `{ ... }` 형태의 명령 블록이며, 여러 명령어를 그룹화 한다.
 1) `function`: 선택 사항이다. 단 이를 사용할 경우 `()`를 생략할 수 있다. 
 1) `{ ... }` 작성 형식:
@@ -1511,18 +1512,27 @@ function fname [()] compound-command [ redirections ]
 
 - 예
 ```bash
-hello() {
-    echo 'Hello, world!'
+hello1() {
+    echo 'hello1(): Hello, world!'
 }
 
 # 한 줄로 작성한다면,
-hello() { echo 'Hello, world!'; }
+hello2() { echo 'hello2(): Hello, world!'; }
+
+# () 괄호를 생략한 경우,
+function hello3 { echo 'hello3(): Hello, world!'; }
+
+# () 괄호를 생략하지 않은 경우,
+function hello4() { echo 'hello4(): Hello, world!'; }
 
 # 함수 호출
-hello
+hello1
+hello2
+hello3
+hello4
 ```
 
-### 4.2 아규먼트(arguments)
+### 4.2 아규먼트(arguments)와 파라미터(Positional Parameter)
 
 ```bash
 f1() {
@@ -1533,9 +1543,219 @@ f1() {
 }
 f1 aaa bbb ccc
 ```
+- 아규먼트
+    - 함수를 호출할 때 넘겨주는 값.
+    - 예) `aaa` `bbb` `ccc`
+- 파라미터
+    - 아규먼트를 받는 변수.
+    - 아규먼트 순서대로 1부터 번호가 부여된다.
+    - 예) `$1` `$2` `$3`
+    - 파라미터 값을 설정하거나 제거할 때는 bash 내장 명령인 `set`과 `shift`가 사용된다.
+- `$#`: 함수에 전달된 아규먼트 개수
+- `$0`: 스크립트 파일명
+    - 쉘에서 직접 실행할 때는 **쉘 이름** 이다.
+- `FUNCNAME[0]`: 현재 실행 중인 함수 이름
 
+#### `$@`: 전체 아규먼트 목록
+
+```bash
+f1() {
+    echo "아규먼트 값: $1 $2 $3"
+    echo "\$@: $@"
+}
+f1 aaa bbb ccc
+```
+
+
+### 4.3 로컬 변수
+
+- `local` 키워드를 붙이지 않고 선언한 변수는 글로벌 공유된다.
+- `local` 키워드를 사용하여 변수를 선언하면 **함수 지역 변수** 가 된다.
+- 지역 변수는 상위 scope 변수를 가린다.
+- 지역 변수는 메서드 호출 스택을 따라 내려가며 하위 함수에게 전달된다.
+
+```bash
+x=100
+y=200
+
+f1() {
+    local x=111 # 로컬 변수
+    y=222 # 글로벌 변수
+
+    echo "f1(): x=$x, y=$y"
+}
+
+f1
+echo "main: x=$x, y=$y"
+```
+
+
+#### 로컬 변수와 함수 호출 체인
+
+- 로컬 변수는 함수 호출 체인을 따라 전달된다.
+
+```bash
+f1() {
+    local x='local'
+    f2
+}
+
+f2() {
+    echo "f2(): x=$x"
+}
+
+x='global'
+f1 'Hello'
+echo "x=$x"
+```
+
+
+### 4.4 리턴 값: `return`
+
+```bash
+check_even() {
+    if (( $1 % 2 == 0 )); then
+        return 0 # success
+    else
+        return 1 # failure
+    fi
+}
+check_even 120 && echo '짝수' || echo '홀수'
+check_even 99 && echo '짝수' || echo '홀수'
+```
+
+- `return` 문이 없을 경우, 마지막 명령의 종료 상태가 리턴된다. 
+```bash
+f1() {
+    echo 'Hello' # 정상 실행: 0 리턴
+}
+f1 && echo 'Yes' || echo 'No'
+```
+
+### 4.5 함수 이름: `FUNCNAME`
+
+- bash 에서 함수 호출 스택 정보를 담고 있는 배열 변수이다.
+- 함수를 실행할 때 자동으로 설정된다.
+- 함수의 호출자를 추적할 때 사용된다.
+    - `FUNCNAME[0]`: 현재 실행 중인 함수 이름
+    - `FUNCNAME[1]`: 현재 함수를 호출한 함수 이름
+    - `FUNCNAME[2]`: 호출자의 호출자 ...
+    - 마지막 이름: 쉘을 의미하는 `main`
+
+```bash
+f1() {
+    echo "f1(): ${FUNCNAME[0]}, ${FUNCNAME[1]}, ${FUNCNAME[2]}"
+    f2
+}
+
+f2() {
+    echo "f2(): ${FUNCNAME[0]}, ${FUNCNAME[1]}, ${FUNCNAME[2]}"
+}
+
+echo "main: ${FUNCNAME[0]}, ${FUNCNAME[1]}, ${FUNCNAME[2]}"
+f1
+```
+
+### 4.6 함수 제거 및 조회
+
+- 함수 제거: `unset -f 함수이름`
+```bash
+f1() { echo 'Hello!'; }
+f1
+unset -f f1
+f1
+```
+
+- 함수 조회: `declare -f`, `declare -F`
+
+```bash
+f1() { echo 'f1()'; }
+f2() { echo 'f2()'; }
+f3() { echo 'f3()'; }
+f4() { echo 'f4()'; }
+
+# 함수 정의 전체
+declare -f
+
+# 함수 이름만
+declare -F
+```
+
+### 4.7 `export`: 자식 쉘에게 함수 정의 전파
+
+- 기본은 함수를 정의한 현재 쉘에서만 호출할 수 있다.
+```bash
+f1() { echo 'Hello!'; }
+f1
+bash -c f1 # 자식 쉘은 f1 함수를 모른다.
+
+# bash : 새로운 서브 쉘을 실행한다.
+# -c : 다음 문자열을 명령어로 실행하라는 의미
+# f1 : 실행할 명령어 문자열
+```
+
+
+- 자식 쉘에서도 호출할 수 있게 하려면, `export` 키워드로 공개 설정 해야 한다.
+```bash
+f2() { echo 'World!'; }
+f2
+export -f f2 # 자식 쉘에서도 사용할 수 있도록 공개한다.
+bash -c f2
+
+# export -f : 함수 정의를 환경 변수 형태로 자식 쉘에게 전달하도록 설정.
+```
 
 ## 5. 쉘 파라미터(Shell Parameters)
+
+- 파라미터는 값을 저장하는 엔티티이다.
+    - 엔티티? **이름으로 식별할 수 있는 독립적인 객체** 를 의미한다.
+- 파라미터에 이름을 부여한 것이 **변수** 이다.
+
+### 5.1 변수 선언
+
+```bash
+name=value
+
+# 값을 생략하면 빈문자열("")이 할당된다.
+```
+
+```bash
+# 예:
+myvar=100
+path=
+greeting="Hello, world"
+```
+
+### 5.2 값 확장
+
+- 변수에 값을 저장할 때 다음의 경우, 값을 확장한다.
+
+```bash
+# 틸드(~) 확장
+home_dir=~      # /home/user
+echo $home_dir
+```
+
+```bash
+# $변수 또는 ${변수} 확장
+name='홍길동'
+echo "$name 님, 안녕하세요."
+echo "${name} 님, 안녕하세요."  
+```
+
+```bash
+# $변수 vs ${변수}
+name='홍길동' 
+echo "$name123, ${name}123"  # 변수와 그 다음에 오는 텍스트를 명확히 구분할 수 있다.
+
+arr=(apple banana tomato)
+echo "$arr[0]"
+echo "${arr[0]}"  # 어디까지가 변수인지 명확히 지정할 수 있다.
+
+
+today=$(date)   # 명령어 결과가 들어간다.
+```
+
 
 ## 6. 쉘 확장(Shell Expansions)
 
