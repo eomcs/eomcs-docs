@@ -460,3 +460,88 @@ apt-get install -y git wget zip build-essential apt-transport-https
   - 다음
 - 최종확인
   - 파이프라인 생성
+
+
+## Helm 설치
+
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+```
+
+## NGINX Ingress Controller 설치
+
+```bash
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --kubeconfig ~/kubeconfig.yml
+```
+
+- 설치 확인
+```bash
+kubectl2 get pods -n ingress-nginx
+```
+
+- 외부 IP 확인
+```bash
+kubectl2 get svc -n ingress-nginx
+```
+
+## Cert-Manager 섶치
+
+```bash
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --set crds.enabled=true \
+  --kubeconfig ~/kubeconfig.yml
+```
+
+- 설치 확인
+```bash
+kubectl2 get pods -n cert-manager
+```
+
+- 삭제
+```bash
+helm uninstall cert-manager --namespace cert-manager --kubeconfig ~/kubeconfig.yml
+kubectl2 delete crd certificaterequests.cert-manager.io \
+  certificates.cert-manager.io \
+  challenges.acme.cert-manager.io \
+  clusterissuers.cert-manager.io \
+  issuers.cert-manager.io \
+  orders.acme.cert-manager.io \
+  --kubeconfig ~/kubeconfig.yml
+kubectl2 get crd --kubeconfig ~/kubeconfig.yml | grep cert-manager
+```
+
+## Let's Encrypt ClusterIssuer 생성
+
+- production 환경용
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    email: your-email@example.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+```
+
+- 적용
+```bash
+kubectl2 apply -f cluster-issuer-prod.yml
+```
