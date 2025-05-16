@@ -210,8 +210,8 @@ DBMS 중에는 고정 크기인 컬럼의 값을 비교할 때 빈자리까지 �
 
   create table test1(
     c1 date,
-    c2 time,
-    c3 datetime
+    c2 date,
+    c3 timestamp
   );
 
 입력 테스터:
