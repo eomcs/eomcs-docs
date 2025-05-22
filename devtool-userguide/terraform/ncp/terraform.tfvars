@@ -1,5 +1,5 @@
-access_key     = ""
-secret_key     = ""
+access_key     = "xxx"
+secret_key     = "xxx"
 region         = "KR"
 site           = "public"
 support_vpc    = true
