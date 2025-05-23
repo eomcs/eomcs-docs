@@ -15,9 +15,13 @@
 
 ## 테라폼 설정 코드
 
-### `main.tf` 파일(필수)
+- 작업 폴더 안에 있는 `*.tf` 파일을 모두 합쳐서 실행한다.
+- 자원들은 의존 관계에 따라 순서대로 생성된다.
+- 따라서 파일의 순서는 상관없다.
 
-#### 테라폼 프로바이더 및 접근 key 설정
+### `provider.tf` 파일
+
+테라폼 프로바이더 및 접근 key 설정
 
 ```hcl
 terraform {
@@ -38,6 +42,10 @@ provider "ncloud" {
   support_vpc = var.support_vpc
 }
 ```
+
+### `vpc.tf` 파일
+
+VPC 및 Network ACL, 서브넷을 설정한다.
 
 #### VPC 생성
 
@@ -236,6 +244,8 @@ resource "ncloud_subnet" "main_private_lb_subnet" {
 }
 ```
 
+### `server.tf` 파일
+
 #### ACG 생성
 
 ```hcl
@@ -299,8 +309,8 @@ resource "ncloud_login_key" "loginkey" {
 - 호스트를 생성할 때 사용할 이미지를 찾는다.
 
 ```hcl
-data "ncloud_server_image_numbers" "kvm-image" {
-  server_image_name = "ubuntu-24.04"
+data "ncloud_server_image_numbers" "kvm_image" {
+  server_image_name = "ubuntu-24.04-base"
   filter {
     name   = "hypervisor_type"
     values = ["KVM"]
@@ -311,11 +321,27 @@ data "ncloud_server_image_numbers" "kvm-image" {
 - 호스트의 사양을 찾는다.
 
 ```hcl
-data "ncloud_server_specs" "kvm-spec" {
+data "ncloud_server_specs" "kvm_spec" {
   filter {
     name   = "server_spec_code"
     values = ["c2-g3"]
   }
+}
+```
+
+- 호스트 생성 후 자동으로 실행될 초기화 스크립트 생성를 생성한다.
+
+```hcl
+resource "ncloud_init_script" "init_script" {
+  name = "init-script"
+
+  content = <<-EOF
+    #!/bin/bash
+    useradd -m -s /bin/bash bitcamp
+    echo "bitcamp:bitcamp123!@#" | chpasswd
+    echo "bitcamp ALL=(ALL) ALL" >> /etc/sudoers.d/bitcamp
+    chmod 440 /etc/sudoers.d/bitcamp
+  EOF
 }
 ```
 
@@ -325,11 +351,11 @@ data "ncloud_server_specs" "kvm-spec" {
 resource "ncloud_server" "main_server" {
   subnet_no                     = ncloud_subnet.main_web_subnet.id
   name                          = "main-server"
-  server_image_number           = data.ncloud_server_image_numbers.kvm-image.image_number_list.0.server_image_number
-  server_spec_code              = data.ncloud_server_specs.kvm-spec.server_spec_list.0.server_spec_code
+  server_image_number           = data.ncloud_server_image_numbers.kvm_image.image_number_list.0.server_image_number
+  server_spec_code              = data.ncloud_server_specs.kvm_spec.server_spec_list.0.server_spec_code
   fee_system_type_code          = "MTRAT"
   is_protect_server_termination = false
-  init_script_no                = null
+  init_script_no                = ncloud_init_script.init_script.id
   login_key_name                = ncloud_login_key.loginkey.key_name
 }
 ```
@@ -341,6 +367,8 @@ resource "ncloud_public_ip" "main_server_public_ip" {
   server_instance_no = ncloud_server.main_server.id
 }
 ```
+
+### `object-storage.tf` 파일
 
 #### Container Registry 용 Object Storage 버킷 생성
 
@@ -358,7 +386,7 @@ resource "ncloud_objectstorage_bucket" "source_commit_bitcamp_teacher01" {
 }
 ```
 
-#### 쿠버네티스 설정
+### `kubernetes.tf` 파일
 
 - Kubernetes Cluster 생성
 
@@ -483,7 +511,7 @@ variable "login_key_name" {
 
 ### `terraform.tfvars` 파일(선택)
 
-변수의 값을 지정. git으로 공유하지 말아야 한다.
+변수의 값을 지정한다. git으로 공유하지 말아야 한다.
 
 ```hcl
 access_key     = ""
@@ -532,29 +560,3 @@ chmod 400 main-key.pem
 - 호스트의 ACG를 `main-web-acg` 로 변경한다.
   - VPC / Server / main-server 선택
     - ACG 수정
-
-### 작업 호스트에 사용자 등록
-
-- 호스트에 root로 접속하여, 원격 접속용으로 사용자를 추가한다.
-
-```bash
-# 사용자를 생성한다.
-adduser bitcamp
-
-# 사용자에게 sudo 권한 부여하기 위해 편집기를 띄운다.
-visudo
-```
-
-```bash
-# 편집기에서 다음 항목 추가
-bitcamp ALL=(ALL) ALL
-```
-
-### Container Registry 생성
-
-도커 이미지를 저장할 저장소를 생성한다. 테라폼으로 생성할 수 없기 때문에 콘솔 웹 화면에서 직접 작업해야 한다.
-
-- services> Containers> Container Registry > 레지스트리 생성
-- 레지스트리 이름 : k8s-edu-(내가원하는영문자or숫자)
-- 버킷 : `docker-image-xxx` 로 시작하는 위에서 만든 버킷 선택
-- ‘생성’ 버튼 클릭

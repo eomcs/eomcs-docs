@@ -129,5 +129,5 @@ kubectl2 create secret docker-registry regcred \
 --docker-password=<secret-key> \
 --docker-email=<your-email>
 
-kubectl get secret
+kubectl2 get secret
 ```

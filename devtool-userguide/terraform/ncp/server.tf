@@ -49,7 +49,7 @@ resource "ncloud_login_key" "loginkey" {
   key_name = var.login_key_name
 }
 
-# 서버 생성
+# 생성할 서버 이미지 찾기=
 data "ncloud_server_image_numbers" "kvm_image" {
   server_image_name = "ubuntu-24.04-base"
   filter {
@@ -58,6 +58,7 @@ data "ncloud_server_image_numbers" "kvm_image" {
   }
 }
 
+# 생성할 서버 스펙 찾기
 data "ncloud_server_specs" "kvm_spec" {
   filter {
     name   = "server_spec_code"
@@ -65,6 +66,18 @@ data "ncloud_server_specs" "kvm_spec" {
   }
 }
 
+# 서버 생성 후 실행할 초기화 스크립트 정의
+resource "ncloud_init_script" "init_script" {
+  name = "init-script"
+
+  content = <<-EOF
+    #!/bin/bash
+    useradd -m -s /bin/bash bitcamp
+    echo "bitcamp:bitcamp123!@#" | chpasswd
+    echo "bitcamp ALL=(ALL) ALL" >> /etc/sudoers.d/bitcamp
+    chmod 440 /etc/sudoers.d/bitcamp
+  EOF
+}
 
 # 서버 생성
 resource "ncloud_server" "main_server" {
@@ -74,7 +87,7 @@ resource "ncloud_server" "main_server" {
   server_spec_code              = data.ncloud_server_specs.kvm_spec.server_spec_list.0.server_spec_code
   fee_system_type_code          = "MTRAT"
   is_protect_server_termination = false
-  init_script_no                = null
+  init_script_no                = ncloud_init_script.init_script.id
   login_key_name                = ncloud_login_key.loginkey.key_name
 }
 
