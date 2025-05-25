@@ -30,3 +30,14 @@ variable "login_key_name" {
   description = "Name of the SSH login key registered in NCP"
   type        = string
 }
+
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "my_ip_block" {
+  description = "My IP address block for access control"
+  type        = string
+}

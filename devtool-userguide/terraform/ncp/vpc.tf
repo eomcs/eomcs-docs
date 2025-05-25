@@ -1,7 +1,7 @@
 # VPC 생성
 resource "ncloud_vpc" "main_vpc" {
   name            = "main-vpc"
-  ipv4_cidr_block = "10.0.0.0/16"
+  ipv4_cidr_block = var.vpc_cidr
 }
 
 # Network Web ACL 생성
@@ -26,7 +26,7 @@ resource "ncloud_network_acl_rule" "main_web_nacl_rule" {
     priority    = 20
     protocol    = "TCP"
     rule_action = "ALLOW"
-    ip_block    = "220.78.43.230/32"
+    ip_block    = var.my_ip_block
     port_range  = "1-65535"
   }
 
@@ -153,7 +153,7 @@ resource "ncloud_network_acl_rule" "main_private_lb_nacl_rule" {
 # Subnet 생성
 resource "ncloud_subnet" "main_web_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.1.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 1)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_web_nacl.id
   subnet_type    = "PUBLIC"
@@ -163,7 +163,7 @@ resource "ncloud_subnet" "main_web_subnet" {
 
 resource "ncloud_subnet" "main_public_lb_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.255.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 255)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_public_lb_nacl.id
   subnet_type    = "PUBLIC"
@@ -173,7 +173,7 @@ resource "ncloud_subnet" "main_public_lb_subnet" {
 
 resource "ncloud_subnet" "main_private_lb_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.6.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 6)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_private_lb_nacl.id
   subnet_type    = "PRIVATE"

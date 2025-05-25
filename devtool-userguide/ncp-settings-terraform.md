@@ -52,7 +52,7 @@ VPC 및 Network ACL, 서브넷을 설정한다.
 ```hcl
 resource "ncloud_vpc" "main_vpc" {
   name            = "main-vpc"
-  ipv4_cidr_block = "10.0.0.0/16"
+  ipv4_cidr_block = var.vpc_cidr
 }
 ```
 
@@ -82,7 +82,7 @@ resource "ncloud_network_acl_rule" "main_web_nacl_rule" {
     priority    = 20
     protocol    = "TCP"
     rule_action = "ALLOW"
-    ip_block    = "220.78.43.230/32"
+    ip_block    = var.my_ip_block
     port_range  = "1-65535"
   }
 
@@ -215,7 +215,7 @@ resource "ncloud_network_acl_rule" "main_private_lb_nacl_rule" {
 ```hcl
 resource "ncloud_subnet" "main_web_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.1.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 1)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_web_nacl.id
   subnet_type    = "PUBLIC"
@@ -225,7 +225,7 @@ resource "ncloud_subnet" "main_web_subnet" {
 
 resource "ncloud_subnet" "main_public_lb_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.255.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 255)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_public_lb_nacl.id
   subnet_type    = "PUBLIC"
@@ -235,7 +235,7 @@ resource "ncloud_subnet" "main_public_lb_subnet" {
 
 resource "ncloud_subnet" "main_private_lb_subnet" {
   vpc_no         = ncloud_vpc.main_vpc.id
-  subnet         = "10.0.6.0/24"
+  subnet         = cidrsubnet(var.vpc_cidr, 8, 6)
   zone           = "KR-2"
   network_acl_no = ncloud_network_acl.main_private_lb_nacl.id
   subnet_type    = "PRIVATE"
@@ -265,7 +265,7 @@ resource "ncloud_access_control_group_rule" "main_web_acg_rule" {
 
   inbound {
     protocol    = "TCP"
-    ip_block    = "220.78.43.230/32"
+    ip_block    = var.my_ip_block
     port_range  = "22"
     description = "Allow SSH"
   }
@@ -345,12 +345,27 @@ resource "ncloud_init_script" "init_script" {
 }
 ```
 
+- 네트워크 인터페이스 생성 및 ACG 연결
+
+```hcl
+resource "ncloud_network_interface" "main_nic" {
+  name                  = "main-server-nic"
+  description           = "Main Server NIC"
+  subnet_no             = ncloud_subnet.main_web_subnet.id
+  access_control_groups = [ncloud_access_control_group.main_web_acg.id]
+}
+```
+
 - 호스트를 생성한다.
 
 ```hcl
 resource "ncloud_server" "main_server" {
-  subnet_no                     = ncloud_subnet.main_web_subnet.id
-  name                          = "main-server"
+  name      = "main-server"
+  subnet_no = ncloud_subnet.main_web_subnet.id
+  network_interface {
+    network_interface_no = ncloud_network_interface.main_nic.id
+    order                = 0
+  }
   server_image_number           = data.ncloud_server_image_numbers.kvm_image.image_number_list.0.server_image_number
   server_spec_code              = data.ncloud_server_specs.kvm_spec.server_spec_list.0.server_spec_code
   fee_system_type_code          = "MTRAT"
@@ -507,6 +522,19 @@ variable "login_key_name" {
   description = "Name of the SSH login key registered in NCP"
   type        = string
 }
+
+
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "my_ip_block" {
+  description = "My IP address block for access control"
+  type        = string
+}
+
 ```
 
 ### `terraform.tfvars` 파일(선택)
@@ -520,6 +548,8 @@ region         = "KR"
 site           = "public"
 support_vpc    = true
 login_key_name = "main-key"
+vpc_cidr       = "10.0.0.0/16"
+my_ip_block    = "<내아이피>/32"
 ```
 
 ### `outputs.tf` 파일(선택)
@@ -554,9 +584,3 @@ terraform destroy   # 생성한 인프라 삭제
 terraform output -raw main_key_private_key > main-key.pem
 chmod 400 main-key.pem
 ```
-
-### 작업 호스트의 ACG 변경
-
-- 호스트의 ACG를 `main-web-acg` 로 변경한다.
-  - VPC / Server / main-server 선택
-    - ACG 수정

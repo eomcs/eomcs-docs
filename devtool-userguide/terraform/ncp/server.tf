@@ -15,7 +15,7 @@ resource "ncloud_access_control_group_rule" "main_web_acg_rule" {
 
   inbound {
     protocol    = "TCP"
-    ip_block    = "220.78.43.230/32"
+    ip_block    = var.my_ip_block
     port_range  = "22"
     description = "Allow SSH"
   }
@@ -79,10 +79,22 @@ resource "ncloud_init_script" "init_script" {
   EOF
 }
 
+# 네트워크 인터페이스 생성 및 ACG 연결
+resource "ncloud_network_interface" "main_nic" {
+  name                  = "main-server-nic"
+  description           = "Main Server NIC"
+  subnet_no             = ncloud_subnet.main_web_subnet.id
+  access_control_groups = [ncloud_access_control_group.main_web_acg.id]
+}
+
 # 서버 생성
 resource "ncloud_server" "main_server" {
-  subnet_no                     = ncloud_subnet.main_web_subnet.id
-  name                          = "main-server"
+  name      = "main-server"
+  subnet_no = ncloud_subnet.main_web_subnet.id
+  network_interface {
+    network_interface_no = ncloud_network_interface.main_nic.id
+    order                = 0
+  }
   server_image_number           = data.ncloud_server_image_numbers.kvm_image.image_number_list.0.server_image_number
   server_spec_code              = data.ncloud_server_specs.kvm_spec.server_spec_list.0.server_spec_code
   fee_system_type_code          = "MTRAT"
