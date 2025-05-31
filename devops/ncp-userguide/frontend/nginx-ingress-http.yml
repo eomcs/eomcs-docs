@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.eomcs.com
+        - hello.eomcs.com
+      secretName: app-ingress-tls
+  rules:
+    - host: api.eomcs.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-api-service
+                port:
+                  number: 80
+    - host: hello.eomcs.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-ui-service
+                port:
+                  number: 80
+          - path: /_next/
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-ui-service
+                port:
+                  number: 80

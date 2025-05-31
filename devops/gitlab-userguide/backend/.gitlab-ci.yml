@@ -1,0 +1,251 @@
+stages:
+  - build
+  - test
+  - docker-build
+  - deploy
+  - verify
+  - cleanup
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+  # Docker 이미지 설정
+  IMAGE_NAME: "$CI_PROJECT_NAME"
+  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+
+  # Kubernetes 관련 변수
+  KUBE_NAMESPACE: default
+  APP_NAME: "$CI_PROJECT_NAME"
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+build-job:
+  stage: build
+  image: eclipse-temurin:17-jdk
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false -Xmx2g -XX:MaxMetaspaceSize=512m"
+    JAVA_OPTS: "-XX:+UseContainerSupport"
+  script:
+    - echo "Available memory :"
+    - free -h
+    - echo "Building Spring Boot application..."
+    - ./gradlew bootJar --no-daemon
+  artifacts:
+    paths:
+      - ./app/build/libs/*.jar
+    expire_in: 1 hour
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+test-job1:
+  stage: test
+  image: eclipse-temurin:17-jdk
+  script:
+    - echo "This job tests something"
+    - ./gradlew test --no-daemon
+  dependencies:
+    - build-job
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+docker-build:
+  stage: docker-build
+  image: docker:24
+  before_script:
+    - echo "Using host Docker daemon"
+    - docker version
+    - docker info
+  script:
+    - echo "Building Docker image using existing Dockerfile..."
+    - ls -la ./app/build/libs/
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker build -t $IMAGE_NAME:latest .
+    - echo "Docker image built successfully"
+    - docker images | grep $IMAGE_NAME
+  dependencies:
+    - build-job
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+deploy-k8s:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  before_script:
+    - echo "Setting up kubectl configuration..."
+    - mkdir -p ~/.kube
+    - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - echo "Fixing server URL for CI environment..."
+    - sed -i 's|https://127.0.0.1:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - sed -i 's|https://localhost:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - echo "Setting default namespace to default:"
+    - kubectl config set-context --current --namespace=default
+    - echo "Verifying kubeconfig..."
+    - ls -la ~/.kube/config
+    - kubectl version --client
+    - kubectl config view --minify
+    - kubectl cluster-info
+  script:
+    - echo "Deploying to Kubernetes using k8s-deployment.yml..."
+    - echo "Current environment variables:"
+    - echo "APP_NAME = $APP_NAME"
+    - echo "IMAGE_NAME = $IMAGE_NAME"
+    - echo "IMAGE_TAG = $IMAGE_TAG"
+    - echo "Checking current kubectl context and namespace:"
+    - kubectl config current-context
+    - kubectl config view --minify | grep namespace || echo "No default namespace set"
+    - echo "Checking deployment file..."
+    - ls -la k8s-deployment.yml
+    - echo "Substituting environment variables..."
+    - sed -i "s/\$APP_NAME/$APP_NAME/g" k8s-deployment.yml
+    - sed -i "s/\$IMAGE_NAME/$IMAGE_NAME/g" k8s-deployment.yml
+    - sed -i "s/\$IMAGE_TAG/$IMAGE_TAG/g" k8s-deployment.yml
+    - echo "Final deployment configuration:"
+    - cat k8s-deployment.yml
+    - echo "Applying deployment..."
+    - kubectl apply -f k8s-deployment.yml --validate=false
+    - echo "Checking kubectl apply result code:" $?
+    - echo "Checking deployments in default namespace:"
+    - kubectl get deployments -n default
+    - echo "Checking pods in default namespace:"
+    - kubectl get pods -n default
+    - echo "Checking recent events in default namespace:"
+    - kubectl get events -n default --sort-by=.metadata.creationTimestamp | tail -10
+    - echo "Checking deployment existence in default namespace:"
+    - kubectl get deployment $APP_NAME -n default || echo "Deployment $APP_NAME not found in default namespace"
+    - echo "Describing deployment in default namespace:"
+    - kubectl describe deployment $APP_NAME -n default || echo "Cannot describe deployment in default namespace"
+    - echo "Checking for failed creation events in default namespace:"
+    - kubectl get events -n default --field-selector reason=FailedCreate || echo "No FailedCreate events in default namespace"
+    - echo "Waiting for deployment to be ready in default namespace:"
+    - kubectl rollout status deployment/$APP_NAME -n default --timeout=60s || echo "Rollout status failed"
+    - echo "Getting final status in default namespace:"
+    - kubectl get pods -l app=$APP_NAME -n default
+    - kubectl get service $APP_NAME-service -n default
+    - echo "Deployment process completed!"
+    - echo "Access your application at http://localhost:8080 (if using Docker Desktop)"
+  environment:
+    name: production
+    url: http://localhost
+  dependencies:
+    - docker-build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  # when: manual
+
+check-deployment:
+  stage: verify
+  image: bitnami/kubectl:latest
+  before_script:
+    - echo "Setting up kubectl configuration..."
+    - mkdir -p ~/.kube
+    - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - echo "Fixing server URL for CI environment..."
+    - sed -i 's|https://127.0.0.1:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - sed -i 's|https://localhost:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - echo "Setting default namespace to default:"
+    - kubectl config set-context --current --namespace=default
+  script:
+    - echo "Checking deployment status..."
+    - kubectl get deployments
+    - kubectl get pods -l app=$APP_NAME -o wide
+    - kubectl get services
+    - kubectl describe service $APP_NAME-service
+    - echo "Checking pod logs..."
+    - kubectl logs -l app=$APP_NAME --tail=50
+    - echo "Port forwarding info;"
+    - echo "Run locally; kubectl port-forward service/$APP_NAME-service 8080:80"
+    - echo "Then access; http://localhost:8080"
+  dependencies:
+    - deploy-k8s # deploy-k8s 완료 후 실행
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  # when: manual
+
+# 배포된 리소스 정리 - 수동 실행
+cleanup:
+  stage: cleanup
+  image: bitnami/kubectl:latest
+  before_script:
+    # kubectl 설정 (deploy와 동일)
+    - echo "Setting up kubectl configuration..."
+    - mkdir -p ~/.kube
+    - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - echo "Fixing server URL for CI environment..."
+    - sed -i 's|https://127.0.0.1:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - sed -i 's|https://localhost:6443|https://kubernetes.docker.internal:6443|g' ~/.kube/config
+    - echo "Setting default namespace to default:"
+    - kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
+    - kubectl cluster-info
+  script:
+    - echo "=== Cleaning up Kubernetes resources ==="
+    - echo "APP_NAME = $APP_NAME"
+    - echo "KUBE_NAMESPACE = $KUBE_NAMESPACE"
+
+    # 현재 배포된 리소스 확인
+    - echo "Current resources before cleanup;"
+    - kubectl get pods,svc,ingress,configmap -l app=${APP_NAME} -n ${KUBE_NAMESPACE} || echo "No resources found"
+
+    # Label을 이용한 안전한 삭제
+    - echo "Deleting resources by labels..."
+    - kubectl delete deployment -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
+    - kubectl delete service -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
+    - kubectl delete ingress -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
+
+    # ConfigMap 삭제
+    - echo "Deleting ConfigMap..."
+    - kubectl delete configmap ${APP_NAME}-config -n ${KUBE_NAMESPACE} --ignore-not-found=true
+
+    # 정리 상태 확인
+    - echo "Checking remaining resources after cleanup..."
+    - kubectl get pods,svc,ingress,configmap -l app=${APP_NAME} -n ${KUBE_NAMESPACE} || echo "All resources deleted successfully!"
+
+    - echo "=== Cleanup completed! ==="
+  environment:
+    name: production
+    action: stop
+  only:
+    - main
+  when: manual
+  allow_failure: true
+
+# Docker 이미지 정리 - 수동 실행
+cleanup-docker:
+  stage: cleanup
+  image: docker:24
+  before_script:
+    - docker version
+    - docker info
+  script:
+    - echo "=== Cleaning up Docker images ==="
+    - echo "IMAGE_NAME = $IMAGE_NAME"
+
+    # 현재 이미지 확인
+    - echo "Current Docker images:"
+    - docker images | grep $IMAGE_NAME || echo "No images found"
+
+    # 특정 태그 이미지 삭제
+    - echo "Removing specific tagged images..."
+    - docker rmi ${IMAGE_NAME}:${IMAGE_TAG} --force || echo "Image ${IMAGE_NAME}:${IMAGE_TAG} not found"
+    - docker rmi ${IMAGE_NAME}:latest --force || echo "Image ${IMAGE_NAME}:latest not found"
+
+    # 댕글링 이미지 정리 (선택사항)
+    - echo "Cleaning up dangling images..."
+    - docker image prune -f || echo "No dangling images to remove"
+
+    # 정리 후 상태 확인
+    - echo "Remaining Docker images after cleanup:"
+    - docker images | grep $IMAGE_NAME || echo "All project images deleted successfully!"
+
+    - echo "=== Docker cleanup completed! ==="
+  only:
+    - main
+    - develop
+  when: manual
+  allow_failure: true

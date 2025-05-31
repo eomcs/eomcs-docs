@@ -1,0 +1,19 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:nightly
+    container_name: gitlab
+    restart: always
+    hostname: "gitlab"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # 내부에서는 80 포트로 접근
+        external_url 'http://localhost'
+    ports:
+      - "8929:80"
+      - "443:443"
+      - "22:22"
+    volumes:
+      - "$GITLAB_HOME/config:/etc/gitlab"
+      - "$GITLAB_HOME/logs:/var/log/gitlab"
+      - "$GITLAB_HOME/data:/var/opt/gitlab"
+    shm_size: "256m"
