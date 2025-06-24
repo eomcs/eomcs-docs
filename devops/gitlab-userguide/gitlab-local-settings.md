@@ -103,7 +103,7 @@ sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
   - 방화벽: Windows 방화벽이 Docker Desktop과 Kubernetes 통신을 차단하지 않는지 확인
   - WSL2: Windows에서 Docker Desktop이 WSL2 백엔드를 사용하는 경우 추가 네트워크 설정이 필요할 수 있음
 
-### Helm char를 이용하여 쿠버네티스에 GitLab Runner 설치하기
+### Helm chart를 이용하여 쿠버네티스에 GitLab Runner 설치하기
 
 - `GitLab Runner` Helm 저장소를 추가한다.
 
