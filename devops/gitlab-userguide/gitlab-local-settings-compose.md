@@ -55,6 +55,12 @@ echo $GITLAB_HOME
 docker compose up -d
 ```
 
+- **GibLab** 컨테이너 및 볼륨, 이미지 삭제
+
+```bash
+docker compose down -v --rmi all  
+```
+
 - 웹브라우저에서 **GitLab** 컨테이너 접속 확인
 
 ```

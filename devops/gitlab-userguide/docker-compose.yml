@@ -1,6 +1,6 @@
 services:
   gitlab:
-    image: gitlab/gitlab-ce:nightly
+    image: gitlab/gitlab-ce:latest
     container_name: gitlab
     restart: always
     hostname: "gitlab"

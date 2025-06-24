@@ -1,0 +1,406 @@
+# =================================================================
+# 로컬 DevOps 환경 - GitLab + GitLab Runner
+# 포트: 8929 (HTTP), 2222 (SSH)
+# =================================================================
+
+# GitLab Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops
+---
+# GitLab ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-config
+  namespace: devops
+data:
+  GITLAB_OMNIBUS_CONFIG: |
+    # 외부 접근 URL (포트 8929 사용)
+    external_url 'http://localhost:8929'
+
+    # SSH 포트 설정
+    gitlab_rails['gitlab_shell_ssh_port'] = 2222
+
+    # 내부 nginx 설정
+    nginx['listen_port'] = 80
+    nginx['listen_https'] = false
+
+    # GitLab Runner 등록을 위한 설정
+    gitlab_rails['gitlab_default_projects_features_builds'] = true
+
+    # 리소스 최적화 (Docker Desktop용)
+    postgresql['shared_buffers'] = "128MB"
+    postgresql['max_connections'] = 100
+
+    # Unicorn 워커 수 줄이기 (메모리 절약)
+    unicorn['worker_processes'] = 2
+
+    # Sidekiq 동시 실행 수 줄이기
+    sidekiq['max_concurrency'] = 10
+
+    # 데이터베이스 초기화 및 안정성 설정 추가
+    gitlab_rails['db_migrate'] = true
+    gitlab_rails['db_init_on_create'] = true
+
+    # PostgreSQL 안정성 설정
+    postgresql['checkpoint_timeout'] = '15min'
+    postgresql['checkpoint_completion_target'] = 0.9
+    postgresql['wal_buffers'] = '16MB'
+    postgresql['checkpoint_warning'] = '0'
+
+    # Sidekiq 초기화 지연
+    sidekiq['interval'] = 30
+
+    # Puma 설정 (안정성 향상)
+    puma['worker_processes'] = 2
+    puma['min_threads'] = 4
+    puma['max_threads'] = 4
+
+    # Prometheus 모니터링 비활성화 (권한 문제 해결)
+    prometheus_monitoring['enable'] = false
+    prometheus['enable'] = false
+    node_exporter['enable'] = false
+    redis_exporter['enable'] = false
+    postgres_exporter['enable'] = false
+    gitlab_exporter['enable'] = false
+---
+# GitLab PersistentVolumes (사용자 홈 디렉토리 사용)
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gitlab-config-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /Users/eomjinyoung/gitlab-devops/config
+    type: DirectoryOrCreate # 자동 생성 옵션 추가
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gitlab-logs-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /Users/eomjinyoung/gitlab-devops/logs
+    type: DirectoryOrCreate # 자동 생성 옵션 추가
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gitlab-data-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /Users/eomjinyoung/gitlab-devops/data
+    type: DirectoryOrCreate # 자동 생성 옵션 추가
+  storageClassName: manual
+---
+# GitLab PersistentVolumeClaims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-config-pvc
+  namespace: devops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-logs-pvc
+  namespace: devops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab-data-pvc
+  namespace: devops
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: manual
+---
+# GitLab RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitlab
+  namespace: devops
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: devops
+  name: gitlab-role
+rules:
+  - apiGroups: [""]
+    resources:
+      [
+        "pods",
+        "pods/exec",
+        "pods/log",
+        "services",
+        "secrets",
+        "configmaps",
+        "endpoints",
+      ]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/attach"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitlab-binding
+  namespace: devops
+subjects:
+  - kind: ServiceAccount
+    name: gitlab
+    namespace: devops
+roleRef:
+  kind: Role
+  name: gitlab-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# GitLab Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  namespace: devops
+  labels:
+    app: gitlab
+    component: devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab
+  template:
+    metadata:
+      labels:
+        app: gitlab
+        component: devops
+    spec:
+      serviceAccountName: gitlab
+      securityContext:
+        fsGroup: 998
+        runAsUser: 0 # root로 실행
+      containers:
+        - name: gitlab
+          image: gitlab/gitlab-ce:latest
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 22
+              name: ssh
+          env:
+            - name: GITLAB_OMNIBUS_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: gitlab-config
+                  key: GITLAB_OMNIBUS_CONFIG
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          volumeMounts:
+            - name: gitlab-config
+              mountPath: /etc/gitlab
+            - name: gitlab-logs
+              mountPath: /var/log/gitlab
+            - name: gitlab-data
+              mountPath: /var/opt/gitlab
+            - name: shm-volume
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1"
+            limits:
+              memory: "8Gi"
+              cpu: "4"
+          # 초기 설치용 안전한 Probe 설정
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 1800 # 30분 대기
+            periodSeconds: 300 # 5분마다 체크
+            timeoutSeconds: 60 # 1분 타임아웃
+            failureThreshold: 3 # 3번 실패 시 재시작
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 1200 # 30분 대기
+            periodSeconds: 60 # 1분마다 체크
+            timeoutSeconds: 30 # 30초 타임아웃
+            failureThreshold: 5 # 5번 실패까지 허용
+      volumes:
+        - name: gitlab-config
+          persistentVolumeClaim:
+            claimName: gitlab-config-pvc
+        - name: gitlab-logs
+          persistentVolumeClaim:
+            claimName: gitlab-logs-pvc
+        - name: gitlab-data
+          persistentVolumeClaim:
+            claimName: gitlab-data-pvc
+        - name: shm-volume
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
+      restartPolicy: Always
+---
+# GitLab Service (ClusterIP - 포트 포워딩용)
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab-service
+  namespace: devops
+  labels:
+    app: gitlab
+    component: devops
+spec:
+  type: ClusterIP # NodePort → ClusterIP 변경
+  ports:
+    - port: 80 # 서비스 포트
+      targetPort: 80 # 컨테이너 포트
+      name: http
+    - port: 22 # SSH 서비스 포트
+      targetPort: 22 # SSH 컨테이너 포트
+      name: ssh
+  selector:
+    app: gitlab
+---
+# GitLab Runner ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-runner-config
+  namespace: devops
+data:
+  config.toml: |
+    concurrent = 3
+    check_interval = 10
+    log_level = "info"
+
+    [session_server]
+      session_timeout = 1800
+---
+# GitLab Runner Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-runner
+  namespace: devops
+  labels:
+    app: gitlab-runner
+    component: devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab-runner
+  template:
+    metadata:
+      labels:
+        app: gitlab-runner
+        component: devops
+    spec:
+      serviceAccountName: gitlab
+      containers:
+        - name: gitlab-runner
+          image: gitlab/gitlab-runner:v17.11.3
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              # 쓰기 가능한 설정 디렉토리 준비
+              echo "GitLab Runner 설정 초기화 중..."
+              mkdir -p /etc/gitlab-runner
+
+              # 기본 config.toml 생성
+              cat > /etc/gitlab-runner/config.toml << 'EOF'
+              concurrent = 3
+              check_interval = 10
+              log_level = "info"
+
+              [session_server]
+                session_timeout = 1800
+              EOF
+
+              # 권한 설정
+              chmod 600 /etc/gitlab-runner/config.toml
+              echo "✅ 설정 파일 준비 완료"
+
+              # GitLab이 완전히 시작될 때까지 대기
+              echo "GitLab 서비스 준비 대기 중..."
+              until curl -f http://gitlab-service.devops.svc.cluster.local/ 2>/dev/null; do
+                echo "GitLab 시작 대기 중... ($(date))"
+                sleep 30
+              done
+
+              echo "GitLab이 준비되었습니다. Runner 등록을 수동으로 진행하세요."
+              echo ""
+              echo "등록 명령어:"
+              echo "kubectl exec -n devops -it deployment/gitlab-runner -- gitlab-runner register \\"
+              echo "  --url http://gitlab-service.devops.svc.cluster.local \\"
+              echo "  --registration-token rsLnCQbFxAqxRxRCsZWm \\"
+              echo "  --executor kubernetes \\"
+              echo "  --description 'Local DevOps Runner' \\"
+              echo "  --kubernetes-namespace devops \\"
+              echo "  --kubernetes-image ubuntu:20.04"
+              echo ""
+
+              # Runner 서비스만 시작 (등록은 별도로)
+              gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/gitlab-runner
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+              readOnly: false
+      volumes:
+        - name: config-volume
+          emptyDir: {} # ConfigMap → emptyDir로 변경 (쓰기 가능)
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
