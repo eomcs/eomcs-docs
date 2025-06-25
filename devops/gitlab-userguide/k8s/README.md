@@ -2,11 +2,6 @@
 
 로컬 Docker Desktop에 내장된 구버네티스 클러스터에 GibLab를 설치하여 CI/CD 개발 환경을 구축하는 것.
 
-관련 파일
-- k8s manifest 파일: gitlab-devops-complete.yml
-- deploy shell script 파일: deploy-devops.sh
-- gitlab runner 등록 파일: register-runner.sh
-
 ## GitLab 개요
 
 - Git 저장소
