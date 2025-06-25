@@ -99,73 +99,61 @@ kubectl logs -n devops <runner-pod-name>
 
 ## NGINX Ingress Controller 설치
 
-### 설치 확인
-
-- ingress-nginx 네임스페이스 존재 확인
-
-```bash
-kubectl get namespaces | grep ingress
-```
-
-- Ingress Controller Pod 확인
-
-```bash
-# ingress-nginx 네임스페이스의 모든 리소스 확인
-kubectl get all -n ingress-nginx
-
-# 또는 Pod만 확인
-kubectl get pods -n ingress-nginx
-```
-
-- Service 확인
-
-```bash
-kubectl get svc -n ingress-nginx
-```
-
-- Ingress Class 확인
-
-```bash
-kubectl get ingressclass
-```
-
 ### 설치하기
 
 ```bash
+# 실행 권한 부여
+chmod +x install-nginx-ingress.sh
+
 # NGINX Ingress Controller 설치
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+./install-nginx-ingress.sh
+```
 
-# 설치 진행 상황 확인
-kubectl get pods -n ingress-nginx -w
+### 설치 확인
 
-# 설치 완료까지 대기 (보통 1-2분)
-kubectl wait --namespace ingress-nginx \
-  --for=condition=ready pod \
-  --selector=app.kubernetes.io/component=controller \
-  --timeout=300s
+```bash
+# Helm 릴리스 확인
+helm list -n ingress-nginx
+
+# Pod 상태 확인
+kubectl get pods -n ingress-nginx
+
+# 서비스 확인
+kubectl get svc -n ingress-nginx
+
+# IngressClass 확인
+kubectl get ingressclass
 ```
 
 ### 설치 후 테스트
 
-- Ingress Controller 상태 확인
-
 ```bash
-# Controller Pod 로그 확인
-kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller
+# 기본 백엔드 응답 확인 (404 응답이 정상)
+curl http://localhost:30080
 
-# Service 외부 접속 확인
-curl -I http://localhost/healthz
+# 헤더와 함께 테스트
+curl -H "Host: test.local" http://localhost:30080
 ```
 
-- 빠른 확인 명령어
+### 관리 명령어
 
 ```bash
-# 한 번에 모든 상태 확인
-echo "=== Namespaces ===" && kubectl get ns | grep ingress
-echo "=== Pods ===" && kubectl get pods -n ingress-nginx
-echo "=== Services ===" && kubectl get svc -n ingress-nginx
-echo "=== IngressClass ===" && kubectl get ingressclass
+# values.yml 수정 후 업그레이드
+helm upgrade ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --values ingress-nginx-values.yml
+
+# NGINX Ingress Controller 제거
+helm uninstall ingress-nginx -n ingress-nginx
+kubectl delete namespace ingress-nginx
+
+# 상태 확인
+helm status ingress-nginx -n ingress-nginx
+
+# 로그 확인
+kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
 ```
+
 
 ## 참고
 

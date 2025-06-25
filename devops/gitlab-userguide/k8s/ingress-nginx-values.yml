@@ -1,0 +1,221 @@
+# NGINX Ingress Controller Helm Values
+# Docker Desktop Kubernetes 환경용
+
+controller:
+  # 컨트롤러 기본 설정
+  name: controller
+  image:
+    registry: registry.k8s.io
+    image: ingress-nginx/controller
+    tag: "v1.8.2"
+    digest: ""
+    pullPolicy: IfNotPresent
+
+  # 레플리카 수 (개발 환경)
+  replicaCount: 1
+
+  # NodePort 서비스 설정 (Docker Desktop용)
+  service:
+    enabled: true
+    type: NodePort
+    ports:
+      http: 80
+      https: 443
+    targetPorts:
+      http: http
+      https: https
+    nodePorts:
+      http: 30000 # hello-ui용
+      https: 30443
+      tcp:
+        30080: 30080 # hello-api용 TCP 포트 추가
+      udp: {}
+
+  # 리소스 제한 (Docker Desktop 환경에 맞게 조정)
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+  # 라이프사이클 프로브
+  livenessProbe:
+    httpGet:
+      path: "/healthz"
+      port: 10254
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 5
+
+  readinessProbe:
+    httpGet:
+      path: "/healthz"
+      port: 10254
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+
+  # ConfigMap 설정
+  config:
+    # 로그 설정
+    log-level: "info"
+    access-log-path: "/var/log/nginx/access.log"
+    error-log-path: "/var/log/nginx/error.log"
+
+    # 프록시 설정
+    use-forwarded-headers: "true"
+    compute-full-forwarded-for: "true"
+    use-proxy-protocol: "false"
+
+    # 보안 설정
+    ssl-redirect: "false"
+    force-ssl-redirect: "false"
+
+    # 성능 설정
+    worker-processes: "auto"
+    max-worker-connections: "16384"
+    max-worker-open-files: "65535"
+
+    # 클라이언트 설정
+    client-max-body-size: "64m"
+    client-body-buffer-size: "64k"
+    client-body-timeout: "60"
+    client-header-timeout: "60"
+
+  # 메트릭 설정
+  metrics:
+    enabled: true
+    port: 10254
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+        prometheus.io/path: "/metrics"
+
+  # Admission Webhooks 비활성화 (Docker Desktop 호환성)
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
+
+  # 추가 CLI 인수
+  extraArgs:
+    enable-ssl-passthrough: true
+    default-ssl-certificate: ""
+
+  # 환경 변수
+  extraEnvs: []
+
+  # 볼륨 마운트
+  extraVolumeMounts: []
+  extraVolumes: []
+
+  # 노드 선택자 (필요시 사용)
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  # 톨러레이션 (필요시 사용)
+  tolerations: []
+
+  # 어피니티 (필요시 사용)
+  affinity: {}
+
+  # 보안 컨텍스트
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    fsGroup: 101
+
+  containerSecurityContext:
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE
+    runAsNonRoot: true
+    runAsUser: 101
+    allowPrivilegeEscalation: true
+
+# 기본 백엔드 설정
+defaultBackend:
+  enabled: true
+  name: defaultbackend
+  image:
+    registry: registry.k8s.io
+    image: defaultbackend-amd64
+    tag: "1.5"
+    pullPolicy: IfNotPresent
+
+  port: 8080
+
+  resources:
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  replicaCount: 1
+
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  tolerations: []
+  affinity: {}
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    fsGroup: 65534
+
+# RBAC 설정
+rbac:
+  create: true
+  scope: false
+
+# ServiceAccount 설정
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true
+  annotations: {}
+
+# Pod 보안 정책
+podSecurityPolicy:
+  enabled: false
+
+# 네트워크 정책
+networkPolicy:
+  enabled: false
+
+# 이미지 풀 시크릿
+imagePullSecrets: []
+
+# 공통 레이블
+commonLabels: {}
+
+# IngressClass 설정
+ingressClassResource:
+  name: nginx
+  enabled: true
+  default: false
+  controllerValue: "k8s.io/ingress-nginx"
+  parameters: {}
+
+# TCP/UDP 서비스 설정 (필요시 사용)
+tcp:
+  30080: "default/hello-api-service:8080" # hello-api용 TCP 매핑 추가
+udp: {}

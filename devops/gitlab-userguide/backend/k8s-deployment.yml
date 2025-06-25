@@ -1,3 +1,6 @@
+# hello-api Kubernetes Deployment with Ingress
+# 접근 URL: http://localhost:30080
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +8,7 @@ metadata:
   namespace: default
   labels:
     app: $APP_NAME
+    component: backend
 spec:
   replicas: 1
   selector:
@@ -14,6 +18,7 @@ spec:
     metadata:
       labels:
         app: $APP_NAME
+        component: backend
     spec:
       containers:
         - name: $APP_NAME
@@ -21,6 +26,7 @@ spec:
           imagePullPolicy: Never # 로컬 이미지 사용
           ports:
             - containerPort: 8080
+              name: http
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
@@ -31,19 +37,34 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
+          # Health Check 경로 (프로브용)
           readinessProbe:
             httpGet:
-              path: /hello?name=HongKilDong
+              path: /hello?name=HealthCheck
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /hello?name=HongKilDong
+              path: /hello?name=HealthCheck
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # 시작 프로브 추가 (Spring Boot 시작 시간 고려)
+          startupProbe:
+            httpGet:
+              path: /hello?name=StartupCheck
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30 # 150초(5*30) 동안 시작 대기
 ---
+# ClusterIP Service (Ingress에서 사용)
 apiVersion: v1
 kind: Service
 metadata:
@@ -51,6 +72,7 @@ metadata:
   namespace: default
   labels:
     app: $APP_NAME
+    component: backend
 spec:
   selector:
     app: $APP_NAME
@@ -58,4 +80,5 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-  type: LoadBalancer
+      name: http
+  type: ClusterIP

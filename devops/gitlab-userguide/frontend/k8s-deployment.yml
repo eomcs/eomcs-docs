@@ -1,3 +1,6 @@
+# hello-ui Kubernetes Deployment with Ingress
+# 접근 URL: http://localhost:30000
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,7 +67,7 @@ spec:
     app: ${APP_NAME}
   ports:
     - protocol: TCP
-      port: 80
+      port: 3000
       targetPort: 3000
   type: ClusterIP
 ---
@@ -77,19 +80,10 @@ metadata:
     app: ${APP_NAME}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    kubernetes.io/ingress.class: "nginx" # Ingress Class 명시
 spec:
+  ingressClassName: nginx
   rules:
-    - host: hello-ui.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ${APP_NAME}-service
-                port:
-                  number: 80
+    # localhost:30000으로 접근 (주 접근 방식)
     - host: localhost
       http:
         paths:
@@ -99,4 +93,15 @@ spec:
               service:
                 name: ${APP_NAME}-service
                 port:
-                  number: 80
+                  number: 3000
+    # 개발용 추가 호스트 (선택사항)
+    - host: ui.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ${APP_NAME}-service
+                port:
+                  number: 3000
