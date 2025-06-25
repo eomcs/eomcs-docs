@@ -1,5 +1,5 @@
 # =================================================================
-# 로컬 DevOps 환경 - GitLab + GitLab Runner
+# 로컬 DevOps 환경 - GitLab만 (Runner는 Helm으로 별도 설치)
 # 포트: 8929 (HTTP), 2222 (SSH)
 # =================================================================
 
@@ -78,7 +78,7 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /Users/eomjinyoung/gitlab-devops/config
-    type: DirectoryOrCreate # 자동 생성 옵션 추가
+    type: DirectoryOrCreate
   storageClassName: manual
 ---
 apiVersion: v1
@@ -92,7 +92,7 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /Users/eomjinyoung/gitlab-devops/logs
-    type: DirectoryOrCreate # 자동 생성 옵션 추가
+    type: DirectoryOrCreate
   storageClassName: manual
 ---
 apiVersion: v1
@@ -106,7 +106,7 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /Users/eomjinyoung/gitlab-devops/data
-    type: DirectoryOrCreate # 자동 생성 옵션 추가
+    type: DirectoryOrCreate
   storageClassName: manual
 ---
 # GitLab PersistentVolumeClaims
@@ -215,7 +215,7 @@ spec:
       serviceAccountName: gitlab
       securityContext:
         fsGroup: 998
-        runAsUser: 0 # root로 실행
+        runAsUser: 0
       containers:
         - name: gitlab
           image: gitlab/gitlab-ce:latest
@@ -249,23 +249,22 @@ spec:
             limits:
               memory: "8Gi"
               cpu: "4"
-          # 초기 설치용 안전한 Probe 설정
           livenessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 1800 # 30분 대기
-            periodSeconds: 300 # 5분마다 체크
-            timeoutSeconds: 60 # 1분 타임아웃
-            failureThreshold: 3 # 3번 실패 시 재시작
+            initialDelaySeconds: 1800
+            periodSeconds: 300
+            timeoutSeconds: 60
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /
               port: 80
-            initialDelaySeconds: 1200 # 30분 대기
-            periodSeconds: 60 # 1분마다 체크
-            timeoutSeconds: 30 # 30초 타임아웃
-            failureThreshold: 5 # 5번 실패까지 허용
+            initialDelaySeconds: 1200
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 5
       volumes:
         - name: gitlab-config
           persistentVolumeClaim:
@@ -292,115 +291,13 @@ metadata:
     app: gitlab
     component: devops
 spec:
-  type: ClusterIP # NodePort → ClusterIP 변경
+  type: ClusterIP
   ports:
-    - port: 80 # 서비스 포트
-      targetPort: 80 # 컨테이너 포트
+    - port: 80
+      targetPort: 80
       name: http
-    - port: 22 # SSH 서비스 포트
-      targetPort: 22 # SSH 컨테이너 포트
+    - port: 22
+      targetPort: 22
       name: ssh
   selector:
     app: gitlab
----
-# GitLab Runner ConfigMap
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: gitlab-runner-config
-  namespace: devops
-data:
-  config.toml: |
-    concurrent = 3
-    check_interval = 10
-    log_level = "info"
-
-    [session_server]
-      session_timeout = 1800
----
-# GitLab Runner Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: gitlab-runner
-  namespace: devops
-  labels:
-    app: gitlab-runner
-    component: devops
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: gitlab-runner
-  template:
-    metadata:
-      labels:
-        app: gitlab-runner
-        component: devops
-    spec:
-      serviceAccountName: gitlab
-      containers:
-        - name: gitlab-runner
-          image: gitlab/gitlab-runner:v17.11.3
-          command: ["/bin/bash"]
-          args:
-            - -c
-            - |
-              # 쓰기 가능한 설정 디렉토리 준비
-              echo "GitLab Runner 설정 초기화 중..."
-              mkdir -p /etc/gitlab-runner
-
-              # 기본 config.toml 생성
-              cat > /etc/gitlab-runner/config.toml << 'EOF'
-              concurrent = 3
-              check_interval = 10
-              log_level = "info"
-
-              [session_server]
-                session_timeout = 1800
-              EOF
-
-              # 권한 설정
-              chmod 600 /etc/gitlab-runner/config.toml
-              echo "✅ 설정 파일 준비 완료"
-
-              # GitLab이 완전히 시작될 때까지 대기
-              echo "GitLab 서비스 준비 대기 중..."
-              until curl -f http://gitlab-service.devops.svc.cluster.local/ 2>/dev/null; do
-                echo "GitLab 시작 대기 중... ($(date))"
-                sleep 30
-              done
-
-              echo "GitLab이 준비되었습니다. Runner 등록을 수동으로 진행하세요."
-              echo ""
-              echo "등록 명령어:"
-              echo "kubectl exec -n devops -it deployment/gitlab-runner -- gitlab-runner register \\"
-              echo "  --url http://gitlab-service.devops.svc.cluster.local \\"
-              echo "  --registration-token rsLnCQbFxAqxRxRCsZWm \\"
-              echo "  --executor kubernetes \\"
-              echo "  --description 'Local DevOps Runner' \\"
-              echo "  --kubernetes-namespace devops \\"
-              echo "  --kubernetes-image ubuntu:20.04"
-              echo ""
-
-              # Runner 서비스만 시작 (등록은 별도로)
-              gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/gitlab-runner
-            - name: docker-sock
-              mountPath: /var/run/docker.sock
-              readOnly: false
-      volumes:
-        - name: config-volume
-          emptyDir: {} # ConfigMap → emptyDir로 변경 (쓰기 가능)
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock

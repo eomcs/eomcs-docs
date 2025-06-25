@@ -1,0 +1,57 @@
+# GitLab Runner Helm Values (ARM64 호환) - 간소화 버전
+# Docker Desktop Kubernetes 환경용
+
+# GitLab 연결 설정 (클러스터 내부 서비스 URL)
+gitlabUrl: http://gitlab-service.devops.svc.cluster.local
+runnerRegistrationToken: "HRqwFm2EsF_YyJ2k_aEb"
+
+# RBAC 및 ServiceAccount 설정
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: "gitlab-runner"
+
+# Runner 기본 설정
+runners:
+  tags: "kubernetes,docker,local,arm64"
+  runUntagged: true
+  locked: false
+
+  # ARM64 호환 핵심 설정
+  config: |
+    [[runners]]
+      executor = "kubernetes"
+      clone_url = "http://gitlab-service.devops.svc.cluster.local"
+      
+      [runners.kubernetes]
+        namespace = "devops"
+        image = "ubuntu:20.04"
+        
+        # ARM64 핵심 설정 (최신 버전 사용)
+        helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:arm64-latest"
+        helper_image_flavor = "alpine"
+        
+        # 리소스 설정
+        cpu_request = "500m"
+        memory_request = "1Gi"
+        cpu_limit = "2"
+        memory_limit = "4Gi"
+        
+        privileged = true
+        
+        # Docker 소켓 마운트
+        [[runners.kubernetes.volumes.host_path]]
+          name = "docker-sock"
+          mount_path = "/var/run/docker.sock"
+          host_path = "/var/run/docker.sock"
+
+# 리소스 제한
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 500m
+  requests:
+    memory: 128Mi
+    cpu: 100m

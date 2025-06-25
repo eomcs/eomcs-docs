@@ -1,6 +1,13 @@
 # 데브옵스 설정 - 로컬 쿠버네티스 클러스터에 구축하기
 
-## GitLab 설치
+로컬 Docker Desktop에 내장된 구버네티스 클러스터에 GibLab를 설치하여 CI/CD 개발 환경을 구축하는 것.
+
+관련 파일
+- k8s manifest 파일: gitlab-devops-complete.yml
+- deploy shell script 파일: deploy-devops.sh
+- gitlab runner 등록 파일: register-runner.sh
+
+## GitLab 개요
 
 - Git 저장소
 - 프로젝트 관리
@@ -8,68 +15,90 @@
 - 프로젝트 루트에 `.gitlab-ci.yml` 파일을 만들어 CI/CD Job을 정의
   - CI/CD 를 실행하면 Job을 **GitLab Runner** 에게 전달
 
-### 1. DevOps 환경 배포
+## GitLab 설치
+
+### 파일들
+
+- `gitlab.yml`: GitLab 설치 manifest 파일
+- `gitlab-runner-values-arm64.yml`: ARM64 호환 Helm values
+- `deploy-helm.sh`: Helm을 이용한 GitLab 배포 쉘스크립트
+- `cleanup-helm.sh`: Helm으로 설정한 자원들의 삭제 및 정리
+- `install-runner-helm.sh`: Helm을 이용한 GitLab Runner 설치
+
+### 1. GitLab 배포
 
 ```bash
-# 쿠버네티스에 gitlab 환경 구축하기
-./deploy-devops.sh
-
-# 참고: 쿠버네티스에 gitlab 환경 제거하기
-./cleanup-devops.sh
+# 쿠버네티스에 gitlab 서버 배치하기
+chmod +x *.sh
+./deploy-helm.sh
 
 # 참고: 호스트의 경로를 pod와 연결할 수 있는지 시험하기
 ./check-hostpath.sh
 ```
 
-### 2. GitLab 완전 시작 대기
+### 2. GitLab 준비 대기 (5-10분)
 
 ```bash
-# GitLab 상태 확인
+# 로그 모니터링
 kubectl logs -n devops deployment/gitlab -f
 
-# 준비 완료 확인
-curl -f http://localhost:8929/-/health
+# 준비 상태 확인
+kubectl get pods -n devops
 ```
 
-### 3. Runner 등록
+### 3. Registration Token 확인
 
 ```bash
-chmod +x register-runner.sh
-./register-runner.sh
-```
+# 자동 확인 시도
+kubectl exec -n devops deployment/gitlab -- gitlab-rails runner "puts Gitlab::CurrentSettings.runners_registration_token"
 
-### 4. 등록 확인
-
-```bash
-# Runner 목록 확인
-kubectl exec -n devops deployment/gitlab-runner -- gitlab-runner list
-
-# GitLab UI에서 확인
+# 또는 웹 UI에서 확인
 # http://localhost:8929/admin/runners
 ```
 
-
-## GitLab 설치 확인
+### 4. Runner 설치
 
 ```bash
-# 러너 상태 확인
-kubectl get pods -n devops
-
-# 로그 확인
-kubectl logs -n devops <runner-pod-name>
-# 또는
-kubectl logs -f deployment/gitlab-runner -n devops
-
-# 노드 아키텍처 확인
-kubectl get nodes -o wide
-
-# 러너 등록 확인
-kubectl describe configmap gitlab-runner -n devops
+chmod +x install-runner-helm.sh
+./install-runner-helm.sh
 ```
 
-- 로그 확인
+### 4. 확인
 
 ```bash
+# Helm 릴리스 확인
+helm list -n devops
+
+# Runner 상태 확인
+kubectl get pods -n devops
+```
+
+## GitLab 로그인
+
+```bash
+# root 암호 알아내기 방법1:
+kubectl exec -n devops deployment/gitlab -- cat /etc/gitlab/initial_root_password
+
+# root 암호 알아내기 방법2:
+find /Users/eomjinyoung/gitlab-devops -name 'initial_root_password' -exec cat {} \;
+```
+
+## 관리 명령어
+
+```bash
+# Runner 업그레이드
+helm upgrade gitlab-runner gitlab/gitlab-runner -n devops --values values-arm64.yml
+
+# Runner 상태 확인
+helm status gitlab-runner -n devops
+
+# Runner 제거
+helm uninstall gitlab-runner -n devops
+
+# 전체 환경 정리
+./cleanup-helm.sh
+
+# 로그 확인
 kubectl logs -n devops <runner-pod-name>
 ```
 
