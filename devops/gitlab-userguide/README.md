@@ -8,12 +8,23 @@
 
 ```bash
 cat ~/.kube/config | base64 -w 0
+
+# 또는
+
+kubectl config view --raw --flatten | \
+  sed 's|127.0.0.1:6443|kubernetes.docker.internal:6443|g' | \
+  base64 -w 0
 ```
 
 - GitLab root 사용자의 관리자 페이지
   - Settings => CI/CD => Variables 페이지 => 변수 추가
     - Key: KUBE_CONFIG
     - Value: 위에서 생성한 Base64 문자열
+    - Type: Variable
+    - Environment scope: *
+    - Protect variable: ☐ (체크하지 않음)
+    - Mask variable: ☐ (체크하지 않음 - 너무 길어서 불가능)
+    - Expand variable reference: ☐ (체크하지 않음)
 
 ### 프로젝트 생성(일반 사용자)
 
