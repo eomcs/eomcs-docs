@@ -83,7 +83,7 @@ variables:
   - MY_PROJECT_PATH: /path/to/project
 ```
 
-## 프로젝트 환경에 패키지 설치
+## 프로젝트 환경에 직접 패키지 설치
 
 ```bash
 # 기본 miniconda 환경으로 전환
