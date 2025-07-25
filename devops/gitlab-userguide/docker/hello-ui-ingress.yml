@@ -23,4 +23,4 @@ spec:
               service:
                 name: hello-ui-service-nodeport   # 기존 NodePort 서비스 사용
                 port:
-                  number: 3000
+                  number: 3000 

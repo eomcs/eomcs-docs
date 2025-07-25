@@ -239,28 +239,22 @@
     helm install ingress-nginx-api ingress-nginx/ingress-nginx \
       --namespace ingress-nginx-api \
       --create-namespace \
-      --set controller.service.type=LoadBalancer  \
-      --set controller.hostPort.enabled=true \
-      --set controller.hostPort.ports.http=8080 \
-      --set controller.hostPort.ports.https=8443 \
+      --set controller.service.type=LoadBalancer \
+      --set controller.service.ports.http=8080 \
+      --set controller.service.ports.https=8443 \
       --set controller.ingressClassResource.name=nginx-api \
       --set controller.ingressClass=nginx-api \
-      --set controller.service.nodePorts.http=30808 \
-      --set controller.service.nodePorts.https=30844 \
       --set controller.admissionWebhooks.enabled=false
 
     # Windows 11
     helm install ingress-nginx-api ingress-nginx/ingress-nginx `
       --namespace ingress-nginx-api `
       --create-namespace `
-      --set controller.service.type=LoadBalancer  `
-      --set controller.hostPort.enabled=true `
-      --set controller.hostPort.ports.http=8080 `
-      --set controller.hostPort.ports.https=8443 `
+      --set controller.service.type=LoadBalancer `
+      --set controller.service.ports.http=8080 `
+      --set controller.service.ports.https=8443 `
       --set controller.ingressClassResource.name=nginx-api `
       --set controller.ingressClass=nginx-api `
-      --set controller.service.nodePorts.http=30808 `
-      --set controller.service.nodePorts.https=30844 `
       --set controller.admissionWebhooks.enabled=false
 
     # 제거
@@ -274,13 +268,11 @@
       --namespace ingress-nginx-ui \
       --create-namespace \
       --set controller.service.type=LoadBalancer \
-      --set controller.hostPort.enabled=true \
-      --set controller.hostPort.ports.http=3000 \
-      --set controller.hostPort.ports.https=3443 \
+      --set controller.service.ports.http=3000 \
+      --set controller.service.ports.https=3443 \
+      --set controller.hostPort.enabled=false \
       --set controller.ingressClassResource.name=nginx-ui \
       --set controller.ingressClass=nginx-ui \
-      --set controller.service.nodePorts.http=30300 \
-      --set controller.service.nodePorts.https=30344 \
       --set controller.admissionWebhooks.enabled=false
 
     # Windows 11
@@ -288,13 +280,11 @@
       --namespace ingress-nginx-ui `
       --create-namespace `
       --set controller.service.type=LoadBalancer `
-      --set controller.hostPort.enabled=true `
-      --set controller.hostPort.ports.http=3000 `
-      --set controller.hostPort.ports.https=3443 `
+      --set controller.service.ports.http=3000 `
+      --set controller.service.ports.https=3443 `
+      --set controller.hostPort.enabled=false `
       --set controller.ingressClassResource.name=nginx-ui `
       --set controller.ingressClass=nginx-ui `
-      --set controller.service.nodePorts.http=30300 `
-      --set controller.service.nodePorts.https=30344 `
       --set controller.admissionWebhooks.enabled=false
 
     # 제거
