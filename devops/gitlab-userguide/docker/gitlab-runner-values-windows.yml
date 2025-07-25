@@ -1,0 +1,41 @@
+gitlabUrl: http://host.docker.internal:8929
+
+runnerRegistrationToken: "qREXsus5Uqp3F52Vey6L"
+
+rbac:
+  create: true
+
+runners:
+  config: |
+    [[runners]]
+      name = "docker-desktop-windows-intel-runner"
+      url = "http://host.docker.internal:8929"
+      token = "qREXsus5Uqp3F52Vey6L"
+      executor = "kubernetes"
+      clone_url = "http://host.docker.internal:8929"
+      [runners.kubernetes]
+        namespace = "gitlab-runner"
+        image = "alpine:latest"
+        # Intel x86_64 아키텍처용 helper 이미지 (ARM64 -> x86_64로 변경)
+        helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-latest"
+        helper_image_flavor = "alpine"
+        poll_timeout = 180
+        # Windows 환경에서 더 여유로운 리소스 설정
+        cpu_request = "500m"
+        memory_request = "1Gi"
+        cpu_limit = "2"
+        memory_limit = "4Gi"
+        # Windows Docker Desktop에서 안정성을 위한 추가 설정
+        image_pull_policy = "always"
+        # 환경 변수 설정
+        [[runners.kubernetes.volumes.host_path]]
+          name = "docker-sock"
+          mount_path = "/var/run/docker.sock"
+          host_path = "/var/run/docker.sock"
+        [[runners.kubernetes.env]]
+          name = "GIT_SSL_NO_VERIFY"
+          value = "true"
+        [[runners.kubernetes.env]]
+          name = "CI_SERVER_URL"
+          value = "http://host.docker.internal:8929"
+  privileged: true

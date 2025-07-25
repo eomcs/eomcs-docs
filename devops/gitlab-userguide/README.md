@@ -7,10 +7,13 @@
 - 로컬에서 kubeconfig Base64 인코딩
 
 ```bash
+# macOS, Linux
 cat ~/.kube/config | base64 -w 0
 
-# 또는
+# Windows 11
+[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Path "$env:USERPROFILE\.kube\config" -Raw)))
 
+# 또는(macOS, Linux)
 kubectl config view --raw --flatten | \
   sed 's|127.0.0.1:6443|kubernetes.docker.internal:6443|g' | \
   base64 -w 0
@@ -80,13 +83,23 @@ git clone http://localhost:8929/<사용자아이디>/hello-api
 ## 프로젝트 빌드 및 배포
 
 - 프로젝트 변경 사항을 깃 저장소로 보내기
-
-```bash
-git add .
-git commit -m "커밋 메시지"
-git push # gitlab 서버에 보내기
-```
-
+  ```bash
+  git add .
+  git commit -m "커밋 메시지"
+  git push # gitlab 서버에 보내기
+  ```
+- 인증 관련 오류가 발생할 때
+  - SSH 키 생성:
+    ```bash
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+    ```
+  - 공개 키를 GitLab에 추가:
+    - GitLab → User Settings → SSH Keys
+    - ~/.ssh/id_rsa.pub 내용 복사하여 추가
+  - Remote URL 변경:
+    ```bash
+    git remote set-url origin git@localhost:user1/hello-api.git
+    ```
 
 - 프로젝트 빌드 및 배포 과정 확인하기
   - **프로젝트** 메뉴 => **프로젝트 둘러보기** => 목록에서 프로젝트 선택

@@ -1,4 +1,4 @@
-# hello-ui Kubernetes Deployment with Ingress
+# hello-ui Kubernetes Deployment with NodePort Service
 # 접근 URL: http://localhost:30000
 
 apiVersion: apps/v1
@@ -35,6 +35,13 @@ spec:
                 configMapKeyRef:
                   name: ${APP_NAME}-config
                   key: PORT
+            # API 백엔드 URL 환경변수 추가 (선택사항)
+            - name: REACT_APP_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ${APP_NAME}-config
+                  key: REACT_APP_API_BASE_URL
+                  optional: true
           resources:
             requests:
               memory: "128Mi"
@@ -55,10 +62,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
 ---
+# NodePort Service (외부 접근 가능)
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APP_NAME}-service
+  name: ${APP_NAME}-service-nodeport
   namespace: ${KUBE_NAMESPACE}
   labels:
     app: ${APP_NAME}
@@ -69,39 +77,20 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-  type: ClusterIP
+      nodePort: 30000  # 외부 접근 포트
+      name: http
+  type: NodePort
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+# Ingress 전용 ClusterIP 서비스 추가
+apiVersion: v1
+kind: Service
 metadata:
-  name: ${APP_NAME}-ingress
-  namespace: ${KUBE_NAMESPACE}
-  labels:
-    app: ${APP_NAME}
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: ${APP_NAME}-service-ingress
+  namespace: default
 spec:
-  ingressClassName: nginx
-  rules:
-    # localhost:30000으로 접근 (주 접근 방식)
-    - host: localhost
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ${APP_NAME}-service
-                port:
-                  number: 3000
-    # 개발용 추가 호스트 (선택사항)
-    - host: ui.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: ${APP_NAME}-service
-                port:
-                  number: 3000
+  selector:
+    app: ${APP_NAME}  # 같은 Pod를 대상으로 함
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP

@@ -20,8 +20,47 @@
 - `cleanup-helm.sh`: Helm으로 설정한 자원들의 삭제 및 정리
 - `install-runner-helm.sh`: Helm을 이용한 GitLab Runner 설치
 
+### 0. Windows 11에서 준비사항
+
+- Chocolatey 설치(Windows 용 패키지 관리자)
+  ```powershell
+  Set-ExecutionPolicy Bypass -Scope Process -Force;
+  .\ChocolateyInstallNonAdmin.ps1
+  ```
+  - 설치 후, PATH 환경 변수에 `C:\ProgramData\chocoportable\bin` 폴더 추가
+  - Chocolatey 업그레이드
+    ```powershell
+    choco upgrade chocolatey
+    ```
+- Helm 설치
+  ```powershell
+  # Winget 으로  Helm 설치(권장)
+  winget install Helm.Helm
+
+  # Chocolatey 로 Helm 설치
+  choco install kubernetes-helm
+
+  # Scoop 으로 Helm 설치
+  scoop install helm
+  ```
+- Docker Desktop 리소스 할당 증가
+  ```powershell
+  # C:\Users\%USERNAME%\.wslconfig 파일 생성/편집
+  @"
+  [wsl2]
+  memory=8GB
+  processors=4
+  swap=2GB
+  "@ | Out-File -FilePath "$env:USERPROFILE\.wslconfig" -Encoding UTF8
+
+  # WSL 재시작
+  wsl --shutdown
+  ```
+
+
 ### 1. GitLab 배포
 
+- macOS, Linux
 ```bash
 # 쿠버네티스에 gitlab 서버 배치하기
 chmod +x *.sh
@@ -29,6 +68,15 @@ chmod +x *.sh
 
 # 참고: 호스트의 경로를 pod와 연결할 수 있는지 시험하기
 ./check-hostpath.sh
+```
+
+- Windows 11(PowerShell 7.x 이상에서 실행해야만 한글이 깨지지 않는다)
+```powershell
+# 실행 정책 설정 (관리자 권한으로 한 번만):
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# 스크립트 실행
+.\deploy-helm.ps1
 ```
 
 ### 2. GitLab 준비 대기 (5-10분)
@@ -80,22 +128,32 @@ find /Users/eomjinyoung/gitlab-devops -name 'initial_root_password' -exec cat {}
 
 ## 관리 명령어
 
-```bash
-# Runner 업그레이드
-helm upgrade gitlab-runner gitlab/gitlab-runner -n devops --values values-arm64.yml
+- macOS, Linux
+  ```bash
+  # Runner 업그레이드
+  helm upgrade gitlab-runner gitlab/gitlab-runner -n devops --values values-arm64.yml
 
-# Runner 상태 확인
-helm status gitlab-runner -n devops
+  # Runner 상태 확인
+  helm status gitlab-runner -n devops
 
-# Runner 제거
-helm uninstall gitlab-runner -n devops
+  # Runner 제거
+  helm uninstall gitlab-runner -n devops
 
-# 전체 환경 정리
-./cleanup-helm.sh
+  # 전체 환경 정리
+  ./cleanup-helm.sh
 
-# 로그 확인
-kubectl logs -n devops <runner-pod-name>
-```
+  # 로그 확인
+  kubectl logs -n devops <runner-pod-name>
+  ```
+
+- macOS
+  ```powershell
+  # 실행 정책 설정 (필요시)
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+  # 전체 환경 정리
+  .\cleanup-helm.ps1
+  ```
 
 ## NGINX Ingress Controller 설치
 

@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-api-ingress
+  namespace: default
+  annotations:
+    # Ingress Class 지정 (기존 방식)
+    kubernetes.io/ingress.class: "nginx-api"
+    # URL 재작성 규칙
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    # SSL 리다이렉트 비활성화 (HTTP 접근 허용)
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  # Ingress Class 지정 (권장 방식)
+  ingressClassName: nginx-api
+  rules:
+    - host: localhost  # localhost:8080으로 접근
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-api-service-nodeport  # 기존 NodePort 서비스 사용
+                port:
+                  number: 8080

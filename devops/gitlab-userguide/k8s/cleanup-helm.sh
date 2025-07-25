@@ -1,16 +1,15 @@
 #!/bin/bash
-# cleanup-devops-helm.sh - 로컬 DevOps 환경 정리 스크립트 (Helm 기반)
+# cleanup-helm.sh - 로컬 DevOps 환경 정리 스크립트 (Helm 기반) - macOS용
 
 set -e
 
 NAMESPACE="devops"
 RUNNER_NAME="gitlab-runner"
 CURRENT_USER=$(whoami)
-GITLAB_DATA_DIR="/Users/${CURRENT_USER}/gitlab-devops"
 
 echo "=== 로컬 DevOps 환경 정리 시작 ==="
 echo "네임스페이스: ${NAMESPACE}"
-echo "데이터 디렉토리: ${GITLAB_DATA_DIR}"
+echo "저장소: Kubernetes 내부 동적 프로비저닝"
 echo ""
 
 # 사용자 확인
@@ -25,11 +24,11 @@ echo "🧹 환경 정리 시작..."
 
 # 포트 포워딩 프로세스 종료
 echo "📡 포트 포워딩 프로세스 종료 중..."
-pkill -f "kubectl.*port-forward.*gitlab" 2>/dev/null || echo "포트 포워딩 프로세스가 없습니다."
+pkill -f "kubectl.*port-forward.*gitlab" 2>/dev/null && echo "✅ 포트 포워딩 프로세스 종료 완료" || echo "💡 포트 포워딩 프로세스가 없습니다."
 
 # Helm으로 설치된 GitLab Runner 제거
 echo "🚀 GitLab Runner (Helm) 제거 중..."
-if helm list -n ${NAMESPACE} | grep -q ${RUNNER_NAME}; then
+if helm list -n ${NAMESPACE} 2>/dev/null | grep -q ${RUNNER_NAME}; then
     helm uninstall ${RUNNER_NAME} -n ${NAMESPACE}
     echo "✅ GitLab Runner 제거 완료"
 else
@@ -52,23 +51,15 @@ fi
 
 # PersistentVolume 정리 (수동 설정된 경우)
 echo "💾 PersistentVolume 정리 중..."
-kubectl delete pv gitlab-config-pv gitlab-logs-pv gitlab-data-pv --ignore-not-found=true
-echo "✅ PersistentVolume 정리 완료"
+kubectl delete pv gitlab-config-pv gitlab-logs-pv gitlab-data-pv --ignore-not-found=true 2>/dev/null && echo "✅ PersistentVolume 정리 완료" || echo "💡 정리할 PersistentVolume이 없습니다."
 
-# 데이터 디렉토리 정리 옵션
-echo ""
-read -p "📁 호스트 데이터 디렉토리도 삭제하시겠습니까? (${GITLAB_DATA_DIR}) (y/N): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if [ -d "${GITLAB_DATA_DIR}" ]; then
-        echo "🗂️  데이터 디렉토리 삭제 중..."
-        rm -rf "${GITLAB_DATA_DIR}"
-        echo "✅ 데이터 디렉토리 삭제 완료"
-    else
-        echo "💡 데이터 디렉토리가 존재하지 않습니다."
-    fi
+# PVC 정리 (동적 프로비저닝된 경우)
+echo "💾 PersistentVolumeClaim 정리 중..."
+if kubectl get pvc -n ${NAMESPACE} &> /dev/null; then
+    kubectl delete pvc --all -n ${NAMESPACE} --ignore-not-found=true
+    echo "✅ PersistentVolumeClaim 정리 완료"
 else
-    echo "💾 데이터 디렉토리가 보존되었습니다: ${GITLAB_DATA_DIR}"
+    echo "💡 정리할 PersistentVolumeClaim이 없습니다."
 fi
 
 # Docker 이미지 정리 옵션
@@ -79,13 +70,11 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "🧹 Docker 이미지 정리 중..."
     
     # GitLab 관련 이미지 제거
-    docker rmi gitlab/gitlab-ce:latest 2>/dev/null || echo "GitLab CE 이미지가 없습니다."
-    docker rmi gitlab/gitlab-runner:v17.11.3 2>/dev/null || echo "GitLab Runner 이미지가 없습니다."
+    docker rmi gitlab/gitlab-ce:latest 2>/dev/null && echo "   GitLab CE 이미지 제거됨" || echo "   GitLab CE 이미지가 없습니다."
+    docker rmi gitlab/gitlab-runner:v17.11.3 2>/dev/null && echo "   GitLab Runner 이미지 제거됨" || echo "   GitLab Runner 이미지가 없습니다."
     
     # 사용하지 않는 이미지 정리
-    docker image prune -f 2>/dev/null || echo "정리할 이미지가 없습니다."
-    
-    echo "✅ Docker 이미지 정리 완료"
+    docker image prune -f 2>/dev/null && echo "✅ Docker 이미지 정리 완료" || echo "💡 정리할 이미지가 없습니다."
 else
     echo "🐳 Docker 이미지가 보존되었습니다."
 fi
@@ -95,8 +84,7 @@ echo ""
 read -p "📦 GitLab Helm 저장소도 제거하시겠습니까? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    helm repo remove gitlab 2>/dev/null || echo "GitLab 저장소가 없습니다."
-    echo "✅ Helm 저장소 정리 완료"
+    helm repo remove gitlab 2>/dev/null && echo "✅ Helm 저장소 정리 완료" || echo "💡 GitLab 저장소가 없습니다."
 else
     echo "📦 Helm 저장소가 보존되었습니다."
 fi
@@ -105,29 +93,24 @@ fi
 echo ""
 echo "📋 정리 후 상태 확인:"
 echo ""
+
 echo "Kubernetes 네임스페이스:"
-kubectl get namespaces | grep ${NAMESPACE} || echo "✅ ${NAMESPACE} 네임스페이스 없음"
+kubectl get namespaces 2>/dev/null | grep ${NAMESPACE} && echo "⚠️  ${NAMESPACE} 네임스페이스가 여전히 존재합니다." || echo "✅ ${NAMESPACE} 네임스페이스 없음"
+
 echo ""
 echo "PersistentVolumes:"
-kubectl get pv | grep gitlab || echo "✅ GitLab PV 없음"
+kubectl get pv 2>/dev/null | grep gitlab && echo "⚠️  GitLab 관련 PV가 여전히 존재합니다." || echo "✅ GitLab PV 없음"
+
 echo ""
 echo "Helm 릴리스:"
-helm list -A | grep gitlab || echo "✅ GitLab Helm 릴리스 없음"
-echo ""
-echo "호스트 디렉토리:"
-if [ -d "${GITLAB_DATA_DIR}" ]; then
-    echo "📁 보존됨: ${GITLAB_DATA_DIR}"
-    ls -la "${GITLAB_DATA_DIR}/" 2>/dev/null || true
-else
-    echo "✅ 삭제됨: ${GITLAB_DATA_DIR}"
-fi
+helm list -A 2>/dev/null | grep gitlab && echo "⚠️  GitLab 관련 Helm 릴리스가 여전히 존재합니다." || echo "✅ GitLab Helm 릴리스 없음"
 
 echo ""
 echo "🎉 DevOps 환경 정리 완료!"
 echo ""
 echo "재설치하려면:"
-echo "1. ./deploy-devops-helm.sh  # GitLab 배포"
-echo "2. ./install-runner-helm.sh # Runner 설치"
+echo "1. ./deploy-helm.sh  # GitLab 배포"
+echo "2. GitLab Runner는 Helm으로 수동 설치"
 echo ""
 echo "문제가 있는 경우:"
 echo "- kubectl get all -A  # 전체 리소스 확인"

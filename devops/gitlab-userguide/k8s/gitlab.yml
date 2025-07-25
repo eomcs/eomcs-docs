@@ -1,6 +1,7 @@
 # =================================================================
 # 로컬 DevOps 환경 - GitLab만 (Runner는 Helm으로 별도 설치)
 # 포트: 8929 (HTTP), 2222 (SSH)
+# 내부 저장소 사용 (외부 디렉토리 의존성 제거)
 # =================================================================
 
 # GitLab Namespace
@@ -65,51 +66,50 @@ data:
     redis_exporter['enable'] = false
     postgres_exporter['enable'] = false
     gitlab_exporter['enable'] = false
+
+    # Gitaly 안정성 설정 추가
+    gitaly['enable'] = true
+    gitaly['configuration'] = {
+      'logging' => {
+        'level' => 'warn',
+        'format' => 'json'
+      },
+      'storage' => [
+        {
+          'name' => 'default',
+          'path' => '/var/opt/gitlab/git-data'
+        }
+      ]
+    }
+
+    # 서비스 시작 지연 설정
+    gitlab_rails['db_migrate_timeout'] = 3600
+    
+    # 로그 레벨 조정 (오류 감소)
+    logging['logrotate_frequency'] = "weekly"
+    logging['logrotate_maxsize'] = "200MB"
+
+    # 권한 문제 완화
+    user['uid'] = 998
+    user['gid'] = 998
+    web_server['uid'] = 33
+    web_server['gid'] = 33
+
+    # 메모리 사용량 최적화
+    gitlab_rails['env'] = {
+      'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000'
+    }
 ---
-# GitLab PersistentVolumes (사용자 홈 디렉토리 사용)
-apiVersion: v1
-kind: PersistentVolume
+# GitLab StorageClass (로컬 저장소용)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: gitlab-config-pv
-spec:
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /Users/eomjinyoung/gitlab-devops/config
-    type: DirectoryOrCreate
-  storageClassName: manual
+  name: gitlab-local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: gitlab-logs-pv
-spec:
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /Users/eomjinyoung/gitlab-devops/logs
-    type: DirectoryOrCreate
-  storageClassName: manual
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: gitlab-data-pv
-spec:
-  capacity:
-    storage: 10Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /Users/eomjinyoung/gitlab-devops/data
-    type: DirectoryOrCreate
-  storageClassName: manual
----
-# GitLab PersistentVolumeClaims
+# GitLab PersistentVolumeClaims (Dynamic Provisioning)
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -121,7 +121,7 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: manual
+  # StorageClass 지정하지 않으면 기본 동적 프로비저닝 사용
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -134,7 +134,6 @@ spec:
   resources:
     requests:
       storage: 2Gi
-  storageClassName: manual
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -147,7 +146,6 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: manual
 ---
 # GitLab RBAC
 apiVersion: v1
@@ -216,6 +214,29 @@ spec:
       securityContext:
         fsGroup: 998
         runAsUser: 0
+        runAsNonRoot: false
+        supplementalGroups: [998, 33]
+      initContainers:
+        - name: fix-permissions
+          image: busybox:latest
+          command: ['sh', '-c']
+          args:
+            - |
+              chown -R 998:998 /var/opt/gitlab || true
+              chown -R 998:998 /var/log/gitlab || true
+              chown -R 998:998 /etc/gitlab || true
+              chmod -R 755 /var/opt/gitlab || true
+              chmod -R 755 /var/log/gitlab || true
+              chmod -R 755 /etc/gitlab || true
+          volumeMounts:
+            - name: gitlab-config
+              mountPath: /etc/gitlab
+            - name: gitlab-logs
+              mountPath: /var/log/gitlab
+            - name: gitlab-data
+              mountPath: /var/opt/gitlab
+          securityContext:
+            runAsUser: 0
       containers:
         - name: gitlab
           image: gitlab/gitlab-ce:latest
@@ -244,27 +265,27 @@ spec:
               mountPath: /dev/shm
           resources:
             requests:
-              memory: "4Gi"
-              cpu: "1"
+              memory: "6Gi"
+              cpu: "2"
             limits:
-              memory: "8Gi"
-              cpu: "4"
+              memory: "12Gi"
+              cpu: "6"
           livenessProbe:
             httpGet:
-              path: /
+              path: /-/health
               port: 80
-            initialDelaySeconds: 1800
+            initialDelaySeconds: 2400
             periodSeconds: 300
             timeoutSeconds: 60
-            failureThreshold: 3
+            failureThreshold: 5
           readinessProbe:
             httpGet:
-              path: /
+              path: /-/readiness
               port: 80
-            initialDelaySeconds: 1200
+            initialDelaySeconds: 1800
             periodSeconds: 60
             timeoutSeconds: 30
-            failureThreshold: 5
+            failureThreshold: 10
       volumes:
         - name: gitlab-config
           persistentVolumeClaim:

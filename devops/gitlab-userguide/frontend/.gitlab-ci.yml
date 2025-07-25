@@ -89,8 +89,8 @@ deploy:
     - echo "Checking deployment status..."
     - kubectl rollout status deployment/${APP_NAME} -n ${KUBE_NAMESPACE} --timeout=300s
     - kubectl get pods -l app=${APP_NAME} -n ${KUBE_NAMESPACE}
-    - kubectl get service ${APP_NAME}-service -n ${KUBE_NAMESPACE}
-    - kubectl get ingress ${APP_NAME}-ingress -n ${KUBE_NAMESPACE}
+    - kubectl get service ${APP_NAME}-service-nodeport -n ${KUBE_NAMESPACE}
+    - kubectl get service ${APP_NAME}-service-ingress -n ${KUBE_NAMESPACE}
   environment:
     name: production
     url: http://hello-ui.local
@@ -127,7 +127,6 @@ cleanup:
     - echo "Deleting resources by labels..."
     - kubectl delete deployment -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
     - kubectl delete service -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
-    - kubectl delete ingress -l app=${APP_NAME} -n ${KUBE_NAMESPACE} --ignore-not-found=true
 
     # ConfigMap 삭제
     - echo "Deleting ConfigMap..."
@@ -135,7 +134,7 @@ cleanup:
 
     # 정리 상태 확인
     - echo "Checking remaining resources after cleanup..."
-    - kubectl get pods,svc,ingress,configmap -l app=${APP_NAME} -n ${KUBE_NAMESPACE} || echo "All resources deleted successfully!"
+    - kubectl get pods,svc,configmap -l app=${APP_NAME} -n ${KUBE_NAMESPACE} || echo "All resources deleted successfully!"
 
     - echo "=== Cleanup completed! ==="
   environment:

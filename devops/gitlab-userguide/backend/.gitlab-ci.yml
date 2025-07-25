@@ -29,6 +29,9 @@ build-job:
   variables:
     GRADLE_OPTS: "-Dorg.gradle.daemon=false -Xmx2g -XX:MaxMetaspaceSize=512m"
     JAVA_OPTS: "-XX:+UseContainerSupport"
+  before_script:
+    - chmod +x ./gradlew
+    - ls -la ./gradlew || echo "gradlew file not found"  
   script:
     - echo "Available memory :"
     - free -h
@@ -44,6 +47,9 @@ build-job:
 test-job1:
   stage: test
   image: eclipse-temurin:17-jdk
+  before_script:
+    - chmod +x ./gradlew
+    - ls -la ./gradlew || echo "gradlew file not found"  
   script:
     - echo "This job tests something"
     - ./gradlew test --no-daemon
@@ -125,9 +131,10 @@ deploy-k8s:
     - kubectl rollout status deployment/$APP_NAME -n default --timeout=60s || echo "Rollout status failed"
     - echo "Getting final status in default namespace:"
     - kubectl get pods -l app=$APP_NAME -n default
-    - kubectl get service $APP_NAME-service -n default
+    - kubectl get service $APP_NAME-service-nodeport -n default
+    - kubectl get service $APP_NAME-service-ingress -n default
     - echo "Deployment process completed!"
-    - echo "Access your application at http://localhost:8080 (if using Docker Desktop)"
+    - echo "Access your application at http://localhost:8080 or http://localhost:30080"
   environment:
     name: production
     url: http://localhost
@@ -155,12 +162,11 @@ check-deployment:
     - kubectl get deployments
     - kubectl get pods -l app=$APP_NAME -o wide
     - kubectl get services
-    - kubectl describe service $APP_NAME-service
+    - kubectl describe service $APP_NAME-service-nodeport
+    - kubectl describe service $APP_NAME-service-ingress
     - echo "Checking pod logs..."
     - kubectl logs -l app=$APP_NAME --tail=50
-    - echo "Port forwarding info;"
-    - echo "Run locally; kubectl port-forward service/$APP_NAME-service 8080:80"
-    - echo "Then access; http://localhost:8080"
+    - echo "Access; http://localhost:8080 or http://localhost:30080"
   dependencies:
     - deploy-k8s # deploy-k8s 완료 후 실행
   rules:

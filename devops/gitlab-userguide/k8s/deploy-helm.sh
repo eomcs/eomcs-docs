@@ -7,13 +7,12 @@ NAMESPACE="devops"
 GITLAB_PORT="8929"
 SSH_PORT="2222"
 CURRENT_USER=$(whoami)
-GITLAB_DATA_DIR="/Users/${CURRENT_USER}/gitlab-devops"
 
 echo "=== 로컬 DevOps 환경 배포 시작 (Helm 방식) ==="
 echo "사용자: ${CURRENT_USER}"
 echo "GitLab: http://localhost:${GITLAB_PORT}"
 echo "SSH: localhost:${SSH_PORT}"
-echo "데이터 디렉토리: ${GITLAB_DATA_DIR}"
+echo "저장소: Kubernetes 내부 동적 프로비저닝"
 echo ""
 
 # 필수 도구 확인
@@ -34,29 +33,6 @@ if ! command -v helm &> /dev/null; then
     exit 1
 fi
 echo "✅ Helm 설치 확인 ($(helm version --short))"
-
-# 호스트 디렉토리 생성
-echo "📁 GitLab 데이터 디렉토리 준비 중..."
-if [ ! -d "${GITLAB_DATA_DIR}" ]; then
-    echo "   디렉토리 생성: ${GITLAB_DATA_DIR}"
-    mkdir -p "${GITLAB_DATA_DIR}"/{config,logs,data}
-    chmod -R 755 "${GITLAB_DATA_DIR}"
-    echo "   ✅ 디렉토리 생성 완료"
-else
-    echo "   ✅ 디렉토리 이미 존재"
-    # 하위 디렉토리 확인 및 생성
-    for subdir in config logs data; do
-        if [ ! -d "${GITLAB_DATA_DIR}/${subdir}" ]; then
-            mkdir -p "${GITLAB_DATA_DIR}/${subdir}"
-            echo "   📁 생성: ${GITLAB_DATA_DIR}/${subdir}"
-        fi
-    done
-fi
-
-# 권한 설정
-echo "🔐 디렉토리 권한 설정 중..."
-chmod -R 755 "${GITLAB_DATA_DIR}"
-echo "   ✅ 권한 설정 완료"
 
 # GitLab 배포
 echo "🚀 GitLab 배포 중..."
@@ -99,8 +75,8 @@ check_status() {
     echo ""
     kubectl get svc -n ${NAMESPACE}
     echo ""
-    echo "💾 호스트 데이터 디렉토리:"
-    ls -la "${GITLAB_DATA_DIR}/"
+    echo "💾 Kubernetes 저장소 상태:"
+    kubectl get pvc -n ${NAMESPACE}
 }
 
 # 초기 상태 확인
