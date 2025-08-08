@@ -68,9 +68,18 @@
   ```
 
 - **GitLab** `root` 사용자 암호 알아내기
-  ```bash
-  sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
-  ```
+  - 외부에서 암호 조회하는 방법
+    ```bash
+    sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
+    ```
+  - 컨테이너에 직접 접속하는 방법
+    ```bash
+    # 컨테이너에 접속한다
+    sudo docker exec -it gitlab /bin/bash
+    
+    # 컨테이너에서 root 암호를 직접 확인한다.
+    cat /etc/gitlab/initial_root_password
+    ```
 - **GitLab** `root` 사용자 암호 수동으로 변경하기
   ```bash
   docker exec -it gitlab gitlab-rails console
@@ -82,6 +91,17 @@
   user.save!
   exit
   ```
+
+### `root` 사용자 암호 변경
+
+- `root` 사용자로 로그인 > `Edit Profile` 선택 > `Password` 변경
+
+### `user1` 일반 사용자 가입 및 승인
+
+- `user1` 아이디로 가입
+- `root` 사용자가 `user1` 사용자 승인
+  - 화면 하단 `Admin` 버튼 클릭 > `Overview` 노드 > `Users` 클릭 
+  - 목록에서 `user1` 항목의 맨 오른쪽 `...` 선택 > `Approve` 클릭
 
 
 ## GitLab Runner 설치
@@ -107,7 +127,7 @@
 
   - GitLab 웹 UI에서 등록 토큰 준비
     - 프로젝트 레벨: Settings > CI/CD > Runners > Set up a specific Runner manually
-    - 인스턴스 레벨 (Admin only): Admin Area > Runners > Registration token
+    - 인스턴스 레벨 (Admin only): Admin Area > CI/CD > Runners > 화면 Top|Right `...` 클릭 > Registration token
     - 예) `qREXsus5Uqp3F52Vey6L`
 
 - 설정파일 참조

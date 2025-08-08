@@ -4,21 +4,29 @@
 
 ### 쿠버네티스 설정 정보 준비(root 사용자)
 
+GitLab CI/CD 작업에서 쿠버네티스 서버를 사용할 때 kubectl 명령을 실행한다. kubectl 명령을 실행할 때 쿠버네티스 서버 정보가 필요하다. 그 정보를 설정하는 것이다.
+
+- 쿠버네티스 설정 파일
+  - Kubernetes 클러스터에 접근하기 위한 설정 파일입니다.
+  - 파일 위치
+    - Linux/macOS: `~/.kube/config`
+    - Windows: `%USERPROFILE%\.kube\config`
+    - 환경변수 설정: KUBECONFIG 환경변수로 경로 변경 가능
+  - GitLab에서 `kubectl` 사용하려면 해당 내용을 GitLab 서버에 환경변수로 등록해야 한다.
 - 로컬에서 kubeconfig Base64 인코딩
+  - GitLab 서버에 등록할 때 Base64로 인코딩 해야 한다.
+  ```bash
+  # macOS, Linux
+  cat ~/.kube/config | base64 -w 0
 
-```bash
-# macOS, Linux
-cat ~/.kube/config | base64 -w 0
+  # Windows 11(PowerShell)
+  [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Path "$env:USERPROFILE\.kube\config" -Raw)))
 
-# Windows 11
-[Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content -Path "$env:USERPROFILE\.kube\config" -Raw)))
-
-# 또는(macOS, Linux)
-kubectl config view --raw --flatten | \
-  sed 's|127.0.0.1:6443|kubernetes.docker.internal:6443|g' | \
-  base64 -w 0
-```
-
+  # 또는(macOS, Linux)
+  kubectl config view --raw --flatten | \
+    sed 's|127.0.0.1:6443|kubernetes.docker.internal:6443|g' | \
+    base64 -w 0
+  ```
 - GitLab root 사용자의 관리자 페이지
   - Settings => CI/CD => Variables 페이지 => 변수 추가
     - Key: KUBE_CONFIG
