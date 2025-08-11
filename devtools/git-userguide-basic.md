@@ -617,7 +617,7 @@ $ git fetch origin
 
 ### git pull
 
-- `git pull` = `git fetch origin` + Merge
+- `git pull` = `git fetch origin` + `git merge origin/master`
 - 즉 원격 저장소의 데이터를 가져온 후에 로컬 파일과 합친다.
 - 원격 저장소를 clone 하게 되면 로컬 저장소에 master 브랜치가 생긴다.
 - 로컬 저장소의 master 브랜치는 자동으로 원력 저장소의 master 브랜치를 추적한다.
