@@ -540,22 +540,6 @@ $ git add ex04.html
 $ git commit --amend -m 'ex03 및 ex04 변경'
 ```
 
-### git reset HEAD [파일]
-
-- `git add`를 실행하면 Staging Area에 해당 파일이 기록되어 커밋할 스냅샷으로 묶인다.
-- 스냅샷으로 묶인 파일들은 커밋할 때 저장소에 그 변경 내용이 보관된다.
-- Staging Area의 현재 스냅샷에서 빼고 싶은 파일이 있다면 이 명령을 사용한다.
-- 이 명령을 수행하면 변경된 상태이지만 아직 Staging Area의 현재 스냅샷에 포함되지 않은 파일이 된다.
-
-```
-예1)
-'ex03.html'과 'ex04.html' 파일을 변경한 후 Staging Area에 넣기
-$ git add ex03.html ex04.html
-
-Staging Area에 넣은 두 개 파일 중에서 ex03.html은 제외하기
-$ git reset HEAD ex03.html
-```
-
 ### git remote
 
 - 로컬 저장소에 연결된 원격 저장소를 확인하거나 추가한다.
