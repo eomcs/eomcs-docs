@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14.19-alpine3.21
+    container_name: postgres-14
+    restart: always
+    environment:
+      # 데이터베이스 설정
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+      
+      # 타임존 설정 (선택사항)
+      TZ: Asia/Seoul
+      PGTZ: Asia/Seoul
+    ports:
+      # 호스트:컨테이너 포트 매핑
+      - "5432:5432"
+    volumes:
+      # 데이터 영구 저장을 위한 볼륨 마운트
+      - postgres_data:/var/lib/postgresql/data
+      
+      # 초기화 SQL 스크립트 (선택사항)
+      # - ./init-scripts:/docker-entrypoint-initdb.d
+      
+      # 커스텀 PostgreSQL 설정 파일 (선택사항)
+      # - ./postgresql.conf:/etc/postgresql/postgresql.conf
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
