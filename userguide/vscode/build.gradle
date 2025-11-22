@@ -1,0 +1,85 @@
+plugins {
+    id 'application'
+    id("com.diffplug.spotless") version "8.1.0"
+    id 'checkstyle'
+    id 'pmd'
+    id("com.github.spotbugs") version "6.4.5"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation libs.guava
+
+    // SpotBugs 보안 분석 플러그인(FindSecBugs) 추가
+    spotbugsPlugins("com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'org.example.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+spotless {
+  java {
+    googleJavaFormat()
+  }
+}
+
+checkstyle {
+  toolVersion = '12.1.2'  // Checkstyle 버전 지정
+  configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")  // 규칙 파일 경로 지정
+} 
+
+tasks.withType(Checkstyle) {
+  reports {
+    xml.required = false
+    html.required = true  // HTML 리포트 생성
+  }
+}
+
+pmd {
+  consoleOutput = true    // 콘솔에 결과 표시
+  toolVersion = "7.16.0"  // 원하는 PMD 최신 버전
+  ignoreFailures = false  // 실패 시 빌드 실패 (true: 경고만 표시)
+
+  // 실무에서는 기본 룰셋을 비활성화하고 커스컴 룰셋을 사용하는 것이 일반적이다.
+  ruleSets = []           // 기본 룰셋 비활성화
+  ruleSetFiles = files("${rootProject.projectDir}/config/pmd/ruleset.xml") // 커스텀 룰
+}
+
+tasks.withType(Pmd) {
+  reports {
+    xml.required = false
+    html.required = true  // HTML 리포트 생성
+  }
+}
+
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.Confidence
+spotbugs {
+  // toolVersion = '4.9.8'  // SpotBugs 엔진 버전. 지정하지 않으면 플러그인에서 자동 선택
+  ignoreFailures = false  // 실패 시 빌드 실패 (true: 경고만 표시)
+  effort = Effort.valueOf("MAX")  // 분석 노력 수준 (min, default, max)
+  reportLevel = Confidence.valueOf("MEDIUM")  // 보고서 수준 (high, default, low)
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+  reports {
+    xml.required = false
+    html.required = true    // HTML 리포트 생성
+  }
+}

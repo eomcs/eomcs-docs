@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="Custom PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>
+        Minimal, practical PMD ruleset for Spring Boot Gradle project:
+        - unused 변수 / 필드 / 메서드
+        - 간단한 버그 / 코드 스멜
+    </description>
+
+    <!-- 가장 실무에서 많이 필요한 규칙들 -->
+    <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+
+    <!-- null 대입 관련 (있음) -->
+    <rule ref="category/java/errorprone.xml/NullAssignment"/>
+
+    <!-- 삼항연산자 단순화 (design 카테고리) -->
+    <rule ref="category/java/design.xml/SimplifiedTernary"/>
+
+    <!-- 중복 literal, 불필요한 비교 등 -->
+    <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals"/>
+    <rule ref="category/java/errorprone.xml/AssignmentInOperand"/>
+
+    <!-- 코딩 스타일 약간 -->
+    <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"/>
+
+</ruleset>
+
