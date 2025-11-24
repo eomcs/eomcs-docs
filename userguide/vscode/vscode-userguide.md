@@ -313,7 +313,7 @@ PMD는 Java 코드에서 다음과 같은 문제를 검출하는 정적 분석 �
 
 ### 3.4 SpotBugs
 
-Java 바이트코드를 분석해서 진짜 버그 가능한 코드를 잡아주는 정적 분석기이다.
+Java 바이트코드를 분석해서 진짜 버그 가능한 코드를 잡아주는 정적 분석기이다. 컴파일러나 Checkstyle, PMD에서도 잡지 못하는 버그를 잡아준다. 즉, SonarLint/PMD보다 더 깊은 버그 탐지 능력을 갖는 도구다.
 
 - NPE 위험
 - 잘못된 equals/hashCode
@@ -324,9 +324,20 @@ Java 바이트코드를 분석해서 진짜 버그 가능한 코드를 잡아주
 
 등을 매우 정확하게 잡는다.
 
-SonarLint/PMD보다 더 깊은 버그 탐지 능력을 갖는 도구다.
+#### 3.4.1 기대효과
 
-#### 3.4.1 Gradle에 SpotBugs 플러그인 적용하기
+“프로덕션 출시 후 사고 방지” 측면에서 매우 중요하다.
+특히 다음과 같은 버그를 사전에 제거할 수 있다:
+
+- NPE 기반 장애
+- 비정상적인 스레드 경쟁으로 인한 Race Condition
+- 잘못된 동기화
+- 보안 취약점 가능성
+- 해시 기반 자료구조의 오작동
+
+개발 단계에서 SpotBugs를 돌리는 것은 “안전 장치” 같은 역할이다.
+
+#### 3.4.2 Gradle에 SpotBugs 플러그인 적용하기
 
 - `build.gradle` 파일에 다음 내용 추가:
 
@@ -375,13 +386,36 @@ SonarLint/PMD보다 더 깊은 버그 탐지 능력을 갖는 도구다.
   ```
 - 리포트 위치: `build/reports/spotbugs/`
 
-## build.gradle 예시 파일
+## 4. build.gradle 예시 파일
 
 - [build.gradle 예시 파일 보기](build.gradle)
 
-## 단축키
+## 5. CI (GitHub Actions, GitLab CI 등) 파이프라인
 
-### auto indent
+```bash
+./gradlew clean
+./gradlew spotlessCheck
+./gradlew check
+./gradlew build
+```
+
+- spotlessCheck 실패 → 포맷 안 맞는 코드가 있다는 뜻 (개발자가 spotlessApply 해야 함)
+- check 실패 → Checkstyle/PMD/SpotBugs/test 중 하나에서 오류
+- build → jar/war 생성
+
+### 5.1 역할 정리:
+
+- Spotless: 코드 모양을 자동으로 예쁘게 맞춰주는 포매터
+- Checkstyle: 코딩 컨벤션 & 룰 위반 스타일 검사
+- PMD: 나쁜 코드 패턴 / 코드 냄새 정적 분석
+- SpotBugs: 바이트코드 기반으로 버그 가능성 높은 부분 탐지
+- 개발할 때 → spotlessApply로 포맷 맞추고
+- 검사/CI 할 때 → spotlessCheck, check (→ 내부적으로 Checkstyle/PMD/SpotBugs 등 실행)
+- 최종 결과물 만들 때 → build
+
+## 6. 단축키
+
+### 6.1 auto indent
 
 - Windows : Shift + Alt + F
 - macOS : Shift + Option + F
