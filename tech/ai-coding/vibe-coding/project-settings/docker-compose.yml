@@ -12,6 +12,7 @@ services:
       - ~/.claude:/root/.claude # Claude 인증 공유
       - ~/.codex:/root/.codex # Codex 인증
       - ~/.gemini:/root/.gemini # Gemini 인증
+      - ~/.cursor:/root/.cursor # Cursor 인증
       - ~/.m2:/root/.m2 # Maven 로컬 저장소
       - ~/.gradle:/root/.gradle # Gradle 캐시
 
@@ -22,8 +23,9 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       # 또는
       # - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - CURSOR_API_KEY=${CURSOR_API_KEY:-}
 
-      # 나중에 Spring Boot(8080), Next.js(3000) 실행 대비
+    # 나중에 Spring Boot(8080), Next.js(3000) 실행 대비
     ports:
       - "8080:8080" # Spring Boot
       - "9000:9000" # 디버깅 포트

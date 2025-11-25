@@ -67,9 +67,6 @@ ENV PATH="/usr/local/gradle/gradle-latest/bin:${PATH}"
 # Claude Code CLI 설치
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
-# PATH에 Claude Code 추가
-ENV PATH="/root/.local/bin:${PATH}"
-
 # Claude Code 기본 설정 디렉토리 생성
 RUN mkdir -p /root/.claude
 
@@ -78,6 +75,12 @@ RUN . "$NVM_DIR/nvm.sh" && npm install -g @openai/codex
 
 # Google Gemini CLI 설치
 RUN . "$NVM_DIR/nvm.sh" && npm install -g @google/gemini-cli
+
+# Cursor CLI 설치
+RUN curl https://cursor.com/install -fsS | bash
+
+# PATH에 Claude Code 추가
+ENV PATH="/root/.local/bin:${PATH}"
 
 # Gradle 설정 디렉토리 생성 및 최적화
 RUN mkdir -p /root/.gradle && \
@@ -119,6 +122,7 @@ RUN echo "=== Installed Versions ===" && \
     claude --version && \
     . "$NVM_DIR/nvm.sh" && codex --version && \
     . "$NVM_DIR/nvm.sh" && gemini --version && \
+    cursor-agent --version && \
     git --version
 
 HEALTHCHECK --interval=30s --timeout=3s \

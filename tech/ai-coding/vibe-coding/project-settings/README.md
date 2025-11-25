@@ -151,3 +151,23 @@ gemini
 ```bash
 gemini
 ```
+
+### 3.4 Cursor AI Agent 사용
+
+컨테이너 쉘에서 `cursor-agent` 명령어로 Cursor AI Agent를 실행한다:
+
+```bash
+cursor-agent
+# 로그인 링크를 복사하여 호스트 OS의 브라우저에서 열기
+# 로그인을 수행한다.
+```
+
+호스트 OS에서 cursor CLI 설치 및 사용:
+
+```bash
+# Cursor CLI 설치
+curl https://cursor.com/install -fsS | bash
+
+# Cursor CLI 사용
+cursor-agent
+```
