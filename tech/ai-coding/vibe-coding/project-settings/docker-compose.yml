@@ -1,0 +1,33 @@
+services:
+  vibe-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile # Dockerfile 이름이 다르면 여기만 수정
+    container_name: vibe-dev
+    working_dir: /workspace
+
+    # Host 프로젝트 폴더 ↔ 컨테이너 /workspace 공유
+    volumes:
+      - ./:/workspace
+      - ~/.claude:/root/.claude # Claude 인증 공유
+      - ~/.codex:/root/.codex # Codex 인증
+      - ~/.gemini:/root/.gemini # Gemini 인증
+      - ~/.m2:/root/.m2 # Maven 로컬 저장소
+      - ~/.gradle:/root/.gradle # Gradle 캐시
+
+    environment:
+      # .env 파일에 정의되어 있으면 사용, 없으면 무시
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      # 또는
+      # - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+      # 나중에 Spring Boot(8080), Next.js(3000) 실행 대비
+    ports:
+      - "8080:8080" # Spring Boot
+      - "9000:9000" # 디버깅 포트
+
+    # 터미널로 붙어서 쓸 수 있게
+    tty: true
+    stdin_open: true
