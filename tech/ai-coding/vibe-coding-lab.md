@@ -163,7 +163,6 @@
 화면에 출력할 내용은 예보구역코드(REG_ID), 발효시각(TM_EF), 기온(TA), 강수확률(ST), 하늘상태(SKY), 강수유무(PREP), 발표시각(TM_FC) 이다.
 ```
 ```
-[프롬프트]
 다음 REST API는 예보구역코드 목록을 출력한다. 
 이 API 응답 결과를 참고하여 날씨 조회하는 화면에서 REG_ID 대신에 REG_NAME을 출력해줘.
 - API: https://apihub.kma.go.kr/api/typ01/url/fct_shrt_reg.php?tmfc=0&authKey=발급받은인증번호
