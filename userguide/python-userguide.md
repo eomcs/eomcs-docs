@@ -1,5 +1,15 @@
 # Python 도구 준비
 
+## Anaconda 설치
+
+- https://www.anaconda.com/download 사이트에서 OS에 맞는 Anaconda 다운로드
+- 설치 프로그래램을 실행
+- 설치 완료 후 확인
+  ```bash
+  conda --version
+  ```
+
+
 ## pyenv + conda 설치
 
 ```bash
