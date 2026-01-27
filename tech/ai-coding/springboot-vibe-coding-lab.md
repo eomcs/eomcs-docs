@@ -833,3 +833,71 @@ schema.sql
 의 users 테이블 password 컬럼 길이가 암호화된 해시값(약 60자 이상)을 충분히 담을 수 있는지 확인한다. (이미 VARCHAR(200)인 경우 유지)
 ```
 
+### 실습 12 - Spring Security 도입하기
+
+```
+현재 프로젝트에 Spring Security를 도입하여 인증 및 인가 기능을 구현하고 싶다.
+다음 요구사항을 반영한 프롬프트를 작성해줘.
+- 사용자 인증: Spring Security의 인증 매커니즘을 사용하여 로그인 및 로그아웃 기능 구현
+- 비밀번호 암호화: BCryptPasswordEncoder를 사용하여 비밀번호 암호화
+- 인가(Authorization): 특정 URL 경로에 대한 접근 제어 설정
+- 세션 관리: 동시 세션 제어 및 세션 고정 보호 설정
+- CSRF 보호: CSRF 공격 방지를 위한 설정 활성화
+- 커스텀 로그인 페이지: 기존 로그인 페이지를 Spring Security와 통합 
+```
+
+```
+# VibeApp Spring Security 통합 구현 요청
+
+## 프로젝트 환경:
+PROJECT_SPEC.md 파일에 명시된 현재 프로젝트 상태를 기준으로 작업을 진행해줘.
+
+## 요구사항 상세:
+
+### Spring Security 의존성 추가 및 기본 설정:
+
+- build.gradle에 spring-boot-starter-security 의존성을 추가해줘.
+- SecurityConfig 설정을 통해 Security Filter Chain을 구성해줘.
+
+### 사용자 인증 (Authentication):
+
+- Spring Security의 표준 인증 메커니즘을 사용해줘.
+- 기존 User 엔티티와 UserRepository를 활용하여 UserDetailsService 및 UserDetails를 구현해줘.
+- 사용자 식별값은 email을 사용해줘.
+- 로그아웃 기능을 구현하고, 로그아웃 시 세션 무효화 및 홈 화면(/) 리다이렉트를 처리해줘.
+
+### 비밀번호 암호화:
+
+- BCryptPasswordEncoder를 PasswordEncoder 빈으로 등록하여 사용해줘.
+- 회원가입 시 비밀번호를 암호화하여 저장하고, 로그인 시 암호화된 비밀번호와 비교하도록 설정해줘.
+
+### 인가 (Authorization):
+
+- 특정 URL 경로에 대한 접근 제어를 설정해줘.
+    - 전체 허용: /, /signup, /login, /css/**, /js/**, /images/**, /h2-console/**
+    - 인증 필요: /posts/** (게시글 작성, 수정, 삭제, 상세 조회 등 모든 게시글 관련 활동)
+
+### 세션 관리 (Session Management):
+
+- 동시 세션 제어: 사용자당 최대 세션 수를 1개로 제한하고, 기존 세션을 만료시키는 방식을 적용해줘.
+- 세션 고정 보호: 로그인 시 세션 ID를 새로 생성하는 migrateSession 설정을 적용해줘.
+
+### CSRF 보호:
+
+- CSRF 공격 방지를 위한 설정을 활성화해줘.
+- 개발 편의를 위해 /h2-console/** 경로는 CSRF 검사에서 제외해줘.
+- Thymeleaf의 th:action을 사용하여 폼(Form)에서 CSRF 토큰이 자동으로 포함되도록 확인해줘.
+
+### 커스텀 로그인 페이지 통합:
+
+- 기존에 작성된 user/login.html 페이지를 Spring Security의 로그인 페이지로 지정(loginPage("/login"))해줘.
+- 로그인 성공 시 /로 리다이렉트되도록 설정해줘.
+
+### 기존 코드 정리 (Legacy Cleanup):
+
+- UserController에서 HttpSession을 직접 관리하던 로그인/로그아웃 로직을 제거해줘.
+- 기존의 LoginInterceptor 및 WebConfig 내 인터셉터 등록 코드를 Spring Security 설정으로 대체하며 삭제해줘.
+- WebConfig에 선언된 PasswordEncoder 빈을 SecurityConfig로 이동해줘.
+- 위 요구사항을 바탕으로 build.gradle, SecurityConfig, UserDetailsService 구현체, 그리고 수정이 필요한 Controller 및 View 파일들을 순서대로 작성해줘.
+```
+
