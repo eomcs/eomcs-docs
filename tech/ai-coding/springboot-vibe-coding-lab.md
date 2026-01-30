@@ -401,6 +401,7 @@ DTO 클래스를 Java의 record 문법으로 리팩토링해줘.
     2. application.yml 설정:
         - H2 파일 모드로 설정 (jdbc:h2:file:./data/testdb)
         - H2 Console 활성화 (/h2-console)
+            - JakartaWebServlet 등록 포함
         - MyBatis 설정:
             * Mapper XML 위치: classpath:mapper/**/*.xml
             * Type aliases 패키지: com.example.vibeapp.post
