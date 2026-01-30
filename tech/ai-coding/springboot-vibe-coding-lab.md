@@ -904,12 +904,59 @@ PROJECT_SPEC.md 파일에 명시된 현재 프로젝트 상태를 기준으로 �
 ### 실습 13 - SSR 방식에서 CSR 방식으로 전환하기 
 
 ```
+현재 프로젝트를 SSR(서버 사이드 렌더링) 방식에서 CSR(클라이언트 사이드 렌더링) 방식으로 전환하고 싶다. 다음 요구사항을 반영한 실행 계획을 작성해줘.
+- Controller 클래스:
+    - @Controller → @RestController 변경
+    - ResponseEntity 사용하여 JSON 응답 반환
+    - REST API 설계 원칙에 따라 엔드포인트 설계
+    - REST API 엔드포인트 예시:
+        - 게시글 목록 조회: GET /api/posts
+        - 게시글 상세 조회: GET /api/posts/{no}
+        - 새 게시글 등록: POST /api/posts
+        - 게시글 수정: PATCH /api/posts/{no}
+        - 게시글 삭제: DELETE /api/posts/{no}
+- 예외 처리: 
+    - @RestControllerAdvice 사용하여 전역 예외 처리
+    - JSON 형식으로 에러 응답 반환
+- 프론트엔드:
+    - 기존의 Thymeleaf 뷰 템플릿을 정적 리소스 파일(HTML, CSS, JS)로 변경
+    - Fetch API를 사용하여 REST API와 통신
+    - Thymeleaf 뷰 템플릿 제거
 ```
 
-### 실습 14 - REST API 인증 전략(JWT)
+### 실습 14 - 토큰(JWT) 기반 인증 방식으로 전환하기
 
- 
-### 실습 15 - CORS·보안 설정 심화
+```
+현재 프로젝트의 인증 방식을 세션 기반에서 토큰(JWT) 기반 인증 방식으로 변경하려 한다.
+예시 프롬프트를 작성해줘.
+```
 
+```
+요청: 현재 프로젝트의 세션 기반 인증을 JWT 기반 인증으로 전환해줘
 
-### 실습 16 - Frontend 프레임워크(React/Next.js) 연동
+1. 개요 
+- 현재 HttpSession을 사용하는 세션 기반 인증 방식을 JWT(JSON Web Token) 기반의 무상태(Stateless) 인증 방식으로 변경하고 싶어. 프론트엔드와 백엔드 모두에 필요한 작업을 수행해줘.
+
+2. 백엔드 요구사항
+
+- 의존성 추가: JWT 구현을 위해 jjwt 라이브러리(또는 최신 Java 25와 호환되는 JWT 라이브러리)를 build.gradle에 추가해줘.
+- JWT 유틸리티 클래스 구현: 토큰 생성, 검증, 클레임 추출 기능을 가진 JwtTokenProvider 클래스를 만들어줘. (Secret Key는 환경 설정 파일에서 관리하도록 설정)
+- 로그인 API 수정: 
+    - 로그인 성공 시 세션을 생성하는 대신 JWT 액세스 토큰을 생성해서 JSON 응답 바디로 반환해줘.
+    - 응답 바디 예시: {"accessToken": "...", "tokenType": "Bearer", "userName": "..."}
+- SecurityConfig 수정:
+    - 세션 정책을 SessionCreationPolicy.STATELESS로 변경해줘.
+    - 모든 요청에서 JWT를 검증할 수 있도록 JwtAuthenticationFilter를 커스텀 필터로 등록해줘.
+    - 기존의 formLogin 핸들러 대신 JWT 기반의 커스텀 필터나 컨트롤러 로직을 사용하도록 변경해줘.
+
+3. 프론트엔드 요구사항
+
+- 로그인 처리 (login.html): 로그인 성공 시 서버에서 받은 accessToken을 localStorage에 저장하도록 수정해줘.
+- 인증 요청 처리: 모든 fetch 요청 시 헤더에 Authorization: Bearer <token>을 포함하도록 공통 로직을 수정해줘.
+- 상태 체크 및 로그아웃:
+    - index.html에서 인증 상태를 체크할 때 localStorage의 토큰 유무를 확인하고, 로그아웃 시 토큰을 삭제하도록 처리해줘.
+
+4. 기타
+- 전환 과정에서 PROJECT_SPEC.md와 walkthrough.md를 최신 상태로 업데이트해줘.
+- 기존의 세션 기반 인터셉터나 설정 중 더 이상 필요 없는 코드는 정리해줘.
+```
