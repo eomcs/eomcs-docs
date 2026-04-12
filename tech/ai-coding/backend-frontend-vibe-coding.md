@@ -1,4 +1,4 @@
-# 스프링부트 바이브코딩
+# 백엔드/프론트엔드 바이브코딩
 
 ## 1. 스프링부트 프로젝트 만들기
 
@@ -199,23 +199,65 @@
 - .env 파일이나 환경 변수를 활용하여 개발 및 운영 환경에 따른 API 서버 URL 분리 전략을 구현할 수 있다.
 - 바이브코딩을 활용하여 기존 통합 구조를 완전 분리 구조로 점진적으로 리팩토링하고, CORS 및 인증 이슈를 해결할 수 있다.
 
-## 19. Next.js로 프론트엔드 아키텍처 고도화하기
+## 19. 상태 기반 UI 모델, React로 프론트엔드 리팩토링하기
 
-학습 목표
-- React 기반 프레임워크로서 Next.js의 역할과 기존 Express 정적 서버 방식과의 차이를 설명할 수 있다.
+학습 목표:
+- React의 정체성과 핵심 특징을 설명할 수 있다.
+- DOM 조작 중심 CSR 방식의 동작 원리와 한계를 설명할 수 있다.
+- 상태 기반 선언형 UI 모델의 개념과 "UI = f(state)" 원리를 설명할 수 있다.
+- DOM 조작 기반 명령형 구조와 상태 기반 선언형 구조의 차이를 비교하고 설명할 수 있다.
+- 정적 HTML 기반 페이지 리로드 구조(MPA)와 단일 진입점 기반 SPA 구조의 차이를 비교하고, 페이지 이동 방식과 상태 유지 구조의 변화를 설명할 수 있다.
+- Virtual DOM의 역할과 선언형 렌더링이 복잡도를 제어하는 방식을 설명할 수 있다.
+- Vite로 React 프로젝트를 생성하고, 기존 Express 정적 파일 서버가 Vite 개발 서버로 대체되는 구조적 차이를 설명할 수 있다.
+- 컴포넌트 기반 설계 철학을 이해하고, 기존 HTML 화면을 재사용 가능한 컴포넌트 단위로 분해할 수 있다.
+- 함수형 컴포넌트를 작성하고 JSX 문법을 사용할 수 있다.
+- Props를 활용한 단방향 데이터 흐름을 구현하고 설명할 수 있다.
+- useState를 활용하여 상태 기반 UI를 구현할 수 있다.
+- useEffect의 실행 시점과 의존성 배열의 의미를 이해하고, API 호출 시점을 제어할 수 있다.
+- 서버 상태(Server State)와 UI 상태(UI State)의 차이를 구분할 수 있다.
+- 비동기 데이터 로딩 상태(loading, error, success)를 UI에 반영할 수 있다.
+- React Router를 활용하여 클라이언트 사이드 라우팅을 구성하고, 기존 Express 라우팅 구조와의 차이를 설명할 수 있다.
+- 컴포넌트 간 상태 공유 문제(Props Drilling)를 경험하고, 전역 상태 관리 도구의 필요성을 설명할 수 있다.
+- 바이브코딩을 활용하여 기존 정적 HTML + DOM 조작 기반 CSR 프로젝트를 상태 기반 React SPA 구조로 점진적으로 리팩토링할 수 있다.
+
+## 20. TanStack Query와 Zustand로 상태 관리 구조 고도화하기
+
+학습 목표:
+- useEffect + useState 기반 서버 상태 관리의 구조적 한계(캐싱 부재, 중복 요청, 데이터 동기화 문제, 반복적인 로딩·에러 처리)를 설명하고, 서버 상태 전용 관리 도구의 필요성을 설명할 수 있다.
+- TanStack Query의 캐시 중심 아키텍처를 이해하고, 서버 상태 관리에서 발생하는 문제를 구조적으로 어떻게 해결하는지 설명할 수 있다.
+- Query Key 설계 전략을 수립하고, 데이터 의존성에 따른 캐시 무효화 전략을 설계할 수 있다.
+- Mutation과 Query Invalidation을 활용하여 데이터 변경 후 일관된 동기화 흐름을 설계하고 구현할 수 있다.
+- 낙관적 업데이트(Optimistic Update)의 적용 기준을 판단하고, 사용자 경험과 데이터 일관성 관점에서 구현할 수 있다.
+- Zustand를 활용하여 전역 UI 상태 관리 구조를 설계하고, 상태 범위와 책임을 정의할 수 있다.
+- 서버 상태와 UI 상태의 책임 분리 기준을 정의하고, 각 상태를 TanStack Query 또는 Zustand에 적절히 매핑할 수 있다.
+- 인증 토큰, 사용자 정보, 로그인 여부와 같은 상태의 저장 위치(localStorage, Query Cache, Zustand 등)를 결정하고 그 설계 이유를 설명할 수 있다.
+- TanStack Query와 Zustand를 조합하여 서버 상태와 UI 상태를 분리하는 상태 관리 아키텍처를 설계하고, 그 구조적 장점(관심사 분리, 예측 가능성, 확장성)을 설명할 수 있다.
+- 바이브코딩을 활용하여 기존 React 프로젝트의 상태 관리 구조를 분석하고, TanStack Query + Zustand 기반 구조로 리팩토링할 수 있다.
+
+## 21. Next.js로 프론트엔드 프레임워크 전환하기
+
+학습 목표:
+- React 기반 프레임워크로서 Next.js의 역할을 이해하고, 기존 React + Vite 구조와의 차이를 설명할 수 있다.
+- 순수 SPA 구조의 한계(SEO, 초기 로딩 성능, 번들 크기, 데이터 패칭 위치 문제 등)를 설명하고, Next.js가 이를 어떻게 해결하는지 설명할 수 있다.
+- 서버 중심 렌더링 구조로 전환될 때 데이터 패칭 위치와 설계 사고가 어떻게 달라지는지 설명할 수 있다.
 - Next.js에서 제공하는 렌더링 전략(SSR, SSG, CSR, RSC)의 개념을 구분하고, 각 전략의 적용 기준을 설명할 수 있다.
-- Next.js App Router 구조(app 디렉터리 기반)의 폴더 구조와 라우팅 방식을 이해하고 설계할 수 있다.
-- Layout, Template, Loading, Error 파일의 역할을 이해하고 계층적 UI 구조를 구성할 수 있다.
-- Server Component와 Client Component(RSC 포함)의 차이를 이해하고, 적절한 경계 설정 전략을 설계할 수 있다.
-- TypeScript를 기반으로 Next.js 프로젝트를 구성하고, API 응답 타입 및 컴포넌트 Props를 타입 안전하게 정의할 수 있다.
-- Tailwind CSS를 활용하여 유틸리티 클래스 기반 스타일링을 적용하고, shadcn/ui 컴포넌트를 프로젝트에 통합하여 일관된 UI를 구성할 수 있다.
-- 기존 Spring Boot REST API(OpenAPI 기반)를 연동하여 Server Component 및 Client Component 환경에서 데이터 패칭 구조를 구현할 수 있다.
-- TanStack Query를 활용하여 클라이언트 사이드 서버 상태(캐싱, 로딩, 에러 처리)를 관리하고, 서버 컴포넌트 데이터 패칭과의 역할 분리 기준을 설명할 수 있다.
-- Zustand를 활용하여 클라이언트 전역 UI 상태를 관리하고, TanStack Query와의 책임 분리 기준을 설명할 수 있다.
-- 기존 JWT + Refresh Token 기반 인증 구조를 Next.js 환경에 맞게 재구성하고, 401 발생 시 자동 재발급 흐름을 구현할 수 있다.
-- 환경 변수(.env) 및 빌드 환경 분리를 통해 개발/운영 API 서버 URL 전략을 설계할 수 있다.
-- API Route(Route Handler)를 활용하여 BFF(Backend For Frontend) 구조의 기본 개념을 이해하고, CORS 문제를 구조적으로 해결하는 전략을 설명할 수 있다.
-- Next.js의 자동 코드 스플리팅, Image/Font 최적화, dynamic import를 활용하여 성능 개선 전략을 설명하고 적용할 수 있다.
-- 바이브코딩을 활용하여 기존 Express 기반 프론트엔드 프로젝트를 Next.js 기반 구조로 점진적으로 마이그레이션하고, 구조적 차이를 분석할 수 있다.
+- Next.js App Router(app 디렉터리 기반)의 폴더 구조와 파일 기반 라우팅 방식을 이해하고, 기존 React Router 기반 구조와 비교할 수 있다.
+- Layout, Template, Loading, Error 파일의 역할을 이해하고, 계층적 UI 구조를 설계할 수 있다.
+- Server Component와 Client Component의 차이를 이해하고, "use client" 경계 설정의 의미를 설명할 수 있다.
+- Server Component 기반 데이터 패칭의 기본 원리를 이해하고, 기존 useEffect 기반 데이터 로딩과의 차이를 설명할 수 있다.
+- Next.js의 데이터 캐싱 전략(fetch cache, revalidate, dynamic rendering 등)을 이해하고, 데이터 일관성과 성능을 고려하여 적절한 캐싱 정책을 설계할 수 있다.
+- Next.js 프로젝트에서 TypeScript를 기본 설정으로 구성하고, Server Component의 async 함수 타입과 PageProps를 포함하여 API 응답 타입과 Props 타입을 안전하게 정의할 수 있다.
+- Next.js 프로젝트에서 Tailwind CSS와 shadcn/ui를 설정하고 UI 컴포넌트를 구성할 수 있다.
+- Next.js의 기본 최적화 기능(Image, Font, 자동 코드 스플리팅, 서버 사이드 번들 분리)이 적용되는 원리를 이해할 수 있다.
+- 바이브코딩을 활용하여 기존 React SPA를 Next.js App Router 기반 구조로 점진적으로 전환할 수 있다.
 
+## 22. Next.js에 TanStack Query와 Zustand 적용하기
 
+학습 목표:
+- Next.js 환경에서 Server Component 데이터 패칭과 Client Component TanStack Query 사용 범위를 구분하고,
+Client Component에서 useQuery, useMutation, Query Invalidation 패턴을 적용하여 API 데이터 동기화 흐름을 구현할 수 있다.
+- TanStack Query의 staleTime, gcTime 등 캐시 전략을 이해하고, Next.js fetch 캐싱과 별개의 캐시 레이어임을 설명할 수 있다.
+- Zustand store를 App Router 환경에서 설정할 때 서버 인스턴스 공유로 인한 전역 singleton 문제를 이해하고 안전한 초기화 패턴을 적용할 수 있다.
+- Zustand를 활용하여 모달 상태, UI 토글 상태 등 전역 UI 상태 관리 구조를 Next.js Client Component 환경에서 구성할 수 있다.
+- TanStack Query(서버 상태)와 Zustand(UI 상태)를 조합한 상태 관리 아키텍처를 Next.js App Router 환경에서 설계하고 React SPA 환경과의 차이를 설명할 수 있다.
+- 바이브코딩을 활용하여 Next.js 프로젝트에 TanStack Query와 Zustand를 단계적으로 적용하고 App Router 환경에서의 설정 특징을 확인할 수 있다.

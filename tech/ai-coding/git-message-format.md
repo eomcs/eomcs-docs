@@ -25,33 +25,12 @@
 | `ci`       | CI/CD 파이프라인 설정 변경          | ci(github): Actions 빌드 워크플로우 추가  |
 | `revert`   | 이전 커밋 되돌리기                  | revert: feat(auth): Refresh Token 도입   |
 
-## 각 단계별 커밋 예시 모음
 
-```
-# 1단계
-feat(init): 스프링부트 프로젝트 초기 구성
-
-# 4단계
-feat(post): 게시글 CRUD 기능 구현 (Collection 기반)
-
-# 9~10단계
-refactor(post): MyBatis → Spring Data JPA 리팩토링
-
-# 14단계
-feat(auth): JWT 기반 인증 구조 도입
-
-# 15단계
-feat(auth): Refresh Token 발급 및 재발급(Reissue) API 구현
-
-# 16단계
-feat(security): Redis 기반 토큰 블랙리스트 및 Rate Limiting 적용
-
-# 17단계
-feat(docs): OpenAPI(springdoc) 기반 REST API 문서 자동화 적용
-```
-
-## 핵심 원칙 3가지
+## 커밋 내용
 
 - subject는 명령문, 50자 이내 — "추가했다"가 아니라 "추가" 또는 "적용"으로 마무리한다.
+    - 예1) `feat(init): 스프링부트 프로젝트 초기 구성`
+    - 예2) `feat(post): 게시글 CRUD 기능 구현 (Collection 기반)`
 - body는 what/why 중심 — how(어떻게)는 코드가 설명하므로, 무엇을 왜 변경했는지를 쓴다.
 - scope는 변경된 도메인 기준 — post, auth, security, docs, config 등 실제 패키지 구조와 맞추면 일관성이 생긴다.
+
