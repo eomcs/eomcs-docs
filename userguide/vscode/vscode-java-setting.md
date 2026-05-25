@@ -13,7 +13,8 @@
 
 ## 2. 프로젝트 품질 관리 플러그인 설치
 
-실무에서 가장 많이 쓰는 “황금 조합”
+실무에서 가장 많이 쓰는 “황금 조합”:
+
 | 도구 | 역할 | 설명 |
 | -------------- | -------------- | -------------- |
 |google-java-format | 자동 포매팅 | 저장(ctrl+s)하면 코드 스타일 자동 통일 |
@@ -76,18 +77,19 @@ Checkstyle은 팀의 코드 스타일 규칙을 자동으로 강제하여
   - 또는 직접 `.vscode/settings.json` 파일에 다음 설정 추가:
     ```json
     {
-      "checkstyle.configurationFile": "${workspaceFolder}/checkstyle.xml"
+      "java.checkstyle.configuration": "${workspaceFolder}/checkstyle.xml"
     }
     ```
 - Checkstyle 버전 설정
   - VSCode 명령 팔레트 > "Checkstyle: Set the Checkstyle Version" 선택
-    - JRE 17+ 경우: `11.x` 이상 선택
+    - JRE 21+ 경우: `13.x` 이상 선택
+    - JRE 17+ 경우: `11.x`, `12.x` 이상 선택
     - JRE 11+ 경우: `10.x` 선택
     - JRE 8+ 경우: `7.x`, `8.x`, `9.x` 선택
   - 또는 직접 `.vscode/settings.json` 파일에 다음 설정 추가:
     ```json
     {
-      "java.checkstyle.version": "12.1.2"
+      "java.checkstyle.version": "12.3.1"
     }
     ```
 
@@ -153,6 +155,22 @@ Checkstyle은 팀의 코드 스타일 규칙을 자동으로 강제하여
     }
   }
   ```
+
+### 2.4 팀 권장 확장 설치 자동 안내
+
+- 프로젝트 루트에 `.vscode/extensions.json` 파일 생성
+- 다음 내용 추가:
+    ```json
+    // .vscode/extensions.json
+    {
+        "recommendations": [
+            "vscjava.vscode-java-pack",
+            "josevseb.google-java-format-for-vs-code",
+            "shengchen.vscode-checkstyle",
+            "SonarSource.sonarlint-vscode"
+        ]
+    }
+    ```
 
 ## 단축키
 
