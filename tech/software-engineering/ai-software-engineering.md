@@ -19,3 +19,23 @@ API --> App: 인증 결과 반환
 App --> User: 로그인 성공
 @enduml
 ```
+
+```plantuml
+@startuml
+class User {
+  - id: Long
+  - name: String
+  - email: String
+  + login()
+  + logout()
+}
+
+class Order {
+  - orderId: Long
+  - orderDate: Date
+  + calculateTotal()
+}
+
+User "1" -- "0..*" Order : places
+@enduml
+```
