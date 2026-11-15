@@ -9,10 +9,11 @@
 **꺼야할 Windows 기능:**
 
 - Hyper-V
-- Linux용 Windows 하위 시스템(WSL2)
-- 가상 머신 플랫폼(Virtual Machine Platform)
 - Windows Hypervisor Platform
+- 가상 머신 플랫폼(Virtual Machine Platform)
 - Windows Sandbox
+- Microsoft Defender Application Guard
+- Linux용 Windows 하위 시스템(WSL2)
 - Device Guard / Credential Guard
 
 **Hyper-V 활성화 전/후 구동 원리:**
